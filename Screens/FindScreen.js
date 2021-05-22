@@ -1,9 +1,10 @@
 import React from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, Button} from 'react-native';
+import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button} from 'react-native';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 
+//a sub branch of the main find screen
 function DetailsScreen({ navigation }) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -12,8 +13,10 @@ function DetailsScreen({ navigation }) {
     );
 }
 
+//custom bottom sheet
 function MainScreen({navigation}) {
 
+    const windowHeight = Dimensions.get('window').height;
     bs = React.createRef();
     fall = new Animated.Value(1);
     renderInner = () => (
@@ -27,7 +30,8 @@ function MainScreen({navigation}) {
     renderHeader = () => (
         <View style={styles.header}>
           <View style={styles.panelHeader}>
-            <View style={styles.panelHandle} />
+            <View style={styles.panelHandle}>
+            </View>
           </View>
         </View>
     );
@@ -36,7 +40,7 @@ function MainScreen({navigation}) {
         <View style={styles.container}>
             <BottomSheet
                 ref={this.bs}
-                snapPoints={[475, 0]}
+                snapPoints={[windowHeight, 300, 0]}
                 renderContent={this.renderInner}
                 renderHeader={this.renderHeader}
                 initialSnap={1}
@@ -46,10 +50,10 @@ function MainScreen({navigation}) {
             <Animated.View style={{margin: 20,
                 opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
             }}>
-            <TouchableOpacity onPress={()=>bs.current.snapTo(0)}>
+            <TouchableOpacity onPress={()=>bs.current.snapTo(1)}>
                 <Text>tap here</Text>
             </TouchableOpacity>
-            </Animated.View>
+            </Animated.View>   
         </View>
     );
 }
@@ -101,6 +105,6 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: '#fff',
         paddingTop: 20,
-        paddingBottom: 300,
+        paddingBottom: Dimensions.get('window').height,
     }
 })

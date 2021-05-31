@@ -8,6 +8,12 @@ import WelcomeScreen from './app/assets/screens/WelcomeScreen';
 import FindEventsScreen from './app/assets/screens/FindEventsScreen';
 import HostEventsScreen from './app/assets/screens/HostEventsScreen';
 import ProfileScreen from './app/assets/screens/ProfileScreen';
+import NavBar from './app/assets/screens/NavBar';
+import SearchScreen from './app/assets/screens/SearchScreen';
+import SettingsScreen from './app/assets/screens/SettingsScreen';
+import UpcomingEventsScreen from './app/assets/screens/UpcomingEvents';
+import PastEventsScreen from './app/assets/screens/PastEvents';
+
 
 const Stack = createStackNavigator()
 
@@ -16,9 +22,13 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Welcome">
         <Stack.Screen name="Welcome" component={WelcomeScreen}/>
-        <Stack.Screen name="FindEvents" component={FindEventsScreen}/>
+        <Stack.Screen name="FindEvents" component={NavBar}/>
         <Stack.Screen name="HostEvents" component={HostEventsScreen}/>
-        <Stack.Screen name="Profile" component={ProfileScreen}/>
+        <Stack.Screen name="Profile" component={NavBar}/>
+        <Stack.Screen name="SearchScreen" component={SearchScreen}/>
+        <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
+        <Stack.Screen name="UpcomingEvents" component={UpcomingEventsScreen} />
+        <Stack.Screen name="PastEvents" component={PastEventsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )

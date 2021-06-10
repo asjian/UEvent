@@ -1,13 +1,10 @@
 import React from 'react';
-import { SafeAreaView, View, Text } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-import UpcomingEventsScreen from './UpcomingEvents';
-import PastEventsScreen from './PastEvents';
+import UpcomingEventsScreen from '../screens/UpcomingEvents';
+import PastEventsScreen from '../screens/PastEvents';
 
-const HostTabNav = createMaterialTopTabNavigator;
+const HostTabNav = createMaterialTopTabNavigator();
 
 const HostNavBar = () => {
     return (

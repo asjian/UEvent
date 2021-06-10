@@ -1,11 +1,5 @@
 import React from 'react';
 import { SafeAreaView,View, Text, Button, StyleSheet, Image} from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import CreateNewEventSlides from './CreateNewEvent';
-import PastEventsScreen from './PastEvents';
-
 
 function UpcomingEventsScreen({ navigation }) {
     return (

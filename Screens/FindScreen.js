@@ -6,7 +6,6 @@ import Animated from 'react-native-reanimated';
 import TopBar from '../objects/topBar';
 import MapView from 'react-native-maps';
 import Marker from 'react-native-maps';
-import LocationPin from '../objects/locationPin';
 
 //a sub branch of the main find screen
 function DetailsScreen({ navigation }) {
@@ -64,20 +63,16 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
     );
 
     return (
+        <View style = {styles.container}>
         <MapView style={styles.map}
-
             initialRegion = {{
             latitude: 42.278,
             longitude: -83.738,
             latitudeDelta: 0.1,
             longitudeDelta: 0.05,
             }
-            }
-            
+            }          
         >
-            <View style={styles.topbar}>
-                    <TopBar/>
-            </View>
             <MapView.Marker
                 coordinate = {{latitude: 42.278, longitude: -83.738}}
                 title = 'Fiji Tailgate'
@@ -89,10 +84,8 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
                 <Image source={require('../assets/avatar.jpeg')} style={{width: 20, height: 20}}  />
                 <Text>John wkaing up</Text>
             </MapView.Marker>
+
               {/*  <View style={styles.container}>
-                <View style={styles.topbar}>
-                    <TopBar/>
-        </View> 
                 <BottomSheet
                     ref={this.bs}
                     snapPoints={[windowHeight, 300, 0]}
@@ -113,10 +106,12 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
                 </Animated.View>   
             
             </View>
-            */}
-        
+            */} 
         </MapView>
-        
+        <View style={styles.topbar}>
+                <TopBar/>
+        </View> 
+        </View>
     );
 }
 
@@ -141,12 +136,15 @@ const styles = StyleSheet.create({
     map: {
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
+        flex:1,
     },
     container: {
         flex: 1,
     },
     topbar: {
-        margin: 10
+        position: 'absolute',
+        top: 50,
+        width: Dimensions.get('window').width,
     },
     header: {
         backgroundColor: '#fff',

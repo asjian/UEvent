@@ -37,7 +37,7 @@ const categoryStyles = StyleSheet.create({
         backgroundColor: '#fffbf2',
     },
 })
-function SearchScreen({navigation,toggleVisbility}) {
+function SearchScreen({navigation,toggleVisibility}) {
     console.log('reached Search Screen');
     const [searchText, setSearchText] = useState('');
 
@@ -46,7 +46,7 @@ function SearchScreen({navigation,toggleVisbility}) {
         <View style = {styles.container}>
                 <Text style = {styles.headerText}>Search</Text>
                 <View style = {styles.close}>
-                    <AntDesign name = 'closecircleo' size = {30} onPress = {() => toggleVisbility(false)}/>
+                    <AntDesign name = 'closecircleo' size = {30} onPress = {() => toggleVisibility(false)}/>
                 </View>
                 <SearchBar placeholder = 'Event Names' 
                 onChangeText = {(search) => {setSearchText(search); console.log(searchText)}}
@@ -55,7 +55,7 @@ function SearchScreen({navigation,toggleVisbility}) {
                 containerStyle = {styles.searchContainer}/>
                 <View>
                     <Text style = {styles.headerText}>Filters</Text>
-                    <TouchableOpacity onPress = {()=>{console.log('pressed');navigation.navigate('CategoryList')}}> 
+                    <TouchableOpacity onPress = {navigation.navigate('CategoryList')}> 
                         <Text style = {styles.headerText}>Event Categories</Text>
                     </TouchableOpacity>
                 </View>
@@ -66,19 +66,21 @@ function SearchScreen({navigation,toggleVisbility}) {
 
 const SearchNavigator = createSwitchNavigator(
     {
-    SearchScreen,
-    CategoryList,
+    SearchScreen,CategoryList
     },
     {
-    intialRouteName: 'SearchScreen'
+    initialRouteName: "SearchScreen"
     },
 )
 
 const SearchContainer = createAppContainer(SearchNavigator);
 
 export default function Search() {
-    return <SearchContainer />
+    return (
+        <SearchContainer/>
+    );
 }
+
 
 const styles = StyleSheet.create({
     container: {

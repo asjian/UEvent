@@ -1,20 +1,21 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-function HostScreen({navigation}) {
+import HostNavBar from '../routes/HostNavBar';
+import CreateNewEventScreen from './CreateNewEvent';
+
+const Stack = createStackNavigator()
+
+
+
+
+function HostScreen(props) {
     return (
-        <View style={styles.container}>
-            <Text>this is the host screen</Text>
-        </View>
+        <Stack.Navigator>
+            <Stack.Screen name="Events I'm Hosting" component={HostNavBar} />
+            <Stack.Screen name="Create a New Event" component={CreateNewEventScreen} />
+        </Stack.Navigator>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-})
 
 export default HostScreen;

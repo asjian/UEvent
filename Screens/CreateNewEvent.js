@@ -1,11 +1,9 @@
 import React from 'react';
 import { SafeAreaView,View, Text, Button, StyleSheet, TextInput, Image} from 'react-native';
-import { color } from 'react-native-reanimated';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useState } from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation'
 import CheckBox from '@react-native-community/checkbox';
-import HostNavBar from '../screens/HostNavBar';
 
 // Component pIckers
 const PrivacyPicker = () => {

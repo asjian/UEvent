@@ -1,9 +1,12 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image} from 'react-native';
-import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import { createAppContainer} from 'react-navigation';
+import {createStackNavigator} from 'react-navigation-stack';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 import TopBar from '../objects/topBar';
+import Search from './Search';
+import CategoryList from './CategoryList';
 import MapView from 'react-native-maps';
 import Marker from 'react-native-maps';
 
@@ -61,17 +64,19 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
           </View>
         </View>
     );
-
+    const [latDelta, setLatDelta] = useState(0.025);
+    const [longDelta, setLongDelta] = useState(latDelta/2);
     return (
         <View style = {styles.container}>
         <MapView style={styles.map}
             initialRegion = {{
             latitude: 42.278,
             longitude: -83.738,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.05,
+            latitudeDelta: latDelta,
+            longitudeDelta: longDelta,
             }
-            }          
+            }
+            showCompass = {false}       
         >
             <MapView.Marker
                 coordinate = {{latitude: 42.278, longitude: -83.738}}
@@ -81,8 +86,8 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
                 coordinate = {{latitude: 42.27, longitude: -83.74}}
                 onPress={()=>bs.current.snapTo(1)}
             >
-                <Image source={require('../assets/avatar.jpeg')} style={{width: 20, height: 20}}  />
-                <Text>John wkaing up</Text>
+                <Image source={require('../assets/avatar.jpeg')} style={{width: 30, height: 30}}  />
+                <Text>John waking up</Text>
             </MapView.Marker>
 
               {/*  <View style={styles.container}>
@@ -109,20 +114,39 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
             */} 
         </MapView>
         <View style={styles.topbar}>
-                <TopBar/>
+                <TopBar navigation = {navigation}/>
         </View> 
         </View>
     );
 }
 
-const FindNavigator = createSwitchNavigator(
-    {
-        MainScreen,
-        DetailsScreen
+const screens = {
+    MainScreen: {
+        screen: MainScreen,
+        navigationOptions: {
+            headerShown: false
+        },
     },
-    {initialRouteName: 'MainScreen'
+    DetailsScreen: {
+        screen: DetailsScreen,
+        navigationOptions: {
+            headerShown: false
+        },
     },
-)
+    Search: {
+        screen: Search,
+        navigationOptions: {
+            headerShown: false
+        },
+    },
+    CategoryList: {
+        screen: CategoryList,
+        navigationOptions: {
+            headerShown: false
+        },
+    },
+}
+const FindNavigator = createStackNavigator(screens);
 
 const FindContainer = createAppContainer(FindNavigator);
 

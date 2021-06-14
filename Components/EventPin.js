@@ -1,12 +1,19 @@
 import React from 'react';
-import { TouchableOpacity, Image } from 'react-native-gesture-handler';
+import { TouchableOpacity, Image, StyleSheet, Text} from 'react-native';
+
 
 {/* Map marker icon */}
-const MapMarker = () => {
-    <TouchableOpacity >
-        <Image style={styles.MapMarkerStyle} source={require('../assets/MapMarker.png')} />
-    </TouchableOpacity>
+const LocationPin = () => {
+    return (
+        <TouchableOpacity >
+            <Image style={styles.MapMarkerStyle} source={require('../assets/MapMarker.png')} />
+            <Text>Party</Text>
+        </TouchableOpacity>
+    );
 }
+    
+    
+    
 
 const styles = StyleSheet.create({
     MapMarkerStyle : {
@@ -14,3 +21,5 @@ const styles = StyleSheet.create({
         width: 40,
     }
 })
+
+export default LocationPin;

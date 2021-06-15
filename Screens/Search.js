@@ -39,11 +39,25 @@ export default function Search({navigation}) {
 
                 <View>
                     <Text style = {[styles.headerText,{marginTop: 62, marginBottom: 22}]}>Filters</Text>
+
                     <TouchableOpacity onPress = {() => navigation.push('CategoryList')} style = {styles.buttonStyle}>
                         <Image source = {require('../assets/categories.png')} size = {30} style = {styles.leftIcon}/> 
                         <Text style = {styles.buttonText}>Event Categories</Text>
                         <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>
                     </TouchableOpacity>
+                
+                    <TouchableOpacity onPress = {() => navigation.push('CategoryList')} style = {styles.buttonStyle}>
+                        <Image source = {require('../assets/clock.png')} size = {30} style = {styles.leftIcon}/> 
+                        <Text style = {[styles.buttonText, {marginLeft: 18}]}>Time Range</Text>
+                        <AntDesign name = 'right' size = {30} color = '#828181' style = {[styles.rightIcon,{marginLeft: 148}]}/>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress = {() => navigation.push('CategoryList')} style = {styles.buttonStyle}>
+                        <Image source = {require('../assets/filter.png')} size = {30} style = {styles.leftIcon}/> 
+                        <Text style = {[styles.buttonText,{marginLeft: 17}]}>Other Filters</Text>
+                        <AntDesign name = 'right' size = {30} color = '#828181' style = {[styles.rightIcon, {marginLeft:140}]}/>
+                    </TouchableOpacity>
+
                 </View>
         </View>
         </View>
@@ -98,7 +112,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         borderRadius: 10,
         marginHorizontal: 20.4,
-        marginBottom: 50,
+        marginBottom: 30,
         width: '88%',
         flexDirection: 'row',
         alignItems: 'center',
@@ -113,6 +127,6 @@ const styles = StyleSheet.create({
         marginLeft: 15,
     },
     rightIcon: {
-        marginLeft: 100,
+        marginLeft: 95,
     },
 })

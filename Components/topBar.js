@@ -32,12 +32,16 @@ const TypeSelector = () => {
 }
 
 function FindEventsScreen({navigation}) {
-
+    const searchDefaultParams = {
+      Categories: [],
+      TimeRange: [],
+      OtherFilters: [],
+    }
     return (
         <SafeAreaView style={[{flexDirection: 'row'}, {alignItems: 'center'}]}>
             {/* Top left search button */}
             <View style={[{flex: 1} ]}>
-                <TouchableOpacity style = {styles.SearchButton} onPress={() => navigation.navigate("Search")}>
+                <TouchableOpacity style = {styles.SearchButton} onPress={() => navigation.navigate("Search",searchDefaultParams)}>
                     <Image style={styles.SearchIconStyle} source={require('../assets/search_icon.png')}/>
                 </TouchableOpacity>
             </View>

@@ -3,9 +3,13 @@ import {StyleSheet, Text, View,SafeAreaView,Keyboard,TouchableWithoutFeedback,To
 import {AntDesign} from '@expo/vector-icons';
 
 export default function CategoryList({navigation}) {
-    console.log('reached category list');
+    console.log('reached Category List');
     const categories = [{name:'Student Orgs',key:0,},{name:'Parties',key:1,},{name:'Sports',key:2,},{name:'Art/Design',key:3,}];
-
+    const backParams = {
+        Categories: ['Parties'],
+        TimeRange: navigation.getParam('TimeRange'),
+        OtherFilters: navigation.getParam('OtherFilters'),
+    }
     return (
         <View style = {categoryStyles.container}>
             <View style = {categoryStyles.scrollContainer}>
@@ -21,7 +25,7 @@ export default function CategoryList({navigation}) {
                 })}
             </ScrollView>
             </View>
-            <TouchableOpacity onPress = {()=>navigation.goBack()}>
+            <TouchableOpacity onPress = {()=>navigation.navigate('Search',backParams)}>
                 <Text style = {categoryStyles.buttonText}>Select</Text>
             </TouchableOpacity>
         </View>

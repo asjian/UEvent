@@ -1,10 +1,11 @@
-import React from 'react';
+import React,{useContext} from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Image, Modal, Button } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useState } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Search from '../screens/Search';
+import AppContext from './AppContext';
 
 const TopTab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
@@ -32,16 +33,21 @@ const TypeSelector = () => {
 }
 
 function FindEventsScreen({navigation}) {
+    const myContext = useContext(AppContext);
     const searchDefaultParams = {
       Categories: [],
       TimeRange: [],
       OtherFilters: [],
     }
+    const goToSearch = () => {
+      myContext.toggleShowNavBar();
+      navigation.navigate("Search",searchDefaultParams);
+    }
     return (
         <SafeAreaView style={[{flexDirection: 'row'}, {alignItems: 'center'}]}>
             {/* Top left search button */}
             <View style={[{flex: 1} ]}>
-                <TouchableOpacity style = {styles.SearchButton} onPress={() => navigation.navigate("Search",searchDefaultParams)}>
+                <TouchableOpacity style = {styles.SearchButton} onPress={goToSearch}>
                     <Image style={styles.SearchIconStyle} source={require('../assets/search_icon.png')}/>
                 </TouchableOpacity>
             </View>

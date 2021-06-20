@@ -9,6 +9,7 @@ import Search from './Search';
 import CategoryList from './CategoryList';
 import MapView from 'react-native-maps';
 import Marker from 'react-native-maps';
+import LocationPin from '../objects/locationPin';
 
 //a sub branch of the main find screen
 function DetailsScreen({ navigation }) {
@@ -21,7 +22,7 @@ function DetailsScreen({ navigation }) {
 
 //custom bottom sheet
 function MainScreen({navigation}) {
-
+    console.log('reached main screen');
     const windowHeight = Dimensions.get('window').height;
     bs = React.createRef();
     fall = new Animated.Value(1);
@@ -90,6 +91,12 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
                 <Text>John waking up</Text>
             </MapView.Marker>
 
+            <MapView.Marker
+                coordinate = {{latitude: 42.26, longitude: -83.73}}
+            >
+                <LocationPin />
+            </MapView.Marker>
+
               {/*  <View style={styles.container}>
                 <BottomSheet
                     ref={this.bs}
@@ -136,13 +143,13 @@ const screens = {
     Search: {
         screen: Search,
         navigationOptions: {
-            headerShown: false
+            headerShown: false,
         },
     },
     CategoryList: {
         screen: CategoryList,
         navigationOptions: {
-            headerShown: false
+            headerShown: false,
         },
     },
 }

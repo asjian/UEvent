@@ -1,19 +1,25 @@
 import { StatusBar } from 'expo-status-bar';
-import React, {useEffect,useState,Component} from 'react';
+import React, {useEffect,useState,useContext} from 'react';
 import {StyleSheet, Text, View,SafeAreaView,Keyboard,TouchableWithoutFeedback,TouchableOpacity,ScrollView,Image,Alert} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import { SearchBar } from 'react-native-elements';
 import CategoryList from './CategoryList';
 import {AntDesign} from '@expo/vector-icons';
-
+import AppContext from '../objects/AppContext';
 
 export default function Search({navigation}) {
-    const [categoryLabel, setCategoryLabel] = useState('Event Categories');
     /*navigation.addListener('didFocus', () => {
         console.log('focused 2');
         setCategoryLabel('Selection');
     });*/
     console.log('reached Search');
+    const myContext = useContext(AppContext);
+
+    const searchDefaultParams = {
+        Categories: navigation.getParam('Categories'),
+        TimeRange: navigation.getParam('TimeRange'),
+        OtherFilters: navigation.getParam('OtherFilters'),
+    }
     const buttonTextDecider = (typeName) => {
         if(typeName == 'Categories') {
             if(navigation.getParam('Categories').length == 0)
@@ -22,10 +28,16 @@ export default function Search({navigation}) {
         return <Text style = {styles.buttonText}>Whoops</Text>;   
     }
     const filterHandler = (screenName) => {
-        navigation.navigate(screenName);
+        navigation.navigate(screenName,searchDefaultParams);
     }
     const searchSubmitHandler = (searchText) => {
         console.log(searchText);
+    }
+    const clearSearch = () => {
+        myContext.toggleShowNavBar();
+        navigation.getParam('Categories').length = 0;
+        navigation.getParam('TimeRange').length = 0;
+        navigation.getParam('OtherFilters').length = 0;
     }
     const iconColor = '#adadad';
     const [searchText, setSearchText] = useState('');
@@ -36,7 +48,7 @@ export default function Search({navigation}) {
         <View style = {styles.innerContainer}>
                 <Text style = {styles.headerText}>Search</Text>
                 <View style = {styles.close}>
-                    <Ionicons name = 'close-circle-outline' size = {38} onPress = {() => navigation.goBack()}/>
+                    <Ionicons name = 'close-circle-outline' size = {38} onPress = {() => {clearSearch();navigation.goBack();}}/>
                 </View>
 
                 <SearchBar 
@@ -65,13 +77,13 @@ export default function Search({navigation}) {
                     <TouchableOpacity onPress = {() => filterHandler('CategoryList')} style = {styles.buttonStyle}>
                         <Image source = {require('../assets/clock.png')} size = {30} style = {styles.leftIcon}/> 
                         <Text style = {[styles.buttonText, {marginLeft: 18}]}>Time Range</Text>
-                        <AntDesign name = 'right' size = {30} color = '#828181' style = {[styles.rightIcon,{marginLeft: 148}]}/>
+                        <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress = {() => filterHandler('CategoryList')} style = {styles.buttonStyle}>
                         <Image source = {require('../assets/filter.png')} size = {30} style = {styles.leftIcon}/> 
                         <Text style = {[styles.buttonText,{marginLeft: 17}]}>Other Filters</Text>
-                        <AntDesign name = 'right' size = {30} color = '#828181' style = {[styles.rightIcon, {marginLeft:140}]}/>
+                        <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>
                     </TouchableOpacity>
 
                 </View>
@@ -118,14 +130,14 @@ const styles = StyleSheet.create({
     },
     buttonStyle: {
         backgroundColor: '#ffffff',
-        height: 50,
-        width: 345,
         shadowOffset: {
             width: 0,
-            height: 0.25,
+            height: 1,
         },
         shadowColor: '#000000',
-        shadowOpacity: 0.25,
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
         borderRadius: 10,
         marginHorizontal: 20.4,
         marginBottom: 30,
@@ -138,11 +150,13 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         opacity: 0.5,
         marginLeft: 15,
+        paddingVertical: 14,
     },
     leftIcon: {
         marginLeft: 15,
     },
     rightIcon: {
-        marginLeft: 95,
+        position: 'absolute',
+        right: 10,
     },
 })

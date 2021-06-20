@@ -1,14 +1,16 @@
-import React from 'react';
+import React,{useContext} from 'react';
 import {StyleSheet, Text, View, Image} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import FindScreen from '../screens/FindScreen';
 import HostScreen from '../screens/HostScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import AppContext from '../objects/AppContext';
 
 const Tab = createBottomTabNavigator();
 
 const NavBar = () => {
+    const myContext = useContext(AppContext);
     return(
         <Tab.Navigator
          tabBarOptions={{
@@ -45,6 +47,7 @@ const NavBar = () => {
                             </Text>
                         </View>
                     ),
+                    tabBarVisible: myContext.navBarVisible
                 }}
             />
             <Tab.Screen name="Host" component={HostScreen}

@@ -4,9 +4,10 @@ import {AntDesign} from '@expo/vector-icons';
 import CategoryButton from '../objects/categoryButton';
 
 export default function CategoryList({navigation}) {
-    const categories = [{name:'Student Orgs', icon: require('../assets/parties.png'), key:0,},
-    {name:'Parties', icon: require('../assets/parties.png'),key:1,}, {name:'Sports',icon: require('../assets/parties.png'),key:2,},
-    {name:'Art/Design', icon: require('../assets/parties.png'),key:3,}];
+    const categories = [{name:'Extracurriculars', icon: require('../assets/club.png'), key:0,},
+    {name:'Parties', icon: require('../assets/parties.png'),key:1,}, {name:'Social',icon: require('../assets/social.png'),key:2,},
+    {name:'Community',icon: require('../assets/community.png'),key:3,},{name:'Career',icon: require('../assets/career.png'),key:4,},
+    {name:'Sports',icon: require('../assets/sports.png'),key:5,}, {name:'Art/Design', icon: require('../assets/artdesign.png'),key:6,}];
 
     const backParams = {
         Categories: navigation.getParam('Categories'),
@@ -14,6 +15,7 @@ export default function CategoryList({navigation}) {
         OtherFilters: navigation.getParam('OtherFilters'),
     }
     let totalSelections = navigation.getParam('Categories').length;
+    const [showInstructions,setShowInstructions] = useState('flex');
 
     const linSearchCategories = (catName) => {
         for(let i=0;i<backParams.Categories.length;i++) {
@@ -56,8 +58,9 @@ export default function CategoryList({navigation}) {
                 <Text style = {styles.headerText}>Event Categories</Text>
             </View>
             <View style = {styles.scrollContainer}>
+            <Text style = {[styles.instructionsText]}>Select up to 3 categories</Text>
+            <View style = {{borderBottomColor: '#d4d4d4',borderBottomWidth: 1.5,marginTop: 12,marginBottom:5,marginHorizontal:-23,}}/>
             <ScrollView>
-            <Text style = {{marginBottom: 10}}></Text>
                 {categories.map((item) => {
                     return (
                         <View key = {item.key}>
@@ -68,7 +71,9 @@ export default function CategoryList({navigation}) {
             </ScrollView>
             </View>
             <TouchableOpacity onPress = {()=>navigation.navigate('Search',backParams)}>
-                <Text style = {styles.selectText}>Select</Text>
+                <View style = {styles.selectContainer}>
+                    <Text style = {styles.selectText}>Select</Text>
+                </View>
             </TouchableOpacity>
         </View>
     )
@@ -80,13 +85,20 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         flexDirection: 'row',
-        marginTop: 45,
+        marginTop: 40,
         alignItems: 'center',
     },
     headerText: {
         fontWeight: 'bold',
-        fontSize: 26,
+        fontSize: 25,
         marginVertical: 15,
+    },
+    instructionsText: {
+        fontWeight: '500',
+        fontSize: 20,
+        marginTop: 25,
+        marginBottom: 10,
+        marginLeft: 67,
     },
     backText: {
         fontWeight:'bold',
@@ -96,14 +108,30 @@ const styles = StyleSheet.create({
         marginRight: 64,
     },
     scrollContainer: {
-        height: '65%',
-        marginHorizontal: 20.4,
+        height: '75%',
+        marginHorizontal: 25,
+    },
+    selectContainer: {
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        marginHorizontal: 50,
+        width: '75%',
+        alignItems: 'center',
+        top: 0,
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowColor: '#000000',
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
+        borderRadius: 10,
     },
     selectText: {
         fontWeight: 'bold',
         fontSize: 30,
-        position: 'absolute',
-        left: 166,
-        top: 0,
+        paddingVertical: 10,
+        color: '#fab400',
     },
 })

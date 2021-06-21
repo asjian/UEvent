@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
-import {StyleSheet, Text, View,TouchableOpacity,Image} from 'react-native';
+import {StyleSheet, Text, View,TouchableOpacity,TouchableHighlight,Image} from 'react-native';
 import {AntDesign} from '@expo/vector-icons';
 
 export default function CategoryButton({icon,name,pressHandler,isPressed}) { //icon should be of form require(PATH)
     const [pressed,setPressed] = useState(isPressed);
 
-    let initialColor = '#847cb5';
+    let initialColor = '#09189e';
     if(isPressed)
         initialColor = '#fab400';
 
@@ -21,7 +21,7 @@ export default function CategoryButton({icon,name,pressHandler,isPressed}) { //i
         else {
             success = pressHandler(icon,name,false);
             if(success)
-                setColor('#847cb5');
+                setColor('#09189e');
         }
         if(success)
             setPressed(!pressed);
@@ -29,10 +29,11 @@ export default function CategoryButton({icon,name,pressHandler,isPressed}) { //i
     return (
         <TouchableOpacity onPress = {myPressHandler}>
             <View style = {styles.container}>
-                <Image source = {icon} tintColor = {color} style = {styles.icon}/>
+                <Image source = {icon} style = {[styles.icon, {tintColor:color}]}/>
                 <View style = {styles.textContainer}>
                     <Text style = {[styles.text,{color:color}]}>{name}</Text>
                 </View>
+                <Image source = {require('../assets/check.png')} style = {[styles.check,{opacity:pressed?1.0:0.0,tintColor:'#fab400'}]}/>
             </View>
         </TouchableOpacity>
     );
@@ -42,23 +43,27 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         width: 367,
+        borderBottomColor: 'black',
     },
     icon: {
-        left:20,
+        left:10,
         width: 30,
         height: 30,
-        marginRight: -23,
+        marginRight: -25,
     },
     textContainer: {
         width: '100%',
         alignItems: 'center',
     },
     text: {
-        fontWeight: '500',
-        fontSize: 23,
-        marginVertical: 16,
+        fontWeight: '600',
+        fontSize: 22,
+        paddingVertical: 20,
+        opacity: 0.9,
     },
     check: {
-
+        width: 28,
+        height: 28,
+        right: 45,
     },
 })

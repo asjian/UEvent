@@ -7,7 +7,9 @@ export default function CategoryList({navigation}) {
     const categories = [{name:'Extracurriculars', icon: require('../assets/club.png'), key:0,},
     {name:'Parties', icon: require('../assets/parties.png'),key:1,}, {name:'Social',icon: require('../assets/social.png'),key:2,},
     {name:'Community',icon: require('../assets/community.png'),key:3,},{name:'Career',icon: require('../assets/career.png'),key:4,},
-    {name:'Sports',icon: require('../assets/sports.png'),key:5,}, {name:'Art/Design', icon: require('../assets/artdesign.png'),key:6,}];
+    {name:'Sports',icon: require('../assets/sports.png'),key:5,}, {name:'Games',icon: require('../assets/games.png'),key:6,},
+    {name:'Cultural',icon: require('../assets/culture.png'),key:7,},{name:'Music',icon: require('../assets/music.png'),key:8,},
+    {name:'Art/Design', icon: require('../assets/artdesign.png'),key:9,},{name:'Food + Drink', icon: require('../assets/food.png'),key:10,}];
 
     const backParams = {
         Categories: navigation.getParam('Categories'),
@@ -15,7 +17,8 @@ export default function CategoryList({navigation}) {
         OtherFilters: navigation.getParam('OtherFilters'),
     }
     let totalSelections = navigation.getParam('Categories').length;
-    const [showInstructions,setShowInstructions] = useState('flex');
+    const [selectEnabled,setSelectEnabled] = useState(totalSelections>0?true:false);
+    const [scrollHeight, setScrollHeight] = useState('76%');
 
     const linSearchCategories = (catName) => {
         for(let i=0;i<backParams.Categories.length;i++) {
@@ -32,13 +35,16 @@ export default function CategoryList({navigation}) {
     }
     categoryPressHandler = (icon,name,add) => {
         if(add) {
-            if(totalSelections == 3) {
-                Alert.alert('Limit Reached','You can only choose up to 3 categories',[{text:'Got It'}]);
+            if(totalSelections == 5) {
+                Alert.alert('Limit Reached','You can only choose up to 5 categories',[{text:'Got It'}]);
                 return false;
             }
             else {
                 backParams.Categories.push({icon:icon,name:name});
                 totalSelections++;
+                if(totalSelections > 0) {
+                    setSelectEnabled(true);
+                }
                 return true;
             }
         }
@@ -46,6 +52,9 @@ export default function CategoryList({navigation}) {
             const index = linSearchCategories(name);
             backParams.Categories.splice(index,1);
             totalSelections--;
+            if(totalSelections < 1) {
+                setSelectEnabled(false);
+            }
             return true;
         }
     }
@@ -57,10 +66,10 @@ export default function CategoryList({navigation}) {
                 </TouchableOpacity>
                 <Text style = {styles.headerText}>Event Categories</Text>
             </View>
-            <View style = {styles.scrollContainer}>
-            <Text style = {[styles.instructionsText]}>Select up to 3 categories</Text>
-            <View style = {{borderBottomColor: '#d4d4d4',borderBottomWidth: 1.5,marginTop: 12,marginBottom:5,marginHorizontal:-23,}}/>
-            <ScrollView>
+            <View style = {[styles.scrollContainer,{height:scrollHeight}]}>
+            <Text style = {[styles.instructionsText]}>Select up to 5 categories</Text>
+            <View style = {{borderBottomColor: '#d4d4d4',borderBottomWidth: 1.5,marginTop: 5,marginBottom:3,marginHorizontal:-23,}}/>
+            <ScrollView /*onMomentumScrollBegin = {() => {setScrollHeight('100%')}} onMomentumScrollEnd = {() => {setScrollHeight('77%')}*/>
                 {categories.map((item) => {
                     return (
                         <View key = {item.key}>
@@ -70,8 +79,8 @@ export default function CategoryList({navigation}) {
                 })}
             </ScrollView>
             </View>
-            <TouchableOpacity onPress = {()=>navigation.navigate('Search',backParams)}>
-                <View style = {styles.selectContainer}>
+            <TouchableOpacity onPress = {()=>navigation.navigate('Search',backParams)} disabled = {!selectEnabled}>
+                <View style = {[styles.selectContainer,{opacity:scrollHeight=='100%'?0.0:selectEnabled?1.0:0.33}]}>
                     <Text style = {styles.selectText}>Select</Text>
                 </View>
             </TouchableOpacity>
@@ -108,13 +117,13 @@ const styles = StyleSheet.create({
         marginRight: 64,
     },
     scrollContainer: {
-        height: '75%',
-        marginHorizontal: 25,
+        marginLeft: 25,
     },
     selectContainer: {
         backgroundColor: '#ffffff',
         position: 'absolute',
         marginHorizontal: 50,
+        marginTop: 5,
         width: '75%',
         alignItems: 'center',
         top: 0,

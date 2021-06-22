@@ -1,14 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useEffect,useState,useContext} from 'react';
-import {StyleSheet, Text, View,SafeAreaView,Keyboard,TouchableWithoutFeedback,TouchableOpacity,Modal} from 'react-native';
+import {StyleSheet, Text, View,SafeAreaView,Keyboard,TouchableWithoutFeedback,TouchableOpacity,Modal,Image} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import { SearchBar } from 'react-native-elements';
 import CategoryList from './CategoryList';
 import {AntDesign} from '@expo/vector-icons';
 import AppContext from '../objects/AppContext';
-import CategoryIcon from '../assets/categories.svg';
-import TimeRangeIcon from '../assets/clock.svg';
-import FilterIcon from '../assets/filter.svg';
 
 export default function Search({navigation}) {
     /*navigation.addListener('didFocus', () => {
@@ -61,19 +58,19 @@ export default function Search({navigation}) {
                     <Text style = {[styles.headerText,{marginTop: 62, marginBottom: 22}]}>Filters</Text>
 
                     <TouchableOpacity onPress = {() => filterHandler('CategoryList')} style = {styles.buttonStyle}>
-                        <CategoryIcon height = {28} width = {28} style = {styles.leftIcon}/> 
+                        <Image source = {require('../assets/categories.png')} style = {styles.leftIcon}/>
                         {buttonTextDecider('Categories')}
                         <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>
                     </TouchableOpacity>
                 
                     <TouchableOpacity onPress = {() => filterHandler('CategoryList')} style = {styles.buttonStyle}>
-                        <TimeRangeIcon height = {28} width = {28} style = {styles.leftIcon}/> 
+                        <Image source = {require('../assets/clock.png')} style = {styles.leftIcon}/>
                         <Text style = {[styles.buttonText, {marginLeft: 18}]}>Time Range</Text>
                         <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress = {() => filterHandler('CategoryList')} style = {styles.buttonStyle}>
-                        <FilterIcon height = {28} width = {28} style = {styles.leftIcon}/> 
+                        <Image source = {require('../assets/filter.png')} style = {styles.leftIcon}/>
                         <Text style = {[styles.buttonText,{marginLeft: 17}]}>Other Filters</Text>
                         <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>
                     </TouchableOpacity>
@@ -178,6 +175,9 @@ const styles = StyleSheet.create({
     },
     leftIcon: {
         marginLeft: 15,
+        height: 28,
+        width: 28,
+        tintColor: '#ff8a00',
     },
     rightIcon: {
         position: 'absolute',

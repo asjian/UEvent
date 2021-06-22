@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useContext}  from 'react';
 import { SafeAreaView,View, Text, Button, StyleSheet, Image, ParentView} from 'react-native';
+import AppContext from '../objects/AppContext';
 
 
 const EventBox = () => {
@@ -29,7 +30,16 @@ const EventBox3 = () => {
     );
 }
 
+
+
 function UpcomingEventsScreen({ navigation }) {
+    const myContext =useContext(AppContext);
+    // event handler function
+    const createEventHandler = () => {
+        myContext.toggleShowNavBar();
+        navigation.navigate('Create a New Event');
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <EventBox/>
@@ -38,7 +48,7 @@ function UpcomingEventsScreen({ navigation }) {
             <View style={styles.NewEventButton}>
                 <Button 
                     title= "+ Create New Event"
-                    onPress={() => navigation.navigate('Create a New Event')}
+                    onPress={createEventHandler}
                     style={styles.NewEventButton}
 
                 />

@@ -1,22 +1,28 @@
 import React from 'react';
 import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import CheckBox from '@react-native-community/checkbox';
 import {AntDesign} from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import AppContext from '../objects/AppContext';
 
 // Header
 function Header({navigation}) {
-
+    const myContext =useContext(AppContext);
+    // event handler function
+    const closeHandler = () => {
+        myContext.toggleShowNavBar();
+        navigation.dangerouslyGetParent().goBack();
+    }
     return (
         <View style = {styles.outerContainer}>
         <View style = {styles.innerContainer}>
                 <Text style = {styles.headerText}>Create A New Event</Text>
                 <View style = {styles.close}>
-                    <AntDesign name = 'closecircleo' size = {30} onPress = {() => navigation.dangerouslyGetParent().goBack()}/>
+                    <AntDesign name = 'closecircleo' size = {30} onPress = {closeHandler}/>
                 </View> 
                
         </View>
@@ -203,15 +209,7 @@ function EventInformation({navigation}) {
         <SafeAreaView>
             <ScrollView style={styles.scrollContainer}>
                 <View>
-                <View style = {styles.outerContainer}>
-        <View style = {styles.innerContainer}>
-                <Text style = {styles.headerText}>Create A New Event</Text>
-                <View style = {styles.close}>
-                    <AntDesign name = 'closecircleo' size = {30} onPress = {() => navigation.goBack()}/>
-                </View>
-               
-        </View>
-        </View>
+                 <Header navigation={navigation}/>
                 </View>
                 <View style={{flexDirection: 'row'}}>
                     <Image style={{margin: 20, flex: 2/9}}source={require('../assets/Progress-Bar.png')}/>

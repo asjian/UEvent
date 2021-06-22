@@ -1,25 +1,40 @@
 import React from 'react';
-import { SafeAreaView,View, Text, Button, StyleSheet, Image} from 'react-native';
+import { SafeAreaView,View, Text, Button, StyleSheet, Image, ParentView} from 'react-native';
+
+
+const EventBox = () => {
+    return (
+        <View style={styles.box}>
+            <Image style={styles.realImageStyle} source={require('../assets/ycombinator-logo.png')}/>
+            <Text style={{flex: 3}}>Startups 101 - Everything You Need To Know To Start</Text>
+        </View>
+    );
+}
+
+const EventBox2 = () => {
+    return (
+        <View style={styles.box}>
+            <Image style={styles.realImageStyle} source={require('../assets/Spikeballlogo.png')}/>
+            <Text style={{flex:3}}>Spikeball Tournament</Text>
+        </View>
+    );
+}
+
+const EventBox3 = () => {
+    return (
+        <View style={styles.box}>
+            <Image style={styles.realImageStyle} source={require('../assets/Spikeballlogo.png')}/>
+            <Text style={{flex:3}}>Spikeball Tournament</Text>
+        </View>
+    );
+}
 
 function UpcomingEventsScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.box}>
-                <View style={styles.inner1}>
-                    <Image style={styles.realImageStyle} source={require('../assets/ycombinator-logo.png')}/>
-                </View>
-                <View style={styles.inner2}>
-                    <Text>Hello</Text>
-                </View>
-            </View>
-            <View style={styles.box}>
-                <View style={styles.inner1}>
-                    <Image style={styles.realImageStyle} source={require('../assets/Spikeballlogo.png')}/>
-                </View>
-                <View style={styles.inner2}>
-                    <Text>Hello</Text>
-                </View>
-            </View>
+            <EventBox/>
+            <EventBox2/>
+            <EventBox3/>
             <View style={styles.NewEventButton}>
                 <Button 
                     title= "+ Create New Event"
@@ -75,6 +90,7 @@ const styles = StyleSheet.create({
     realImageStyle : {
         height: '100%',
         resizeMode: 'contain',
+        flex: 2
         
     }
 })

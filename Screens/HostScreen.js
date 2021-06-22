@@ -13,7 +13,7 @@ function HostScreen(props) {
     return (
         <Stack.Navigator>
             <Stack.Screen name="Events I'm Hosting" component={HostNavBar} />
-            <Stack.Screen name="Create a New Event" component={CreateNewEventScreen} />
+            <Stack.Screen name="Create a New Event" component={CreateNewEventScreen} options={{headerShown: false}}/>
         </Stack.Navigator>
     );
 }

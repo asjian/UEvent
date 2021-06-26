@@ -36,11 +36,11 @@ function FindEventsScreen({navigation}) {
     const myContext = useContext(AppContext);
     const searchDefaultParams = {
       Categories: [],
-      TimeRange: [],
+      TimeRange: {startDate:'',endDate:'',duration:''},
       OtherFilters: [],
     }
     const goToSearch = () => {
-      myContext.toggleShowNavBar();
+      myContext.toggleShowNavBar(false);
       navigation.navigate("Search",searchDefaultParams);
     }
     return (

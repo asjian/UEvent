@@ -14,7 +14,7 @@ function Header({navigation}) {
     const myContext =useContext(AppContext);
     // event handler function
     const closeHandler = () => {
-        myContext.toggleShowNavBar();
+        myContext.toggleShowNavBar(true);
         navigation.dangerouslyGetParent().goBack();
     }
     return (

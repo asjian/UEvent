@@ -13,11 +13,12 @@ export default function Search({navigation}) {
         setCategoryLabel('Selection');
     });*/
     const myContext = useContext(AppContext);
-
+    
     const searchDefaultParams = {
         Categories: navigation.getParam('Categories'),
         TimeRange: navigation.getParam('TimeRange'),
         OtherFilters: navigation.getParam('OtherFilters'),
+        BotSheetInfo: navigation.getParam('BotSheetInfo'),
     }
     const buttonTextDecider = (typeName) => {
         if(typeName == 'Categories') {
@@ -33,7 +34,12 @@ export default function Search({navigation}) {
         console.log(searchText);
     }
     const clearSearch = () => {
-        myContext.toggleShowNavBar(true);
+        if(searchDefaultParams.BotSheetInfo.snapPos == 0) {
+            myContext.toggleShowNavBar(true);
+        }
+        else {
+            searchDefaultParams.BotSheetInfo.bsRef.current.snapTo(0);
+        }
         navigation.getParam('Categories').length = 0;
         navigation.getParam('TimeRange')['startDate'] = '';navigation.getParam('TimeRange')['endDate'] = '';navigation.getParam('TimeRange')['duration'] = '';
         navigation.getParam('OtherFilters').length = 0;

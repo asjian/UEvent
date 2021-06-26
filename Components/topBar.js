@@ -32,12 +32,13 @@ const TypeSelector = () => {
   );
 }
 
-function FindEventsScreen({navigation}) {
+function FindEventsScreen({navigation,botSheet,snapPos,setSnapPos}) {
     const myContext = useContext(AppContext);
     const searchDefaultParams = {
       Categories: [],
       TimeRange: {startDate:'',endDate:'',duration:''},
       OtherFilters: [],
+      BotSheetInfo: {bsRef:botSheet,snapPos:snapPos,setSnapPos:setSnapPos},
     }
     const goToSearch = () => {
       myContext.toggleShowNavBar(false);

@@ -7,6 +7,7 @@ import Animated from 'react-native-reanimated';
 import TopBar from '../objects/topBar';
 import Search from './Search';
 import CategoryList from './CategoryList';
+import TimeRange from './TimeRange';
 import MapView from 'react-native-maps';
 import Marker from 'react-native-maps';
 import LocationPin from '../objects/locationPin';
@@ -108,10 +109,10 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
 
             </MapView>
 
-
         <View style={styles.topbar}>
-                <TopBar navigation = {navigation}/>
+                <TopBar navigation = {navigation} botSheet = {bs} snapPos = {snapPosition} setSnapPos = {setSnapPosition}/>
         </View> 
+
             <View style={styles.pullup}>
                 <BottomSheet
                     ref={this.bs}
@@ -154,6 +155,12 @@ const screens = {
     },
     CategoryList: {
         screen: CategoryList,
+        navigationOptions: {
+            headerShown: false,
+        },
+    },
+    TimeRange: {
+        screen: TimeRange,
         navigationOptions: {
             headerShown: false,
         },

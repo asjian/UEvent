@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image} from 'react-native';
+import React, {useState, useContext} from 'react';
+import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image, TouchableWithoutFeedback} from 'react-native';
 import { createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import BottomSheet from 'reanimated-bottom-sheet';
@@ -10,6 +10,7 @@ import CategoryList from './CategoryList';
 import MapView from 'react-native-maps';
 import Marker from 'react-native-maps';
 import LocationPin from '../objects/locationPin';
+import AppContext from '../objects/AppContext';
 
 //a sub branch of the main find screen
 function DetailsScreen({ navigation }) {
@@ -22,7 +23,9 @@ function DetailsScreen({ navigation }) {
 
 //custom bottom sheet
 function MainScreen({navigation}) {
+    const myContext = useContext(AppContext);
     console.log('reached main screen');
+    const [eventTitle,setEventTitle] = useState('Default Title');
     const windowHeight = Dimensions.get('window').height;
     bs = React.createRef();
     fall = new Animated.Value(1);
@@ -30,7 +33,7 @@ function MainScreen({navigation}) {
         <View style={styles.panel}>
             <View>
                 <Text>
-                    THE TITLE GOES HERE:
+                    {eventTitle}
                 </Text>
                 <Text>
                     lorem ipsum dolor sit amet
@@ -67,9 +70,21 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
     );
     const [latDelta, setLatDelta] = useState(0.025);
     const [longDelta, setLongDelta] = useState(latDelta/2);
+    const [snapPosition,setSnapPosition] = useState(0);
+    
+    const openBottomSheet = () => {
+        if(snapPosition == 1) {
+            setEventTitle('ChangeLog');
+        }
+        else if(snapPosition == 0) {
+            myContext.toggleShowNavBar(false);
+            bs.current.snapTo(1);
+            setSnapPosition(1);
+        }
+    }
     return (
         <View style = {styles.container}>
-        <MapView style={styles.map}
+            <MapView style={styles.map}
             initialRegion = {{
             latitude: 42.278,
             longitude: -83.738,
@@ -78,51 +93,42 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
             }
             }
             showCompass = {false}       
-        >
-            <MapView.Marker
-                coordinate = {{latitude: 42.278, longitude: -83.738}}
-                title = 'Fiji Tailgate'
-            />
-            <MapView.Marker
-                coordinate = {{latitude: 42.27, longitude: -83.74}}
-                onPress={()=>bs.current.snapTo(1)}
             >
-                <Image source={require('../assets/avatar.jpeg')} style={{width: 30, height: 30}}  />
-                <Text>John waking up</Text>
+            <MapView.Marker coordinate = {{latitude: 42.278, longitude: -83.738}}>
+                <LocationPin title = 'Party' onPress = {openBottomSheet}/>
             </MapView.Marker>
 
-            <MapView.Marker
-                coordinate = {{latitude: 42.26, longitude: -83.73}}
-            >
-                <LocationPin />
+            <MapView.Marker coordinate = {{latitude: 42.27, longitude: -83.74}}>
+                <LocationPin title = 'John Waking Up' onPress = {openBottomSheet}/>
             </MapView.Marker>
 
-              {/*  <View style={styles.container}>
+            <MapView.Marker coordinate = {{latitude: 42.26, longitude: -83.73}}>
+                <LocationPin title = 'Graphic Design Workshop' onPress = {openBottomSheet}/>
+            </MapView.Marker>
+
+            </MapView>
+
+
+        <View style={styles.topbar}>
+                <TopBar navigation = {navigation}/>
+        </View> 
+            <View style={styles.pullup}>
                 <BottomSheet
                     ref={this.bs}
-                    snapPoints={[windowHeight, 300, 0]}
+                    snapPoints={[0, 300, windowHeight - 50]}
                     renderContent={this.renderInner}
                     renderHeader={this.renderHeader}
-                    initialSnap={2}
+                    initialSnap={0}
                     callbackNode={this.fall}
                     enabledGestureInteraction={true}
+                    onCloseEnd={() => {setSnapPosition(0);myContext.toggleShowNavBar(true)}}
                 />
                 <Animated.View style={{margin: 20,
                     opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
                 }}>
-                
-                <TouchableOpacity onPress={()=>bs.current.snapTo(1)}>
-                    <Text>tap here</Text>
-                </TouchableOpacity>
-                
                 </Animated.View>   
             
             </View>
-            */} 
-        </MapView>
-        <View style={styles.topbar}>
-                <TopBar navigation = {navigation}/>
-        </View> 
         </View>
     );
 }
@@ -170,7 +176,7 @@ const styles = StyleSheet.create({
         flex:1,
     },
     container: {
-        flex: 1,
+        flex: 1, 
     },
     topbar: {
         position: 'absolute',

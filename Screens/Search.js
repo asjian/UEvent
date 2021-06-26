@@ -33,9 +33,9 @@ export default function Search({navigation}) {
         console.log(searchText);
     }
     const clearSearch = () => {
-        myContext.toggleShowNavBar();
+        myContext.toggleShowNavBar(true);
         navigation.getParam('Categories').length = 0;
-        navigation.getParam('TimeRange').length = 0;
+        navigation.getParam('TimeRange')['startDate'] = '';navigation.getParam('TimeRange')['endDate'] = '';navigation.getParam('TimeRange')['duration'] = '';
         navigation.getParam('OtherFilters').length = 0;
     }
     const iconColor = '#adadad';
@@ -63,7 +63,7 @@ export default function Search({navigation}) {
                         <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>
                     </TouchableOpacity>
                 
-                    <TouchableOpacity onPress = {() => filterHandler('CategoryList')} style = {styles.buttonStyle}>
+                    <TouchableOpacity onPress = {() => filterHandler('TimeRange')} style = {styles.buttonStyle}>
                         <Image source = {require('../assets/clock.png')} style = {styles.leftIcon}/>
                         <Text style = {[styles.buttonText, {marginLeft: 18}]}>Time Range</Text>
                         <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>

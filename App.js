@@ -5,8 +5,8 @@ import AppContext from './app/objects/AppContext';
 
 const App = () => {
   const [showNavBar,setShowNavBar] = useState(true);
-  const toggleShowNavBar = () => {
-    setShowNavBar(!showNavBar);
+  const toggleShowNavBar = (value) => {
+    setShowNavBar(value);
   }
   const globals = {
     navBarVisible: showNavBar,
@@ -25,3 +25,4 @@ const App = () => {
 }
 
 export default App;
+

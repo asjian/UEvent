@@ -36,7 +36,7 @@ function UpcomingEventsScreen({ navigation }) {
     const myContext =useContext(AppContext);
     // event handler function
     const createEventHandler = () => {
-        myContext.toggleShowNavBar();
+        myContext.toggleShowNavBar(false);
         navigation.navigate('Create a New Event');
     }
 

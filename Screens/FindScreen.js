@@ -8,8 +8,9 @@ import TopBar from '../objects/topBar';
 import Search from './Search';
 import CategoryList from './CategoryList';
 import TimeRange from './TimeRange';
-import MapView from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import Marker from 'react-native-maps';
+import Geocoder from 'react-native-geocoding';
 import LocationPin from '../objects/locationPin';
 import AppContext from '../objects/AppContext';
 
@@ -25,7 +26,14 @@ function DetailsScreen({ navigation }) {
 //custom bottom sheet
 function MainScreen({navigation}) {
     const myContext = useContext(AppContext);
-    console.log('reached main screen');
+    Geocoder.init('AIzaSyBCGE9PpyEZ1FK9OBtL9uMgWW6jl8efD1I');
+    Geocoder.from("2281 Bonisteel Blvd, Ann Arbor, MI, 48109")
+		.then(json => {
+			var location = json.results[0].geometry.location;
+			console.log(location);
+		})
+		.catch(error => console.warn(error));
+
     const [eventTitle,setEventTitle] = useState('Default Title');
     const windowHeight = Dimensions.get('window').height;
     bs = React.createRef();
@@ -69,8 +77,9 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
           </View>
         </View>
     );
-    const [latDelta, setLatDelta] = useState(0.025);
+    const [latDelta, setLatDelta] = useState(0.015);
     const [longDelta, setLongDelta] = useState(latDelta/2);
+    
     const [snapPosition,setSnapPosition] = useState(0);
     
     const openBottomSheet = () => {
@@ -86,6 +95,8 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
     return (
         <View style = {styles.container}>
             <MapView style={styles.map}
+            provider = {PROVIDER_GOOGLE}
+            customMapStyle = {mapStyle}
             initialRegion = {{
             latitude: 42.278,
             longitude: -83.738,
@@ -95,8 +106,14 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
             }
             showCompass = {false}       
             >
-            <MapView.Marker coordinate = {{latitude: 42.278, longitude: -83.738}}>
+            <MapView.Marker coordinate = {{latitude: 42.277, longitude: -83.736}}/>
+
+            <MapView.Marker coordinate = {{latitude: 42.28, longitude: -83.739}} onPress = {openBottomSheet} >
                 <LocationPin title = 'Party' onPress = {openBottomSheet}/>
+            </MapView.Marker>
+
+            <MapView.Marker coordinate = {{latitude: 42.281, longitude: -83.739}} onPress = {openBottomSheet} >
+                <LocationPin title = 'Weed Sesh' onPress = {openBottomSheet}/>
             </MapView.Marker>
 
             <MapView.Marker coordinate = {{latitude: 42.27, longitude: -83.74}}>
@@ -217,3 +234,59 @@ const styles = StyleSheet.create({
         //paddingBottom: Dimensions.get('window').height,
     }
 })
+
+const mapStyle  = [
+    /*{
+      "featureType": "poi",
+      "elementType": "labels",
+      "stylers": [
+        {
+          "visibility": "simplified"
+        }
+      ]
+    },
+    {
+      "featureType": "poi",
+      "elementType": "labels.icon",
+      "stylers": [
+        {
+          "color": "#9c9c9c"
+        }
+      ]
+    },
+    {
+      "featureType": "poi",
+      "elementType": "labels.text",
+      "stylers": [
+        {
+          "color": "#9c9c9c"
+        }
+      ]
+    },*/
+    {
+      "featureType": "poi.place_of_worship",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    /*
+    {
+      "featureType": "poi.school",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    */
+    {
+      "featureType": "transit",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    }
+  ];

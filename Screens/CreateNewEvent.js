@@ -3,11 +3,21 @@ import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollV
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useState, useContext } from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import { Formik } from 'formik';
 import CheckBox from '@react-native-community/checkbox';
 import {AntDesign} from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AppContext from '../objects/AppContext';
+import SearchableDropdown from 'react-native-searchable-dropdown';
+import EventTypeSelector from '../objects/FormObjects.js/EventTypeSelector';
+import PrivacySelector from '../objects/FormObjects.js/PrivacySelector';
+import ContentTypeSelector from '../objects/FormObjects.js/ContentTypeSelector';
+import InPersonSelector from '../objects/FormObjects.js/InPersonSelector';
+import StartDateSelector from '../objects/FormObjects.js/StartDateSelector';
+import EndDateSelector from '../objects/FormObjects.js/EndDateSelector';
+import StartTimeSelector from '../objects/FormObjects.js/StartTimeSelector';
+import EndTimeSelector from '../objects/FormObjects.js/EndTimeSelector';
 
 // Header
 function Header({navigation}) {
@@ -30,160 +40,7 @@ function Header({navigation}) {
     );
 }
 
-// Component pIckers
-const PrivacyPicker = () => {
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
-    const [items, setItems] = useState([
-      {label: 'Public', value: 'public'},
-      {label: 'Private', value: 'private'}
-    ]);
-  
-    return (
-      <DropDownPicker
-        open={open}
-        value={value}
-        items={items}
-        setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
-        placeholder='Public/Private'
-        dropDownContainerStyle={{backgroundColor: '#fff'}}
-        zIndex={1000}
-        zIndexInverse={3000}
-        searchable={true}
-      />
-    );
-  }
-  
-  const InPersonPicker = () => {
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
-    const [items, setItems] = useState([
-      {label: 'In Person', value: 'inperson'},
-      {label: 'Online', value: 'online'},
-      {label: 'TBA', value: 'tba'}
-    ]);
-  
-    return (
-      <DropDownPicker
-        open={open}
-        value={value}
-        items={items}
-        setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
-        placeholder='In Person/Online/TBA'
-        dropDownContainerStyle={{backgroundColor: '#fff'}}
-        zIndex={3000}
-        zIndexInverse={1000}
-      />
-    );
-  }
-
-  const StartDatePicker = () => {
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
-    const [items, setItems] = useState([
-      {label: 'To be added', value: 'tba'}
-    ]);
-  
-    return (
-      <DropDownPicker
-        open={open}
-        value={value}
-        items={items}
-        setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
-        placeholder='Start Date'
-        dropDownContainerStyle={{backgroundColor: '#fff'}}
-        zIndex={3000}
-        zIndexInverse={1000}
-      />
-    );
-  }
-  
-  const StartTimePicker = () => {
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
-    const [items, setItems] = useState([
-      {label: 'To be added', value: 'tba'}
-    ]);
-  
-    return (
-      <DropDownPicker
-        open={open}
-        value={value}
-        items={items}
-        setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
-        placeholder='Eg: 7:30'
-        dropDownContainerStyle={{backgroundColor: '#fff'}}
-        zIndex={2000}
-        zIndexInverse={2000}
-        searchable={true}
-      />
-    );
-  }
-
-  const EndDayPicker = () => {
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
-    const [items, setItems] = useState([
-      {label: 'To be added', value: 'tba'}
-    ]);
-  
-    return (
-      <DropDownPicker
-        open={open}
-        value={value}
-        items={items}
-        setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
-        placeholder='End Date'
-        dropDownContainerStyle={{backgroundColor: '#fff'}}
-        zIndex={1000}
-        zIndexInverse={3000}
-      />
-    );
-  }
-
-  const EndTimePicker = () => {
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
-    const [items, setItems] = useState([
-      {label: 'To be added', value: 'tba'}
-    ]);
-  
-    return (
-      <DropDownPicker
-        open={open}
-        value={value}
-        items={items}
-        setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
-        placeholder='Eg: 9:30 PM'
-        dropDownContainerStyle={{backgroundColor: '#fff'}}
-        
-      />
-    );
-  }
-
-  const FirstCheckBox = () => {
-    const [toggleCheckBox, setToggleCheckBox] = useState(false)
-
-    return (
-         <CheckBox 
-             disabled={false}
-             value={toggleCheckBox}
-             onValueChange={(newValue) => setToggleCheckBox(newValue)}
-         />
-    );
-}
+// Components
 
 const Back = () => {
         <TouchableOpacity style = {styles.SearchButton} onPress={() => navigation.navigate("MoreInformation")}>
@@ -207,74 +64,90 @@ const Next = ({navigation}) => {
 function EventInformation({navigation}) {
     return (
         <SafeAreaView>
-            <ScrollView style={styles.scrollContainer}>
-                <View>
-                 <Header navigation={navigation}/>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                    <Image style={{margin: 20, flex: 2/9}}source={require('../assets/Progress-Bar.png')}/>
-                    <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
-                    <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
-                    <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
-                </View>
-                <View style={styles.containerStyle}>
-                    <Text style={styles.TextStyle}> 
-                        Event Title:
-                    </Text>
-                    <TextInput 
-                        style={styles.InputBox}
-                        placeholder='Eg: MProduct Interest Meeting'
-                    />
-                </View>
-                <View style={styles.containerStyle}>
-                    <Text style={styles.TextStyle}> 
-                        Organizer Name:
-                    </Text>
-                    <TextInput 
-                        style={styles.InputBox}
-                        placeholder='Organization (eg. MProduct) or you (Eg. Alex Jian)'
-                    />
-                </View>
-                <View style={styles.containerStyle}>
-                    <Text style={styles.TextStyle}> 
-                        Event Type:
-                    </Text>
-                    <TextInput 
-                        style={styles.InputBox}
-                        placeholder='Egs: Extracurricular, Social, etc.'
-                    />
-                </View>
-                <View style={styles.containerStyle}>
-                    <Text style={styles.TextStyle}> 
-                        Content Type:
-                    </Text>
-                    <TextInput 
-                        style={styles.InputBox}
-                        placeholder='Egs: UX Design, House Party, etc.'
-                    />
-                </View>
-                <View style={styles.containerStyle}>
-                    <Text style={styles.TextStyle}> 
-                        Tags (10 max):
-                    </Text>
-                    <TextInput 
-                        style={styles.InputBox}
-                        placeholder='Optional, but boosts discoverability. Eg. #design'
-                    />
-                </View>
-                <View style={styles.containerStyle}>
-                    <Text style={styles.TextStyle}> 
-                        Privacy:
-                    </Text>
-                    <PrivacyPicker />
-                </View>
-                <View>
-                    <TouchableOpacity style = {styles.SearchButton} onPress={() => navigation.navigate("MoreInformation")}>
-                        <Image source={require('../assets/Next.png')}/>
-                    </TouchableOpacity>
-                </View>
-            </ScrollView>
             
+                <Formik
+                    initialValues={{ EventTitle: '', OrganizerName: '', EventType: '', ContentType: '', Tags: '', Privacy: '' }}
+                    onSubmit={(values) => {
+                        console.log(values);
+                    }}
+                >
+                    {(formikprops) => (
+                        <ScrollView style={styles.scrollContainer}>
+                            <View>
+                            <Header navigation={navigation}/>
+                            </View>
+                            <View style={{flexDirection: 'row'}}>
+                                <Image style={{margin: 20, flex: 2/9}}source={require('../assets/Progress-Bar.png')}/>
+                                <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
+                                <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
+                                <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}> 
+                                    Event Title:
+                                </Text>
+                                <TextInput 
+                                    style={styles.InputBox}
+                                    placeholder='Eg: MProduct Interest Meeting'
+                                    onChangeText={formikprops.handleChange('EventTitle')}
+                                    value={formikprops.values.EventTitle}
+                                />
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}> 
+                                    Organizer Name:
+                                </Text>
+                                <TextInput 
+                                    style={styles.InputBox}
+                                    placeholder='Organization (eg. MProduct) or you (Eg. Alex Jian)'
+                                    onChangeText={formikprops.handleChange('OrganizerName')}
+                                    value={formikprops.values.OrganizerName}
+                                />
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}> 
+                                    Event Type:
+                                </Text>
+                                <EventTypeSelector 
+                                    onChangeText={formikprops.handleChange('EventType')}
+                                    value={formikprops.values.EventType}
+                                />
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}> 
+                                    Content Type:
+                                </Text>
+                                <ContentTypeSelector/>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}> 
+                                    Tags (10 max):
+                                </Text>
+                                <TextInput 
+                                    style={styles.InputBox}
+                                    placeholder='Optional, but boosts discoverability. Eg. #design'
+                                    onChangeText={formikprops.handleChange('Tags')}
+                                    value={formikprops.values.Tags}
+                                />
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}> 
+                                    Privacy:
+                                </Text>
+                                <PrivacySelector/>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <TouchableOpacity style = {styles.SearchButton} onPress={() => navigation.navigate("MoreInformation")}>
+                                    <Image source={require('../assets/Next.png')}/>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Button title="show values" onPress={formikprops.handleSubmit}/>
+                            </View>
+                        </ScrollView>
+                    )}
+                    
+                </Formik>    
         </SafeAreaView>
 
     );
@@ -295,7 +168,7 @@ function MoreInformation({navigation}) {
                     <Text style={styles.TextStyle}> 
                         In Person or Online?
                     </Text>
-                    <InPersonPicker />
+                    <InPersonSelector/>
                 </View>
                 <View style={styles.containerStyle}>
                     <Text style={styles.TextStyle}> 
@@ -364,25 +237,25 @@ function EventSchedule({navigation}) {
                     <Text style={styles.TextStyle}> 
                         Start Day:
                     </Text>
-                    <StartDatePicker />
+                    <StartDateSelector />
                 </View>
                 <View style={styles.containerStyle}>
                     <Text style={styles.TextStyle}> 
                         Start Time:
                     </Text>
-                    <StartTimePicker/>
+                    <StartTimeSelector/>
                 </View>
                 <View style={styles.containerStyle}>
                     <Text style={styles.TextStyle}> 
                         End Day:
                     </Text>
-                    <EndDayPicker />
+                    <EndDateSelector />
                 </View>
                 <View style={styles.containerStyle}>
                     <Text style={styles.TextStyle}> 
                         End Time:
                     </Text>
-                    <EndTimePicker/>
+                    <EndTimeSelector/>
                 </View>
                 <View style={styles.containerStyle}>
                     <Text style={styles.TextStyle}>
@@ -632,7 +505,8 @@ const styles = StyleSheet.create({
         
     },
     scrollContainer: {
-        paddingBottom: 90
+        paddingBottom: 90,
+        zIndex: 0
     },
     outerContainer: {
         flex: 1,

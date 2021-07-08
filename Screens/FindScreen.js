@@ -109,7 +109,13 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
             <MapView.Marker coordinate = {{latitude: 42.277, longitude: -83.736}}/>
 
             <MapView.Marker coordinate = {{latitude: 42.28, longitude: -83.739}} onPress = {openBottomSheet} >
-                <LocationPin title = 'Party' onPress = {openBottomSheet}/>
+                <LocationPin title = 'Party' onPress = {openBottomSheet}
+                />
+            </MapView.Marker>
+
+            <MapView.Marker coordinate = {{latitude: 42.2749917, longitude: -83.7355094}} onPress = {openBottomSheet} >
+                <Image source={require('../assets/pizza.png')} 
+                  onPress = {openBottomSheet}/>
             </MapView.Marker>
 
             <MapView.Marker coordinate = {{latitude: 42.281, longitude: -83.739}} onPress = {openBottomSheet} >

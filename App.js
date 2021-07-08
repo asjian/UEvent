@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import NavBar from './app/routes/navBar';
+//import NavBar from './app/routes/navBar';
 import AppContext from './app/objects/AppContext';
+import InitialNav from './app/routes/initialNav';
 
 const App = () => {
   const [showNavBar,setShowNavBar] = useState(true);
@@ -13,11 +14,10 @@ const App = () => {
     toggleShowNavBar,
   }
   return (
-    //if the user is on the app the first time
     //<WelcomeNavigator />
     <AppContext.Provider value = {globals}>
       <NavigationContainer>
-        <NavBar/>
+        <InitialNav/>
       </NavigationContainer>
     </AppContext.Provider>
     //<WelcomeScreen/>
@@ -25,4 +25,3 @@ const App = () => {
 }
 
 export default App;
-

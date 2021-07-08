@@ -69,18 +69,20 @@ function FindEventsScreen({navigation,botSheet,snapPos,setSnapPos}) {
     const styles = StyleSheet.create({  
     
     SearchIconStyle : {
-        height: 25,
-        width: 25,
+        height: 45,
+        width: 45,
         alignSelf: 'flex-start',
-        marginLeft: 20.4
+        marginLeft: 20.4,
+        borderRadius: 8
     },
 
     SettingsIconStyle : {
-        height: 25,
-        width: 25,
+        height: 45,
+        width: 45,
         flexDirection: 'row',
         alignSelf: 'flex-end',
-        marginRight: 20.4
+        marginRight: 20.4,
+        borderRadius: 8
     },
     
     PopUpStyle : {
@@ -96,6 +98,7 @@ function FindEventsScreen({navigation,botSheet,snapPos,setSnapPos}) {
         backgroundColor: "white",
         borderRadius: 20,
         padding: 35,
+
         alignItems: "center",
         shadowColor: "#000",
         shadowOffset: {
@@ -118,7 +121,8 @@ function FindEventsScreen({navigation,botSheet,snapPos,setSnapPos}) {
       DropdownStyle: {
         alignItems: 'center',
         width: 175,
-        flex:2,
+        flex: 2,
+        
     }
 })
 

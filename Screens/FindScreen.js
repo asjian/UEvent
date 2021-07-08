@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image, TouchableWithoutFeedback} from 'react-native';
 import { createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
@@ -26,6 +26,7 @@ function DetailsScreen({ navigation }) {
 //custom bottom sheet
 function MainScreen({navigation}) {
     const myContext = useContext(AppContext);
+    /*
     Geocoder.init('AIzaSyBCGE9PpyEZ1FK9OBtL9uMgWW6jl8efD1I');
     Geocoder.from("2281 Bonisteel Blvd, Ann Arbor, MI, 48109")
 		.then(json => {
@@ -33,6 +34,7 @@ function MainScreen({navigation}) {
 			console.log(location);
 		})
 		.catch(error => console.warn(error));
+    */
 
     const [eventTitle,setEventTitle] = useState('Default Title');
     const windowHeight = Dimensions.get('window').height;
@@ -82,16 +84,26 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
     
     const [snapPosition,setSnapPosition] = useState(0);
     
-    const openBottomSheet = () => {
+    const openBottomSheet = (event) => {
         if(snapPosition == 1) {
-            setEventTitle('ChangeLog');
+            setEventTitle(event.Name);
         }
         else if(snapPosition == 0) {
             myContext.toggleShowNavBar(false);
             bs.current.snapTo(1);
+            setEventTitle(event.Name);
             setSnapPosition(1);
         }
     }
+    const [eventList,setEventList] = useState([]);
+
+    useEffect(() => {
+      fetch('https://retoolapi.dev/rJZk4j/events')
+        .then((response) => response.json())
+        .then((json) => setEventList(json))
+        .catch((error) => console.error(error))
+    }, []);
+
     return (
         <View style = {styles.container}>
             <MapView style={styles.map}
@@ -106,32 +118,22 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
             }
             showCompass = {false}       
             >
-            <MapView.Marker coordinate = {{latitude: 42.277, longitude: -83.736}}/>
-
-            <MapView.Marker coordinate = {{latitude: 42.28, longitude: -83.739}} onPress = {openBottomSheet} >
-                <LocationPin title = 'Party' onPress = {openBottomSheet}
-                />
+            <MapView.Marker coordinate = {{latitude: 42.28, longitude: -83.739}}>
+                <LocationPin title = 'Party'/>
             </MapView.Marker>
 
-            <MapView.Marker coordinate = {{latitude: 42.2749917, longitude: -83.7355094}} onPress = {openBottomSheet} >
-                <Image source={require('../assets/pizza.png')} 
-                  onPress = {openBottomSheet}/>
-            </MapView.Marker>
-
-            <MapView.Marker coordinate = {{latitude: 42.281, longitude: -83.739}} onPress = {openBottomSheet} >
-                <LocationPin title = 'Weed Sesh' onPress = {openBottomSheet}/>
-            </MapView.Marker>
-
-            <MapView.Marker coordinate = {{latitude: 42.27, longitude: -83.74}}>
-                <LocationPin title = 'John Waking Up' onPress = {openBottomSheet}/>
-            </MapView.Marker>
-
-            <MapView.Marker coordinate = {{latitude: 42.26, longitude: -83.73}}>
-                <LocationPin title = 'Graphic Design Workshop' onPress = {openBottomSheet}/>
-            </MapView.Marker>
-
+            {eventList.map((item) => {
+              if(item.InPersonVirtual == "In Person") {
+              return (
+                <View key = {item.id}>
+                <MapView.Marker coordinate = {{latitude: parseFloat(item.Latitude), longitude: parseFloat(item.Longitude)}} onPress = {() => openBottomSheet(item)}>
+                  <LocationPin title = {item.Name}/>
+                </MapView.Marker>
+                </View>
+              )
+              }
+            })}
             </MapView>
-
         <View style={styles.topbar}>
                 <TopBar navigation = {navigation} botSheet = {bs} snapPos = {snapPosition} setSnapPos = {setSnapPosition}/>
         </View> 
@@ -242,57 +244,38 @@ const styles = StyleSheet.create({
 })
 
 const mapStyle  = [
-    /*{
-      "featureType": "poi",
-      "elementType": "labels",
-      "stylers": [
-        {
-          "visibility": "simplified"
-        }
-      ]
-    },
-    {
-      "featureType": "poi",
-      "elementType": "labels.icon",
-      "stylers": [
-        {
-          "color": "#9c9c9c"
-        }
-      ]
-    },
-    {
-      "featureType": "poi",
-      "elementType": "labels.text",
-      "stylers": [
-        {
-          "color": "#9c9c9c"
-        }
-      ]
-    },*/
-    {
-      "featureType": "poi.place_of_worship",
-      "stylers": [
-        {
-          "visibility": "off"
-        }
-      ]
-    },
-    /*
-    {
-      "featureType": "poi.school",
-      "stylers": [
-        {
-          "visibility": "off"
-        }
-      ]
-    },
-    */
-    {
-      "featureType": "transit",
-      "stylers": [
-        {
-          "visibility": "off"
-        }
-      ]
-    }
-  ];
+  {
+    "featureType": "administrative",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.icon",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  }
+];

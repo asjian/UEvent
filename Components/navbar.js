@@ -17,13 +17,10 @@ const NavBar = () => {
              showLabel: false,
              style: {
                  position: 'absolute',
-                 bottom: 25,
-                 left: 20,
-                 right: 20,
                  elevation: 0,
                  backgroundColor: '#fff',
-                 borderRadius: 15,
-                 height: 90,
+                 borderRadius: 0,
+                 height: 110,
                  ...styles.shadow
              }
          }}
@@ -69,6 +66,7 @@ const NavBar = () => {
                             </Text>
                         </View>
                     ),
+                    tabBarVisible: myContext.navBarVisible
                 }}
             />
             <Tab.Screen name="Profile" component={ProfileScreen}

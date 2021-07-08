@@ -1,60 +1,107 @@
-import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
-import { Text, View, StyleSheet, SafeAreaView, Button, TouchableOpacity } from 'react-native';
+import { 
+    View, 
+    Text, 
+    TouchableOpacity, 
+    Dimensions,
+    StyleSheet,
+    StatusBar,
+    Image
+} from 'react-native';
+import * as Animatable from 'react-native-animatable';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useTheme } from '@react-navigation/native';
 
-function WelcomeScreen({navigation}) {
+const WelcomeScreen = ({navigation}) => {
+    const { colors } = useTheme();
+
     return (
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.textStyle}>Welcome to</Text>
-            <Text style={styles.textStyle}>EventHub, User!</Text>
-            <TouchableOpacity style={styles.findEventsButton} onPress={() => navigation.navigate("FindEvents")}>
-                <Text style={styles.findEventsButton}>Find Events</Text>
-                
+      <View style={styles.container}>
+          <StatusBar backgroundColor='#00274C' barStyle="light-content"/>
+        <View style={styles.header}>
+            <Animatable.Image 
+                animation="bounceIn"
+                duraton="1500"
+            source={require('../assets/logo.png')}
+            style={styles.logo}
+            resizeMode="stretch"
+            />
+        </View>
+        <Animatable.View 
+            style={[styles.footer, {
+                backgroundColor: colors.background
+            }]}
+            animation="fadeInUpBig"
+        >
+            <Text style={[styles.title, {
+                color: colors.text
+            }]}>Welcome to EventHub!</Text>
+            <Text style={styles.text}>a place to find and host your events</Text>
+            <View style={styles.button}>
+            <TouchableOpacity onPress={()=>navigation.navigate('NavBar')}>
+            <Text style={styles.textSign}>Get Started</Text>
+                    <MaterialIcons 
+                        name="navigate-next"
+                        color="#000"
+                        size={20}
+                    />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.hostEventsButton} onPress={() => navigation.navigate("HostEvents")}>
-                <Text style={styles.hostEventsButton}>Host Events</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate("Profile")}>
-                <Text style={styles.profileButton}>Profile</Text>
-            </TouchableOpacity>
-        </SafeAreaView>
-        
+            </View>
+        </Animatable.View>
+      </View>
     );
-}
+};
 
 export default WelcomeScreen;
 
+const {height} = Dimensions.get("screen");
+const height_logo = height * 0.28;
+
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "white",
-        alignItems: "center",
-        marginTop: 200,
-    },
-    textStyle: {
-        fontSize: 50,
-        fontWeight: "bold"
-
-    },
-    findEventsButton: {
-        marginTop: 65,
-        width: "80%",
-        height: 50,
-        fontSize: 50,
-        alignItems: "center",
-
-    },
-    hostEventsButton: {
-        marginTop: 65,
-        width: "80%",
-        height: 50,
-        fontSize: 50,
-        alignItems: "center",
-    },
-    profileButton: {
-        marginTop: 65,
-        width: "80%",
-        height: 50,
-        fontSize: 50,
-        alignItems: "center",
-    }
-})
+  container: {
+    flex: 1, 
+    backgroundColor: '#FFCB05'
+  },
+  header: {
+      flex: 2,
+      justifyContent: 'center',
+      alignItems: 'center'
+  },
+  footer: {
+      flex: 1,
+      backgroundColor: '#fff',
+      borderTopLeftRadius: 30,
+      borderTopRightRadius: 30,
+      paddingVertical: 50,
+      paddingHorizontal: 30
+  },
+  logo: {
+      width: height_logo,
+      height: height_logo
+  },
+  title: {
+      color: '#05375a',
+      fontSize: 30,
+      fontWeight: 'bold'
+  },
+  text: {
+      color: 'grey',
+      marginTop:5
+  },
+  button: {
+      alignItems: 'flex-end',
+      marginTop: 30
+  },
+  signIn: {
+      width: 150,
+      height: 40,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 50,
+      flexDirection: 'row'
+  },
+  textSign: {
+      color: '#000',
+      fontWeight: 'bold'
+  }
+});

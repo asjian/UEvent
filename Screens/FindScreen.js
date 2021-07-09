@@ -35,8 +35,30 @@ function MainScreen({navigation}) {
 		})
 		.catch(error => console.warn(error));
     */
-
-    const [eventTitle,setEventTitle] = useState('Default Title');
+    const [currentEvent,setCurrentEvent] = useState({
+      "id": 1,
+      "Name": "OSU Pregame Tailgate",
+      "Tags": "",
+      "Email": "",
+      "Avatar": "",
+      "Images": "",
+      "Address": "1520 S University Ave, Ann Arbor, MI 48104",
+      "Privacy": "Public",
+      "Website": "",
+      "Invitees": "",
+      "Latitude": "42.27475",
+      "Attendees": "",
+      "Longitude": "-83.72904",
+      "Organizer": "FIJI",
+      "EndDayTime": "7/8/2021 19:30",
+      "Description": "Come pregame with us before the game against Ohio State! \nThere will be food, drink, and plenty of chances to meet the \nbrothers of Phi Gamma Delta. We plan to have around 50\npeople at our tailgate, and you can find us by looking for the\npop-up tents labeled with our logo.",
+      "LocationName": "FIJI House",
+      "MainCategory": "Parties",
+      "Registration": "",
+      "StartDayTime": "7/8/2021",
+      "InPersonVirtual": "In Person",
+      "OtherCategories": "Greek Life Social Food/Drink "
+    });
     const windowHeight = Dimensions.get('window').height;
     bs = React.createRef();
     fall = new Animated.Value(1);
@@ -44,7 +66,7 @@ function MainScreen({navigation}) {
         <View style={styles.panel}>
             <View>
                 <Text>
-                    {eventTitle}
+                    {currentEvent.Name}
                 </Text>
                 <Text>
                     lorem ipsum dolor sit amet
@@ -86,23 +108,32 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
     
     const openBottomSheet = (event) => {
         if(snapPosition == 1) {
-            setEventTitle(event.Name);
+            setCurrentEvent(event);
         }
         else if(snapPosition == 0) {
             myContext.toggleShowNavBar(false);
             bs.current.snapTo(1);
-            setEventTitle(event.Name);
+            setCurrentEvent(event);
             setSnapPosition(1);
         }
     }
     const [eventList,setEventList] = useState([]);
 
-    useEffect(() => {
+    const getEvents = () => {
+      console.log('fetching...');
       fetch('https://retoolapi.dev/rJZk4j/events')
         .then((response) => response.json())
         .then((json) => setEventList(json))
         .catch((error) => console.error(error))
-    }, []);
+    }
+
+      useEffect(() => {
+      const unsubscribe = navigation.addListener('didFocus', () => {
+        console.log('focus');
+        getEvents();
+      });
+      return unsubscribe;
+    }, [navigation]);
 
     return (
         <View style = {styles.container}>

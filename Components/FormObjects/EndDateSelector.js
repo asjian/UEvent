@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import DatePicker from 'react-native-datepicker'
 
-export default class StartDateSelector extends Component {
+export default class EndDateSelector extends Component {
   constructor(props){
     super(props)
     this.state = {date:""}
@@ -11,7 +11,7 @@ export default class StartDateSelector extends Component {
     return (
       <DatePicker
         style={{width: 400}}
-        date={this.state.date}
+        date={this.props.value}
         mode="date"
         placeholder="select end date"
         format="MM-DD-YYYY"
@@ -24,7 +24,10 @@ export default class StartDateSelector extends Component {
           }
           // ... You can check the source to find the other keys.
         }}
-        onDateChange={(date) => {this.setState({date: date})}}
+        onDateChange={(date) => {
+            this.setState({date: date})
+            this.props.onChange('EndDay', date)
+        }}
       />
     )
   }

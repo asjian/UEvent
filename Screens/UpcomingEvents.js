@@ -1,13 +1,22 @@
 import React, {useContext}  from 'react';
-import { SafeAreaView,View, Text, Button, StyleSheet, Image, ParentView} from 'react-native';
+import { SafeAreaView,View, Text, Button, StyleSheet, Image, ParentView, TouchableOpacity} from 'react-native';
 import AppContext from '../objects/AppContext';
 
 
 const EventBox = () => {
     return (
         <View style={styles.box}>
-            <Image style={styles.realImageStyle} source={require('../assets/ycombinator-logo.png')}/>
-            <Text style={{flex: 3}}>Startups 101 - Everything You Need To Know To Start</Text>
+            <View style={{flex: 2}}>
+                <Image style={styles.realImageStyle} source={require('../assets/YC-Circular.png')}/>
+            </View>
+            <View style={{flex: 4}}>
+                <View style={{flexDirection: 'row'}}>
+                    <Text style={{fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%'}}>Sat, May 25  1:00PM - 2:00PM</Text>
+                    <Image style={{resizeMode: 'contain', marginLeft: '10%'}} source={require('../assets/NotificationBell.png')} />
+                </View>
+                <Text style={{fontWeight: "500", fontSize: 16, marginBottom: '5%'}}>Startups 101 - Everything You Need To Know To Start</Text>
+                <Text style={{fontWeight: '500', fontSize: 13, color: '#0085FF'}}> Stephen M. Ross School of Business</Text>
+            </View>   
         </View>
     );
 }
@@ -15,8 +24,19 @@ const EventBox = () => {
 const EventBox2 = () => {
     return (
         <View style={styles.box}>
-            <Image style={styles.realImageStyle} source={require('../assets/Spikeballlogo.png')}/>
-            <Text style={{flex:3}}>Spikeball Tournament</Text>
+            <View style={{flex: 2}}>      
+                <Image style={styles.realImageStyle} source={require('../assets/MDST.png')}/>
+            </View>
+           <View style={{flex: 4}}>
+               <View style={{flexDirection: 'row'}}>
+                    <Text style={{fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%'}}>Sat, May 22  11:00AM - 2:00PM</Text>
+                    <Image style={{resizeMode: 'contain', marginLeft: '10%'}} source={require('../assets/NotificationBell.png')} />
+               </View>
+                
+                <Text style={{fontWeight: "500", fontSize: 16, marginBottom: '5%'}}>MDST Work Session</Text>
+                <Text style={{fontWeight: '500', fontSize: 13, color: '#0085FF'}}>Online Event (Google Meets)</Text>
+           </View>
+            
         </View>
     );
 }
@@ -44,14 +64,12 @@ function UpcomingEventsScreen({ navigation }) {
         <SafeAreaView style={styles.container}>
             <EventBox/>
             <EventBox2/>
-            <EventBox3/>
             <View style={styles.NewEventButton}>
-                <Button 
-                    title= "+ Create New Event"
-                    onPress={createEventHandler}
-                    style={styles.NewEventButton}
-
-                />
+                <TouchableOpacity onPress={createEventHandler}>
+                    <View style = {styles.selectContainer}>
+                        <Text style = {styles.selectText}>+ Create New Event</Text>
+                    </View>
+                </TouchableOpacity>
             </View>
           
             
@@ -76,6 +94,7 @@ const styles = StyleSheet.create({
         padding: 5,
         flexDirection: 'column',
         flexWrap: 'wrap',
+        backgroundColor: '#FFFBF3'
         
     },
     NewEventButton : {
@@ -83,11 +102,20 @@ const styles = StyleSheet.create({
     },
     box : {
         width: '95%',
-        height: '20%',
+        height: '17%',
         padding: 5,
-        borderWidth: 1,
         margin: 10,
-        flexDirection: 'row'
+        flexDirection: 'row',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowColor: '#000000',
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
+        backgroundColor: '#F8F8F8'
+        
     },
     inner1: {
         flex: 2,
@@ -100,7 +128,31 @@ const styles = StyleSheet.create({
     realImageStyle : {
         height: '100%',
         resizeMode: 'contain',
-        flex: 2
+        width: '100%'
         
+    },
+    selectContainer: {
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        marginHorizontal: 50,
+        marginTop: 5,
+        width: '75%',
+        alignItems: 'center',
+        top: 0,
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowColor: '#000000',
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
+        borderRadius: 10,
+    },
+    selectText: {
+        fontWeight: 'bold',
+        fontSize: 22,
+        paddingVertical: 15,
+        color: '#fab400',
     }
 })

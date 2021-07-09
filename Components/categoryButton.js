@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {StyleSheet, Text, View,TouchableOpacity,TouchableHighlight,Image} from 'react-native';
 import {AntDesign} from '@expo/vector-icons';
 
-export default function CategoryButton({icon,name,pressHandler,isPressed}) { //icon should be of form require(PATH)
+export default function CategoryButton({id,icon,name,pressHandler,isPressed}) { //icon should be of form require(PATH)
     const [pressed,setPressed] = useState(isPressed);
 
     let initialColor = '#09189e';
@@ -14,12 +14,12 @@ export default function CategoryButton({icon,name,pressHandler,isPressed}) { //i
     const myPressHandler = () => {
         let success = false;
         if(pressed  == false) {
-            success = pressHandler(icon,name,true);
+            success = pressHandler(id,icon,name,true);
             if(success)
                 setColor('#fab400');
         }
         else {
-            success = pressHandler(icon,name,false);
+            success = pressHandler(id,icon,name,false);
             if(success)
                 setColor('#09189e');
         }

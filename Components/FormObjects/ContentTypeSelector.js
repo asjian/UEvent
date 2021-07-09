@@ -1,19 +1,12 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import ModalSelector from 'react-native-modal-selector-searchable';
 import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, Alert } from 'react-native';
 
 
-class ContentTypeSelector extends Component {
+const ContentTypeSelector = ({onChange, value}) => {
 
-    constructor(props) {
-        super(props);
+    const [textInputValue, setTextInputValue] = useState('');
 
-        this.state = {
-            textInputValue: ''
-        }
-    }
-
-    render() {
         let index = 0;
         const data = [
             { key: index++, section: true, label: 'Content Type' },
@@ -44,6 +37,11 @@ class ContentTypeSelector extends Component {
             
         ];
 
+        const handleInput = (option) => {
+            setTextInputValue(option.label);
+            onChange('ContentType', option.label);
+        }
+
         return (
             <View style={{flex:1, justifyContent:'space-around', padding:10}}>
 
@@ -53,19 +51,19 @@ class ContentTypeSelector extends Component {
                     accessible={true}
                     scrollViewAccessibilityLabel={'Scrollable options'}
                     cancelButtonAccessibilityLabel={'Cancel Button'}
-                    onChange={(option)=>{ this.setState({textInputValue:option.label})}}>
+                    onChange={handleInput}>
 
                     <TextInput
                         style={{borderWidth:1, borderColor:'#ccc', padding:10, height:40}}
                         editable={false}
                         placeholder="Egs. UX Design, House Party, etc."
-                        value={this.state.textInputValue} />
+                        value={value} />
 
                 </ModalSelector>
             </View>
         );
     }
-}
+
 
 // export
 export default ContentTypeSelector;

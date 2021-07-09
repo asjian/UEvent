@@ -21,9 +21,27 @@ export default function Search({navigation}) {
         BotSheetInfo: navigation.getParam('BotSheetInfo'),
     }
     const buttonTextDecider = (typeName) => {
+        let catList = navigation.getParam('Categories');
         if(typeName == 'Categories') {
-            if(navigation.getParam('Categories').length == 0)
-                return <Text style = {styles.buttonText}>Event Categories</Text>;     
+            if(catList.length == 0)
+                return <Text style = {styles.buttonText}>Event Categories</Text>;   
+            else {
+                for(let i=0;i<catList.length;i++) {
+                    console.log(catList[i].id);
+                }
+                return (
+                <View style = {styles.innerButton}>
+                    {catList.map((item) => {
+                        return (
+                            <View key = {item.id} style = {{backgroundColor: '#f5f5f5', borderRadius: 10, marginHorizontal: 5, paddingVertical: 5, flexDirection: 'row'}}>
+                                <Image source = {item.icon} style = {{width: 20, height: 20, tintColor: '#847cb5', marginRight: 5, marginLeft: 3,}}/>
+                                <Text style = {{fontWeight: '600', fontSize: 17, color: '#847cb5',marginRight: 3,}}>{item.name}</Text>
+                            </View>
+                        )
+                    })}
+                </View>
+                );
+            }  
         }
         return <Text style = {styles.buttonText}>Whoops</Text>;   
     }
@@ -85,7 +103,6 @@ export default function Search({navigation}) {
             );
         }
     }
-
     return (
         <View style = {styles.outerContainer}>
         <View style = {styles.innerContainer}>
@@ -189,14 +206,9 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 10,
     },
-})
-const modalStyles = StyleSheet.create({
-    container: {
-        height: '75%',
-        marginTop: 'auto',
-        backgroundColor: '#fffbf2'
-    },
-    modal: {
-        margin:20,
+    innerButton: {
+        flexDirection: 'row',
+        paddingVertical: 14,
+        marginLeft: 10,
     }
 })

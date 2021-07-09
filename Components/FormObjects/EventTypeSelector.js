@@ -1,22 +1,17 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import ModalSelector from 'react-native-modal-selector-searchable';
 import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, Alert } from 'react-native';
+import { onChange } from 'react-native-reanimated';
 
 
-class EventTypeSelector extends Component {
+const EventTypeSelector = ({onChange, value}) => {
 
-    constructor(props) {
-        super(props);
+    const [textInputValue, setTextInputValue] = useState('');
+    
 
-        this.state = {
-            textInputValue: ''
-        }
-    }
-
-    render() {
         let index = 0;
         const data = [
-            { key: index++, section: true, label: 'Event Type' },
+            { key: index++, section: true, label: 'Event Type'},
             { key: index++, label: 'Extracurricular' },
             { key: index++, label: 'Social' },
             { key: index++, label: 'Outdoor'}
@@ -24,12 +19,22 @@ class EventTypeSelector extends Component {
             // Can also add additional custom keys which are passed to the onChange callback
             
         ];
-        
-        const ChangingText = (props) => {
-            return (
-                console.log(this.props.name)
-            );
+
+        const handleInput = (option)=> { 
+            setTextInputValue(option.label);
+            onChange('EventType', option.label);
+            
+        };
+
+        const handleTextInput = () => {
+            console.log(textInputValue);
         }
+
+        const full = () => {
+            handleInput;
+            handleTextInput;
+        }
+        
         
         return (
             <View style={{flex:1, justifyContent:'space-around', padding:10}}>
@@ -40,7 +45,9 @@ class EventTypeSelector extends Component {
                     accessible={true}
                     scrollViewAccessibilityLabel={'Scrollable options'}
                     cancelButtonAccessibilityLabel={'Cancel Button'}
-                    onChange={(option)=>{ this.setState({textInputValue:option.label})}}
+                    onChange={handleInput}
+                    
+                    
                     >
                    
 
@@ -48,14 +55,13 @@ class EventTypeSelector extends Component {
                         style={{borderWidth:1, borderColor:'#ccc', padding:10, height:40}}
                         editable={false}
                         placeholder="Egs. Extracurricular, Social, etc."
-                        value={this.state.textInputValue} 
-
+                        value={value}
                         />
 
                 </ModalSelector>
             </View>
         );
-    }
+    
 }
 
 // export

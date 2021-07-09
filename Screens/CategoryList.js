@@ -29,18 +29,18 @@ export default function CategoryList({navigation}) {
     }
     renderCategory = (obj) => {
         if(linSearchCategories(obj.name) != -1)
-            return <CategoryButton icon = {obj.icon} name = {obj.name} pressHandler = {categoryPressHandler} isPressed = {true}/>
+            return <CategoryButton id = {obj.id} icon = {obj.icon} name = {obj.name} pressHandler = {categoryPressHandler} isPressed = {true}/>
         else
-            return <CategoryButton icon = {obj.icon} name = {obj.name} pressHandler = {categoryPressHandler} isPressed = {false}/>
+            return <CategoryButton id = {obj.id} icon = {obj.icon} name = {obj.name} pressHandler = {categoryPressHandler} isPressed = {false}/>
     }
-    categoryPressHandler = (icon,name,add) => {
+    categoryPressHandler = (id,icon,name,add) => {
         if(add) {
-            if(totalSelections == 5) {
-                Alert.alert('Limit Reached','You can only choose up to 5 categories',[{text:'Got It'}]);
+            if(totalSelections == 3) {
+                Alert.alert('Limit Reached','You can only choose up to 3 categories',[{text:'Got It'}]);
                 return false;
             }
             else {
-                backParams.Categories.push({icon:icon,name:name});
+                backParams.Categories.push({id:id,icon:icon,name:name});
                 totalSelections++;
                 if(totalSelections > 0) {
                     setSelectEnabled(true);
@@ -67,13 +67,13 @@ export default function CategoryList({navigation}) {
                 <Text style = {styles.headerText}>Event Categories</Text>
             </View>
             <View style = {[styles.scrollContainer,{height:scrollHeight}]}>
-            <Text style = {[styles.instructionsText]}>Select up to 5 categories</Text>
+            <Text style = {[styles.instructionsText]}>Select up to 3 categories</Text>
             <View style = {{borderBottomColor: '#d4d4d4',borderBottomWidth: 1.5,marginTop: 5,marginBottom:3,marginHorizontal:-23,}}/>
             <ScrollView /*onMomentumScrollBegin = {() => {setScrollHeight('100%')}} onMomentumScrollEnd = {() => {setScrollHeight('77%')}*/>
                 {categories.map((item) => {
                     return (
                         <View key = {item.key}>
-                            {renderCategory({icon:item.icon,name:item.name})}
+                            {renderCategory({id:item.key,icon:item.icon,name:item.name})}
                         </View>
                     )
                 })}

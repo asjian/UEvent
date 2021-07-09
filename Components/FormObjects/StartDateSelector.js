@@ -7,11 +7,12 @@ export default class StartDateSelector extends Component {
     this.state = {date:""}
   }
 
+
   render(){
     return (
       <DatePicker
         style={{width: 400}}
-        date={this.state.date}
+        date={this.props.value}
         mode="date"
         placeholder="select start date"
         format="MM-DD-YYYY"
@@ -24,7 +25,10 @@ export default class StartDateSelector extends Component {
           }
           // ... You can check the source to find the other keys.
         }}
-        onDateChange={(date) => {this.setState({date: date})}}
+        onDateChange={(date) => {this.setState({date: date})
+            this.props.onChange('StartDay', date)
+        }}
+        
       />
     )
   }

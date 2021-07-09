@@ -11,7 +11,7 @@ export default class EndTimeSelector extends Component {
     return (
       <DatePicker
         style={{width: 400}}
-        date={this.state.date}
+        date={this.props.value}
         mode="time"
         placeholder="select end time"
         format="LT"
@@ -24,7 +24,10 @@ export default class EndTimeSelector extends Component {
           }
           // ... You can check the source to find the other keys.
         }}
-        onDateChange={(date) => {this.setState({date: date})}}
+        onDateChange={(date) => {
+            this.setState({date: date})
+            this.props.onChange('EndTime', date)
+        }}
       />
     )
   }

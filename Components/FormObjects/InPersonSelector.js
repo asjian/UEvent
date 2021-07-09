@@ -33,13 +33,16 @@ class InPersonSelector extends Component {
                     accessible={true}
                     scrollViewAccessibilityLabel={'Scrollable options'}
                     cancelButtonAccessibilityLabel={'Cancel Button'}
-                    onChange={(option)=>{ this.setState({textInputValue:option.label})}}>
+                    onChange={(option)=>{ 
+                        this.setState({textInputValue:option.label})
+                        this.props.onChange('InPerson', option.label)
+                    }}>
 
                     <TextInput
                         style={{borderWidth:1, borderColor:'#ccc', padding:10, height:40}}
                         editable={false}
                         placeholder="In Person/Online/TBA"
-                        value={this.state.textInputValue} />
+                        value={this.props.value} />
 
                 </ModalSelector>
             </View>

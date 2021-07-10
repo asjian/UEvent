@@ -128,13 +128,17 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
     }
 
       useEffect(() => {
-      const unsubscribe = navigation.addListener('didFocus', () => {
-        console.log('focus');
         getEvents();
-      });
-      return unsubscribe;
     }, [navigation]);
 
+    const searchParams = {
+      SearchType: navigation.getParam('SearchType','none'),
+      SearchText: navigation.getParam('SearchText',''),
+      Categories: navigation.getParam('Categories',[]),
+      TimeRange: navigation.getParam('TimeRange',{startDate:'',endDate:'',duration:''}),
+      OtherFilters: navigation.getParam('OtherFilters',[]),
+      BotSheetInfo: navigation.getParam('BotSheetInfo',{bsRef:bs,snapPos:snapPosition,setSnapPos:setSnapPosition}),
+    }
     return (
         <View style = {styles.container}>
             <MapView style={styles.map}
@@ -165,8 +169,9 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
               }
             })}
             </MapView>
+
         <View style={styles.topbar}>
-                <TopBar navigation = {navigation} botSheet = {bs} snapPos = {snapPosition} setSnapPos = {setSnapPosition}/>
+                <TopBar navigation = {navigation} searchDefaultParams = {searchParams}/>
         </View> 
 
             <View style={styles.pullup}>

@@ -15,6 +15,8 @@ export default function Search({navigation}) {
     const myContext = useContext(AppContext);
     
     const searchDefaultParams = {
+        SearchType: navigation.getParam('SearchType'),
+        SearchText: navigation.getParam('SearchText'),
         Categories: navigation.getParam('Categories'),
         TimeRange: navigation.getParam('TimeRange'),
         OtherFilters: navigation.getParam('OtherFilters'),
@@ -22,13 +24,34 @@ export default function Search({navigation}) {
     }
     const buttonTextDecider = (typeName) => {
         let catList = navigation.getParam('Categories');
+
         if(typeName == 'Categories') {
             if(catList.length == 0)
-                return <Text style = {styles.buttonText}>Event Categories</Text>;   
+                return <Text style = {styles.buttonText}>Event Categories</Text>;  
+
+            else if(catList.length >= 3 && catList[0].name.length + catList[1].name.length + catList[2].name.length >= 27) {
+                return (
+                    <View>
+                        <View style = {styles.innerButton}>
+                            <View style = {{backgroundColor: '#f5f5f5', borderRadius: 10, marginHorizontal: 5, paddingVertical: 5, flexDirection: 'row'}}>
+                                    <Image source = {catList[0].icon} style = {{width: 20, height: 20, tintColor: '#847cb5', marginRight: 5, marginLeft: 3,}}/>
+                                    <Text style = {{fontWeight: '600', fontSize: 17, color: '#847cb5',marginRight: 3,}}>{catList[0].name}</Text>
+                            </View>
+                            <View style = {{backgroundColor: '#f5f5f5', borderRadius: 10, marginHorizontal: 5, paddingVertical: 5, flexDirection: 'row'}}>
+                                    <Image source = {catList[1].icon} style = {{width: 20, height: 20, tintColor: '#847cb5', marginRight: 5, marginLeft: 3,}}/>
+                                    <Text style = {{fontWeight: '600', fontSize: 17, color: '#847cb5',marginRight: 3,}}>{catList[1].name}</Text>
+                            </View>
+                        </View>  
+                        <View style = {{marginLeft: 10, flexDirection: 'row', paddingBottom: 14,}}>
+                            <View style = {{backgroundColor: '#f5f5f5', borderRadius: 10, marginHorizontal: 5, paddingVertical: 5, flexDirection: 'row'}}>
+                                    <Image source = {catList[2].icon} style = {{width: 20, height: 20, tintColor: '#847cb5', marginRight: 5, marginLeft: 3,}}/>
+                                    <Text style = {{fontWeight: '600', fontSize: 17, color: '#847cb5',marginRight: 3,}}>{catList[2].name}</Text>
+                            </View>
+                        </View>  
+                    </View>
+                )
+            }
             else {
-                for(let i=0;i<catList.length;i++) {
-                    console.log(catList[i].id);
-                }
                 return (
                 <View style = {styles.innerButton}>
                     {catList.map((item) => {
@@ -48,16 +71,24 @@ export default function Search({navigation}) {
     const filterHandler = (screenName) => {
         navigation.navigate(screenName,searchDefaultParams);
     }
-    const searchSubmitHandler = (searchText) => {
-        console.log(searchText);
+    const searchTextSubmitHandler = (searchText) => {
+        searchDefaultParams.SearchType = 'text';
+        searchDefaultParams.SearchText = searchText;
+        navigation.navigate('MainScreen',searchDefaultParams);
+    }
+    const searchFilterSubmitHandler = () => {
+        searchDefaultParams.SearchType = 'filter';
+        navigation.navigate('MainScreen',searchDefaultParams);
     }
     const clearSearch = () => {
         if(searchDefaultParams.BotSheetInfo.snapPos == 0) {
             myContext.toggleShowNavBar(true);
         }
+        /*
         else {
             searchDefaultParams.BotSheetInfo.bsRef.current.snapTo(0);
         }
+        */
         navigation.getParam('Categories').length = 0;
         navigation.getParam('TimeRange')['startDate'] = '';navigation.getParam('TimeRange')['endDate'] = '';navigation.getParam('TimeRange')['duration'] = '';
         navigation.getParam('OtherFilters').length = 0;
@@ -99,6 +130,11 @@ export default function Search({navigation}) {
                         <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>
                     </TouchableOpacity>
 
+                    <TouchableOpacity onPress = {searchFilterSubmitHandler}>
+                        <View style = {styles.searchButton}>
+                            <Text style = {styles.searchButtonText}>SEARCH</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
             );
         }
@@ -117,7 +153,7 @@ export default function Search({navigation}) {
                 onChangeText = {(search) => {setSearchText(search)}}
                 value = {searchText}
                 onFocus = {() => setSuggestionsVisible(true)}
-                onSubmitEditing = {() => {searchSubmitHandler(searchText)}}
+                onSubmitEditing = {() => {searchTextSubmitHandler(searchText)}}
                 autoCorrect = {false}
 
                 inputStyle = {styles.input}
@@ -185,7 +221,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginHorizontal: 20.4,
         marginBottom: 30,
-        width: '88%',
+        width: '90%',
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -197,18 +233,42 @@ const styles = StyleSheet.create({
         color: '#ff8a00',
     },
     leftIcon: {
-        marginLeft: 15,
+        marginLeft: 10,
         height: 28,
         width: 28,
         tintColor: '#ff8a00',
     },
     rightIcon: {
         position: 'absolute',
-        right: 10,
+        right: 6,
     },
     innerButton: {
         flexDirection: 'row',
         paddingVertical: 14,
-        marginLeft: 10,
-    }
+        marginLeft: 5,
+    },
+    searchButton: {
+        backgroundColor: '#009af0',
+        opacity: 0.5,
+        position: 'absolute',
+        marginHorizontal: 50,     
+        marginTop: 200, //change this later
+        width: '75%',
+        alignItems: 'center',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowColor: '#000000',
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
+        borderRadius: 10,
+    },
+    searchButtonText: {
+        fontWeight: 'bold',
+        fontSize: 30,
+        paddingVertical: 10,
+        color: 'white',
+    },
 })

@@ -16,47 +16,51 @@ export default function CategoryList({navigation}) {
         TimeRange: navigation.getParam('TimeRange'),
         OtherFilters: navigation.getParam('OtherFilters'),
     }
+    let localCategoriesCopy = [];
+    for(let i=0;i<backParams.Categories.length;i++) {
+        localCategoriesCopy.push(backParams.Categories[i]);
+    }
+
     let totalSelections = navigation.getParam('Categories').length;
-    const [selectEnabled,setSelectEnabled] = useState(totalSelections>0?true:false);
     const [scrollHeight, setScrollHeight] = useState('76%');
 
     const linSearchCategories = (catName) => {
-        for(let i=0;i<backParams.Categories.length;i++) {
-            if (backParams.Categories[i].name == catName)
+        for(let i=0;i<localCategoriesCopy.length;i++) {
+            if (localCategoriesCopy[i].name == catName)
                 return i;
         }
         return -1;
     }
-    renderCategory = (obj) => {
+    const renderCategory = (obj) => {
         if(linSearchCategories(obj.name) != -1)
             return <CategoryButton id = {obj.id} icon = {obj.icon} name = {obj.name} pressHandler = {categoryPressHandler} isPressed = {true}/>
         else
             return <CategoryButton id = {obj.id} icon = {obj.icon} name = {obj.name} pressHandler = {categoryPressHandler} isPressed = {false}/>
     }
-    categoryPressHandler = (id,icon,name,add) => {
+    const categoryPressHandler = (id,icon,name,add) => {
         if(add) {
             if(totalSelections == 3) {
                 Alert.alert('Limit Reached','You can only choose up to 3 categories',[{text:'Got It'}]);
                 return false;
             }
             else {
-                backParams.Categories.push({id:id,icon:icon,name:name});
+                localCategoriesCopy.push({id:id,icon:icon,name:name});
                 totalSelections++;
-                if(totalSelections > 0) {
-                    setSelectEnabled(true);
-                }
                 return true;
             }
         }
         else {
             const index = linSearchCategories(name);
-            backParams.Categories.splice(index,1);
+            localCategoriesCopy.splice(index,1);
             totalSelections--;
-            if(totalSelections < 1) {
-                setSelectEnabled(false);
-            }
             return true;
         }
+    }
+    const selectHandler = () => {
+        backParams.Categories.length = 0;
+        for(let i=0;i<localCategoriesCopy.length;i++) 
+            backParams.Categories.push(localCategoriesCopy[i]);      
+        navigation.navigate('Search',backParams);
     }
     return (
         <View style = {styles.container}>
@@ -79,8 +83,8 @@ export default function CategoryList({navigation}) {
                 })}
             </ScrollView>
             </View>
-            <TouchableOpacity onPress = {()=>navigation.navigate('Search',backParams)} disabled = {!selectEnabled}>
-                <View style = {[styles.selectContainer,{opacity:scrollHeight=='100%'?0.0:selectEnabled?1.0:0.33}]}>
+            <TouchableOpacity onPress = {selectHandler}>
+                <View style = {[styles.selectContainer]}>
                     <Text style = {styles.selectText}>Select</Text>
                 </View>
             </TouchableOpacity>
@@ -123,7 +127,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         position: 'absolute',
         marginHorizontal: 50,
-        marginTop: 5,
+        marginTop: 10,
         width: '75%',
         alignItems: 'center',
         top: 0,

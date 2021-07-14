@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useState,useEffect} from 'react';
 import { StyleSheet, Text, View, ScrollView, SafeAreaView, Image } from 'react-native';
-import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import {createAppContainer} from 'react-navigation';
+import {createStackNavigator} from 'react-navigation-stack';
 import MyUpcomingScreen from './MyUpcomingScreen';
 import EventsFollowingScreen from './EventsFollowingScreen';
 import EventUpdatesScreen from './EventUpdatesScreen';
@@ -11,16 +12,44 @@ import WhereFriendsScreen from './WhereFriendsScreen';
 import IncomingInvScreen from './IncomingInvScreen';
 import OutgoingInvScreen from './OutgoingInvScreen';
 import ProfileButton from '../objects/profileButton';
-//import GlobalVariables from '../../GlobalStyles';
+import Globals from '../../GlobalVariables';
 
 const HORIZONTALMARGIN = 20.4;
 
 function MainScreen({navigation}) {
-    const user = {
-        username: 'Alex Jian',
-        useremail: 'asjian@umich.edu',
-        avatarsource: require('../assets/avatar.jpeg'),
+
+    const userEmail = 'sravella@umich.edu'; //this information would likely be passed from the login process, hardcoded for now
+    const [user, setUser] = useState({
+        'Name': 'Alex Jian',
+        'Email': 'asjian@umich.edu',
+        'Organization': "No",
+        'Admin': "Yes",
+        'UpcomingEvents': '1 3 8',
+        'EventsHosting': '',
+        'avatarsource': require('../assets/avatar.jpeg'),
+        'alreadyFetched': false,
+    })
+    const getUser = () => {
+        console.log('fetching user...');
+        const fetchurl = Globals.usersURL + '?Email=' + userEmail;
+
+        fetch(fetchurl)
+          .then((response) => response.json())
+          .then((json) => {setUser({...json[0],...{'avatarsource':require('../assets/avatar.jpeg'),'alreadyFetched':true}})})
+          .catch((error) => console.error(error))
     }
+    useEffect(() => {
+        if(!user.alreadyFetched) {
+            getUser();
+        }0
+    }, [navigation]);
+    /*
+    console.log('fetching categories...')
+    fetch('http://192.168.1.219:8080/EventHub/rest/categories')
+    .then((response) => response.json())
+    .then((json) => console.log(json))
+    .catch((error) => console.error(error))
+    */
 
     return (
     <View style = {styles.screenContainer}>
@@ -28,8 +57,8 @@ function MainScreen({navigation}) {
         <ScrollView contentContainerStyle = {styles.scrollContainer}>
             <View style = {styles.profileContainer}>
                 <Image source = {user.avatarsource} style = {styles.image}/>
-                <Text style = {styles.nameText}>{user.username}</Text>
-                <Text style = {styles.emailText}>{user.useremail}</Text>
+                <Text style = {styles.nameText}>{user.Name}</Text>
+                <Text style = {styles.emailText}>{user.Email}</Text>
                 {/*interest icons go here, do later*/}
             </View>
             <View style={styles.buttonContainer}>
@@ -53,36 +82,81 @@ function MainScreen({navigation}) {
     </View>
     );
 }
-
-const ProfileNavigator = createSwitchNavigator(
-    {
-        MainScreen,
-        MyUpcomingScreen,
-        EventsFollowingScreen,
-        EventUpdatesScreen,
-        AddFriendsScreen,
-        FriendRequestsScreen,
-        FriendsListScreen,
-        WhereFriendsScreen,
-        IncomingInvScreen,
-        OutgoingInvScreen
+const screens = {
+    MainScreen: {
+        screen: MainScreen,
+        navigationOptions: {
+            headerShown: false
+        },
     },
-    {initialRouteName: 'MainScreen'
+    MyUpcomingScreen: {
+        screen: MyUpcomingScreen,
+        navigationOptions: {
+            headerShown: false
+        },
     },
-)
+    EventsFollowingScreen: {
+        screen: EventsFollowingScreen,
+        navigationOptions: {
+            headerShown: false,
+        },
+    },
+    EventUpdatesScreen: {
+        screen: EventUpdatesScreen,
+        navigationOptions: {
+            headerShown: false,
+        },
+    },
+    AddFriendsScreen: {
+        screen: AddFriendsScreen,
+        navigationOptions: {
+            headerShown: false,
+        },
+    },
+    FriendRequestsScreen: {
+      screen: FriendRequestsScreen,
+      navigationOptions: {
+        headerShown: false
+      },
+    },
+    FriendsListScreen: {
+        screen: FriendsListScreen,
+        navigationOptions: {
+          headerShown: false
+        },
+    },
+    WhereFriendsScreen: {
+        screen: WhereFriendsScreen,
+        navigationOptions: {
+          headerShown: false
+        },
+    },
+    IncomingInvScreen: {
+        screen: IncomingInvScreen,
+        navigationOptions: {
+          headerShown: false
+        },
+    },
+    OutgoingInvScreen: {
+        screen: OutgoingInvScreen,
+        navigationOptions: {
+          headerShown: false
+        },
+    },
+}
+const ProfileNavigator = createStackNavigator(screens);
 
 const ProfileContainer = createAppContainer(ProfileNavigator);
 
-export default function ProfileScreen({navigation}){
+export default function FindScreen() {
     return (
         <ProfileContainer/>
     );
 }
-
 const styles = StyleSheet.create({
     screenContainer: {
         flex:1,
-        backgroundColor:'#fff9f9',
+        backgroundColor:'#fff',
     },
     profileContainer: {
         flex:1,

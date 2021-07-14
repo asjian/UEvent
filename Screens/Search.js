@@ -13,19 +13,18 @@ export default function Search({navigation}) {
         setCategoryLabel('Selection');
     });*/
     const myContext = useContext(AppContext);
-    
     const searchDefaultParams = {
         SearchType: navigation.getParam('SearchType'),
         SearchText: navigation.getParam('SearchText'),
-        Categories: navigation.getParam('Categories'),
-        TimeRange: navigation.getParam('TimeRange'),
-        OtherFilters: navigation.getParam('OtherFilters'),
+        Categories: JSON.parse(JSON.stringify(navigation.getParam('Categories'))),
+        TimeRange: JSON.parse(JSON.stringify(navigation.getParam('TimeRange'))),
+        OtherFilters: JSON.parse(JSON.stringify(navigation.getParam('OtherFilters'))),
         BotSheetInfo: navigation.getParam('BotSheetInfo'),
     }
     const buttonTextDecider = (typeName) => {
-        let catList = navigation.getParam('Categories');
-
         if(typeName == 'Categories') {
+            let catList = navigation.getParam('Categories');
+
             if(catList.length == 0)
                 return <Text style = {styles.buttonText}>Event Categories</Text>;  
 
@@ -65,7 +64,7 @@ export default function Search({navigation}) {
                 </View>
                 );
             }  
-        }
+        } //end of: if typeName == categories
         return <Text style = {styles.buttonText}>Whoops</Text>;   
     }
     const filterHandler = (screenName) => {
@@ -77,24 +76,21 @@ export default function Search({navigation}) {
         navigation.navigate('MainScreen',searchDefaultParams);
     }
     const searchFilterSubmitHandler = () => {
-        searchDefaultParams.SearchType = 'filter';
+        searchDefaultParams.SearchText = '';
+        if(searchDefaultParams.Categories.length==0) //TEMPORARY SOLUTION FOR TESTING: REVISE LATER, SHOULD CHECK IF ENTIRE SEARCH IS EMPTY
+            searchDefaultParams.SearchType = 'none';
+        else 
+            searchDefaultParams.SearchType = 'filter';
         navigation.navigate('MainScreen',searchDefaultParams);
     }
-    const clearSearch = () => {
-        if(searchDefaultParams.BotSheetInfo.snapPos == 0) {
+    const closeHandler = () => { //delete all changes but don't necessarily clear the search
+        if(searchDefaultParams.BotSheetInfo.snapPos == 0 && searchDefaultParams.Categories.length == 0 && searchDefaultParams.SearchText.length == 0) { //also check if search is empty otherwise navbar bugs
             myContext.toggleShowNavBar(true);
         }
-        /*
-        else {
-            searchDefaultParams.BotSheetInfo.bsRef.current.snapTo(0);
-        }
-        */
-        navigation.getParam('Categories').length = 0;
-        navigation.getParam('TimeRange')['startDate'] = '';navigation.getParam('TimeRange')['endDate'] = '';navigation.getParam('TimeRange')['duration'] = '';
-        navigation.getParam('OtherFilters').length = 0;
+        navigation.goBack();
     }
     const iconColor = '#adadad';
-    const [searchText, setSearchText] = useState('');
+    const [searchText, setSearchText] = useState(searchDefaultParams.SearchText);
     const [suggestionsVisible,setSuggestionsVisible] = useState(false);
 
     const renderBottom =  () => {
@@ -124,7 +120,7 @@ export default function Search({navigation}) {
                         <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress = {() => filterHandler('CategoryList')} style = {styles.buttonStyle}>
+                    <TouchableOpacity onPress = {() => filterHandler('OtherFilters')} style = {styles.buttonStyle}>
                         <Image source = {require('../assets/filter.png')} style = {styles.leftIcon}/>
                         <Text style = {[styles.buttonText,{marginLeft: 17}]}>Other Filters</Text>
                         <AntDesign name = 'right' size = {30} color = '#828181' style = {styles.rightIcon}/>
@@ -144,7 +140,7 @@ export default function Search({navigation}) {
         <View style = {styles.innerContainer}>
                 <Text style = {styles.headerText}>Search</Text>
                 <View style = {styles.close}>
-                    <Ionicons name = 'close-circle-outline' size = {38} onPress = {() => {clearSearch();navigation.goBack();}}/>
+                    <Ionicons name = 'close-circle-outline' size = {38} onPress = {closeHandler}/>
                 </View>
 
                 <SearchBar 
@@ -155,13 +151,14 @@ export default function Search({navigation}) {
                 onFocus = {() => setSuggestionsVisible(true)}
                 onSubmitEditing = {() => {searchTextSubmitHandler(searchText)}}
                 autoCorrect = {false}
+                autoFocus = {searchText.length != 0}
 
                 inputStyle = {styles.input}
                 inputContainerStyle = {styles.inputContainer}
                 containerStyle = {styles.searchContainer}
                 searchIcon = {suggestionsVisible?<Ionicons name = 'chevron-back' size = {30} color = {iconColor} onPress = {() =>
                 {Keyboard.dismiss();this.search.clear();setSuggestionsVisible(false);}}/> : <Ionicons name = 'search-sharp' size = {30} color = {iconColor}/>}
-                clearIcon = {<Ionicons name = 'close-outline' size = {28} color = {iconColor} onPress = {() => this.search.clear()}/>}
+                clearIcon = {<Ionicons name = 'close-outline' size = {28} color = {iconColor} onPress = {() => {this.search.clear()}}/>}
                 />
                 {renderBottom()}
         </View>

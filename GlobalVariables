@@ -1,2 +1,4 @@
-HORIZONTALMARGIN = 20.4;
-HEADERFONTWEIGHT = 'bold';
+usersURL = 'https://retoolapi.dev/mR2CoY/users'
+eventsURL = 'https://retoolapi.dev/a8DmU4/events'
+
+export default  {usersURL, eventsURL}

@@ -5,14 +5,18 @@ import {createStackNavigator} from 'react-navigation-stack';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 import TopBar from '../objects/topBar';
+import MapSearchBar from '../objects/mapSearchBar';
 import Search from './Search';
 import CategoryList from './CategoryList';
 import TimeRange from './TimeRange';
+import OtherFilters from './OtherFilters';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import Marker from 'react-native-maps';
 import Geocoder from 'react-native-geocoding';
 import LocationPin from '../objects/locationPin';
+import LocationCircle from '../objects/LocationCircle';
 import AppContext from '../objects/AppContext';
+import Globals from '../../GlobalVariables';
 
 //a sub branch of the main find screen
 function DetailsScreen({ navigation }) {
@@ -119,31 +123,60 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
     }
     const [eventList,setEventList] = useState([]);
 
-    const getEvents = () => {
-      console.log('fetching...');
-      fetch('https://retoolapi.dev/rJZk4j/events')
-        .then((response) => response.json())
-        .then((json) => setEventList(json))
-        .catch((error) => console.error(error))
-    }
-
-      useEffect(() => {
-        getEvents();
-    }, [navigation]);
-
     const searchParams = {
       SearchType: navigation.getParam('SearchType','none'),
       SearchText: navigation.getParam('SearchText',''),
       Categories: navigation.getParam('Categories',[]),
       TimeRange: navigation.getParam('TimeRange',{startDate:'',endDate:'',duration:''}),
       OtherFilters: navigation.getParam('OtherFilters',[]),
-      BotSheetInfo: navigation.getParam('BotSheetInfo',{bsRef:bs,snapPos:snapPosition,setSnapPos:setSnapPosition}),
+      BotSheetInfo: navigation.getParam('BotSheetInfo',{snapPos:snapPosition}),
+    }
+    const getEvents = () => {
+      console.log('fetching...');
+      console.log(searchParams.SearchType);
+      console.log(searchParams.SearchText);
+      console.log(searchParams.Categories);
+      let fetchurl = Globals.eventsURL;
+      if(searchParams.SearchType == 'text') {
+        //search by keyword, not implemented yet
+        //for now, display any events whose name EXACTLY matches the search text
+        fetchurl += '?Name=' + searchParams.SearchText;
+      }
+      else if(searchParams.SearchType == 'filter') {
+        //will end up searching by multiple categories, as well as timerange, otherfilters
+        //for now, just search by the first category for testing purposes
+        fetchurl += '?MainCategory=' + searchParams.Categories[0].name;
+      }
+      fetch(fetchurl)
+        .then((response) => response.json())
+        .then((json) => setEventList(json))
+        .catch((error) => console.error(error))
+    }
+      useEffect(() => {
+        getEvents();
+        
+    }, [navigation]);
+
+    renderEvents = () => {
+        return (
+          eventList.map((item) => {
+            if(item.InPersonVirtual == "In Person") {
+            return (
+              <View key = {item.id}>
+              <MapView.Marker coordinate = {{latitude: parseFloat(item.Latitude), longitude: parseFloat(item.Longitude)}} onPress = {() => openBottomSheet(item)}>
+                <LocationPin title = {item.Name}/>
+              </MapView.Marker>
+              </View>
+            )
+            }
+          })
+        )   
     }
     return (
         <View style = {styles.container}>
             <MapView style={styles.map}
-            provider = {PROVIDER_GOOGLE}
-            customMapStyle = {mapStyle}
+            //provider = {PROVIDER_GOOGLE}
+            //customMapStyle = {mapStyle}
             initialRegion = {{
             latitude: 42.278,
             longitude: -83.738,
@@ -151,27 +184,24 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
             longitudeDelta: longDelta,
             }
             }
-            showCompass = {false}       
+            showCompass = {false}     
+            showsPointsOfInterest = {true}
+            rotateEnabled = {false}  
             >
-            <MapView.Marker coordinate = {{latitude: 42.28, longitude: -83.739}}>
-                <LocationPin title = 'Party'/>
+            {renderEvents()}
+            
+            {/*
+            <MapView.Marker coordinate = {{latitude: 42.275200, longitude: -83.735474}}>
+                <LocationCircle name = "Joe's Pizza"/>
             </MapView.Marker>
-
-            {eventList.map((item) => {
-              if(item.InPersonVirtual == "In Person") {
-              return (
-                <View key = {item.id}>
-                <MapView.Marker coordinate = {{latitude: parseFloat(item.Latitude), longitude: parseFloat(item.Longitude)}} onPress = {() => openBottomSheet(item)}>
-                  <LocationPin title = {item.Name}/>
-                </MapView.Marker>
-                </View>
-              )
-              }
-            })}
+            */}
+            
             </MapView>
 
         <View style={styles.topbar}>
-                <TopBar navigation = {navigation} searchDefaultParams = {searchParams}/>
+                {/*searchParams.SearchType=='none'?<TopBar navigation = {navigation} searchDefaultParams = {searchParams}/>:
+                <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>*/}   
+                {<TopBar navigation = {navigation} searchDefaultParams = {searchParams}/>}
         </View> 
 
             <View style={styles.pullup}>
@@ -183,7 +213,7 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
                     initialSnap={0}
                     callbackNode={this.fall}
                     enabledGestureInteraction={true}
-                    onCloseEnd={() => {setSnapPosition(0);myContext.toggleShowNavBar(true)}}
+                    onCloseEnd={() => {setSnapPosition(0);if(searchParams.SearchType == 'none')myContext.toggleShowNavBar(true)}}
                 />
                 <Animated.View style={{margin: 20,
                     opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
@@ -226,6 +256,12 @@ const screens = {
             headerShown: false,
         },
     },
+    OtherFilters: {
+      screen: OtherFilters,
+      navigationOptions: {
+        headerShown: false
+      },
+    }
 }
 const FindNavigator = createStackNavigator(screens);
 
@@ -279,6 +315,7 @@ const styles = StyleSheet.create({
     }
 })
 
+/*
 const mapStyle  = [
   {
     "featureType": "administrative",
@@ -315,3 +352,4 @@ const mapStyle  = [
     ]
   }
 ];
+*/

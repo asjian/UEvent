@@ -21,6 +21,7 @@ export default function Search({navigation}) {
         OtherFilters: JSON.parse(JSON.stringify(navigation.getParam('OtherFilters'))),
         BotSheetInfo: navigation.getParam('BotSheetInfo'),
     }
+
     const buttonTextDecider = (typeName) => {
         if(typeName == 'Categories') {
             let catList = navigation.getParam('Categories');
@@ -84,6 +85,7 @@ export default function Search({navigation}) {
         navigation.navigate('MainScreen',searchDefaultParams);
     }
     const closeHandler = () => { //delete all changes but don't necessarily clear the search
+        console.log(searchDefaultParams.BotSheetInfo);
         if(searchDefaultParams.BotSheetInfo.snapPos == 0 && searchDefaultParams.Categories.length == 0 && searchDefaultParams.SearchText.length == 0) { //also check if search is empty otherwise navbar bugs
             myContext.toggleShowNavBar(true);
         }

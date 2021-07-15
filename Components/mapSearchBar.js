@@ -12,13 +12,21 @@ export default function mapSearchBar({navigation,searchDefaultParams}) {
         searchDefaultParams.TimeRange = {startDate:'',endDate:'',duration:''};
         searchDefaultParams.OtherFilters = [];
         searchDefaultParams.SearchType = 'none';
-        myContext.toggleShowNavBar(true);
+        searchDefaultParams.CloseBotSheet = true;
+        /*
+        if(searchDefaultParams.BotSheetInfo.snapPos == 0) {
+            myContext.toggleShowNavBar(true);
+        }
+        */
         navigation.navigate('MainScreen',searchDefaultParams);
     }
     return (
         <TouchableWithoutFeedback onPress = {() => navigation.navigate('Search',searchDefaultParams)}>
             <View style = {styles.container}>
-                <Text style = {styles.text}>{searchDefaultParams.SearchText}</Text>
+                <Image source = {require('../assets/search_location_icon.png')} style = {styles.leftIcon}/> 
+                {searchDefaultParams.SearchText.length==0?
+                <Text style = {styles.placeHolderText}>Search</Text>:
+                <Text style = {styles.text}>{searchDefaultParams.SearchText}</Text>}
                 <View style = {styles.clearIcon}>
                     <Ionicons name = 'close-outline' size = {28} color = '#606060' onPress = {clearHandler}/>
                 </View>
@@ -29,8 +37,9 @@ export default function mapSearchBar({navigation,searchDefaultParams}) {
 
 const styles = StyleSheet.create({
     container: {
+        flexDirection: 'row',
         marginHorizontal: 20,
-        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: 'white',
         borderRadius: 20,
 
@@ -43,10 +52,22 @@ const styles = StyleSheet.create({
         shadowRadius: 2.22,
         elevation: 3,
     },
+    leftIcon: {
+        marginLeft: 12,
+        height: 30,
+        width: 30,
+        tintColor: '#fab400',
+    },
+    placeHolderText: {
+        fontSize: 18, 
+        paddingVertical: 12,
+        marginLeft: 13,
+        opacity: 0.5,
+    },
     text: {
-        fontSize: 20,
-        paddingVertical: 10,
-        marginLeft: 20,
+        fontSize: 18,
+        paddingVertical: 12,
+        marginLeft: 13,
     },
     clearIcon: {
         position: 'absolute',

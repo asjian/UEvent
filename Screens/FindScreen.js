@@ -14,7 +14,6 @@ import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import Marker from 'react-native-maps';
 import Geocoder from 'react-native-geocoding';
 import LocationPin from '../objects/locationPin';
-import LocationCircle from '../objects/LocationCircle';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
 

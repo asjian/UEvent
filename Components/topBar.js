@@ -31,15 +31,17 @@ const TypeSelector = () => {
     />
   );
 }
-
-function FindEventsScreen({navigation,botSheet,snapPos,setSnapPos}) {
-    const myContext = useContext(AppContext);
-    const searchDefaultParams = {
+/*
+      SearchType: 'none',
+      SearchText: '',
       Categories: [],
       TimeRange: {startDate:'',endDate:'',duration:''},
       OtherFilters: [],
       BotSheetInfo: {bsRef:botSheet,snapPos:snapPos,setSnapPos:setSnapPos},
-    }
+  */
+function FindEventsScreen({navigation,searchDefaultParams}) {
+    const myContext = useContext(AppContext);
+
     const goToSearch = () => {
       myContext.toggleShowNavBar(false);
       navigation.navigate("Search",searchDefaultParams);

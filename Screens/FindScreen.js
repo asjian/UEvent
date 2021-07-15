@@ -130,6 +130,7 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
       TimeRange: navigation.getParam('TimeRange',{startDate:'',endDate:'',duration:''}),
       OtherFilters: navigation.getParam('OtherFilters',[]),
       BotSheetInfo: navigation.getParam('BotSheetInfo',{snapPos:snapPosition}),
+      CloseBotSheet: navigation.getParam('CloseBotSheet',false),
     }
     const getEvents = () => {
       console.log('fetching...');
@@ -141,11 +142,27 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
     }
     const [fetched,setFetched] = useState(false);
       useEffect(() => {
+        console.log(searchParams);
         if(!fetched) {
           getEvents();
           setFetched(true);
         }
+      
+      if(searchParams.CloseBotSheet == true) {
+        bs.current.snapTo(0);
+      }    
+      
+      if(searchParams.SearchType == 'none') {
+        if(snapPosition == 0)
+          myContext.toggleShowNavBar(true);
+        else
+          myContext.toggleShowNavBar(false);
+      } 
+      else
+        myContext.toggleShowNavBar(false);
+
     }, [navigation]);
+    
 
     const matchesCriteria = (event) => {
       if(event.InPersonVirtual == 'In Person') { //first line of basic checks

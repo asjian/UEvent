@@ -20,6 +20,7 @@ export default function Search({navigation}) {
         TimeRange: JSON.parse(JSON.stringify(navigation.getParam('TimeRange'))),
         OtherFilters: JSON.parse(JSON.stringify(navigation.getParam('OtherFilters'))),
         BotSheetInfo: navigation.getParam('BotSheetInfo'),
+        CloseBotSheet: navigation.getParam('CloseBotSheet'),
     }
 
     const buttonTextDecider = (typeName) => {
@@ -74,10 +75,12 @@ export default function Search({navigation}) {
     const searchTextSubmitHandler = (searchText) => {
         searchDefaultParams.SearchType = 'text';
         searchDefaultParams.SearchText = searchText;
+        searchDefaultParams.CloseBotSheet = true;
         navigation.navigate('MainScreen',searchDefaultParams);
     }
     const searchFilterSubmitHandler = () => {
-        searchDefaultParams.SearchText = '';
+        searchDefaultParams.SearchText = ''; //any search involving both text and filters will be submitted through the text submit, so this is safe
+        searchDefaultParams.CloseBotSheet = true;
         if(searchDefaultParams.Categories.length==0) //TEMPORARY SOLUTION FOR TESTING: REVISE LATER, SHOULD CHECK IF ENTIRE SEARCH IS EMPTY
             searchDefaultParams.SearchType = 'none';
         else 
@@ -86,10 +89,12 @@ export default function Search({navigation}) {
     }
     const closeHandler = () => { //delete all changes but don't necessarily clear the search
         console.log(searchDefaultParams.BotSheetInfo);
+        /*
         if(searchDefaultParams.BotSheetInfo.snapPos == 0 && searchDefaultParams.Categories.length == 0 && searchDefaultParams.SearchText.length == 0) { //also check if search is empty otherwise navbar bugs
             myContext.toggleShowNavBar(true);
         }
-        navigation.goBack();
+        */
+        navigation.navigate('MainScreen',{CloseBotSheet:false});
     }
     const iconColor = '#adadad';
     const [searchText, setSearchText] = useState(searchDefaultParams.SearchText);

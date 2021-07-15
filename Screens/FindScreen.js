@@ -133,40 +133,49 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
     }
     const getEvents = () => {
       console.log('fetching...');
-      console.log(searchParams.SearchType);
-      console.log(searchParams.SearchText);
-      console.log(searchParams.Categories);
       let fetchurl = Globals.eventsURL;
-      if(searchParams.SearchType == 'text') {
-        //search by keyword, not implemented yet
-        //for now, display any events whose name EXACTLY matches the search text
-        fetchurl += '?Name=' + searchParams.SearchText;
-      }
-      else if(searchParams.SearchType == 'filter') {
-        //will end up searching by multiple categories, as well as timerange, otherfilters
-        //for now, just search by the first category for testing purposes
-        fetchurl += '?MainCategory=' + searchParams.Categories[0].name;
-      }
       fetch(fetchurl)
         .then((response) => response.json())
-        .then((json) => setEventList(json))
+        .then((json) => {setEventList(json)})
         .catch((error) => console.error(error))
     }
+    const [fetched,setFetched] = useState(false);
       useEffect(() => {
-        getEvents();
-        
+        if(!fetched) {
+          getEvents();
+          setFetched(true);
+        }
     }, [navigation]);
 
+    const matchesCriteria = (event) => {
+      if(event.InPersonVirtual == 'In Person') { //first line of basic checks
+        if(searchParams.SearchType == 'text') {
+          if(event.Name == searchParams.SearchText)
+            return true;
+          return false;
+        }
+        else if(searchParams.SearchType == 'filter') {
+          if(event.MainCategory == searchParams.Categories[0].name) {
+            return true;
+          }
+          return false;
+        }
+        else { //searchtype == none
+          return true;
+        }
+      }
+      return false;
+    }
     renderEvents = () => {
         return (
           eventList.map((item) => {
-            if(item.InPersonVirtual == "In Person") {
+            if(matchesCriteria(item)) {
             return (
-              <View key = {item.id}>
-              <MapView.Marker coordinate = {{latitude: parseFloat(item.Latitude), longitude: parseFloat(item.Longitude)}} onPress = {() => openBottomSheet(item)}>
+              <MapView.Marker key = {item.id}
+              coordinate = {{latitude: parseFloat(item.Latitude), longitude: parseFloat(item.Longitude)}} 
+              onPress = {() => openBottomSheet(item)}>
                 <LocationPin title = {item.Name}/>
               </MapView.Marker>
-              </View>
             )
             }
           })
@@ -199,9 +208,8 @@ Nam in arcu porta, volutpat neque et, finibus ligula. Donec suscipit placerat in
             </MapView>
 
         <View style={styles.topbar}>
-                {/*searchParams.SearchType=='none'?<TopBar navigation = {navigation} searchDefaultParams = {searchParams}/>:
-                <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>*/}   
-                {<TopBar navigation = {navigation} searchDefaultParams = {searchParams}/>}
+                {searchParams.SearchType=='none'?<TopBar navigation = {navigation} searchDefaultParams = {searchParams}/>:
+                <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>}   
         </View> 
 
             <View style={styles.pullup}>

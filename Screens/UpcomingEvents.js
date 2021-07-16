@@ -1,42 +1,40 @@
-import React, {useContext}  from 'react';
-import { SafeAreaView,View, Text, Button, StyleSheet, Image, ParentView, TouchableOpacity} from 'react-native';
+import React, { useContext } from 'react';
+import { SafeAreaView, View, Text, Button, StyleSheet, Image, ParentView, TouchableOpacity, ScrollView } from 'react-native';
 import AppContext from '../objects/AppContext';
-
 
 const EventBox = () => {
     return (
         <View style={styles.box}>
-            <View style={{flex: 2}}>
-                <Image style={styles.realImageStyle} source={require('../assets/YC-Circular.png')}/>
+            <View style={{ flex: 2 }}>
+                <Image style={styles.realImageStyle} source={require('../assets/YC-Circular.png')} />
             </View>
-            <View style={{flex: 4}}>
-                <View style={{flexDirection: 'row'}}>
-                    <Text style={{fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%'}}>Sat, May 25  1:00PM - 2:00PM</Text>
-                    <Image style={{resizeMode: 'contain', marginLeft: '10%'}} source={require('../assets/NotificationBell.png')} />
+            <View style={{ flex: 4 }}>
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={{ fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%' }}>Sat, May 25  1:00PM - 2:00PM</Text>
+                    <Image style={{ resizeMode: 'contain', marginLeft: '10%' }} source={require('../assets/NotificationBell.png')} />
                 </View>
-                <Text style={{fontWeight: "500", fontSize: 16, marginBottom: '5%'}}>Startups 101 - Everything You Need To Know To Start</Text>
-                <Text style={{fontWeight: '500', fontSize: 13, color: '#0085FF'}}> Stephen M. Ross School of Business</Text>
-            </View>   
+                <Text style={{ fontWeight: "500", fontSize: 16, marginBottom: '3%' }}>Startups 101 - Everything You Need To Know To Start</Text>
+                <Text style={{ fontWeight: '500', fontSize: 13, color: '#0085FF' }}>Stephen M. Ross School of Business</Text>
+            </View>
         </View>
     );
 }
-
 const EventBox2 = () => {
     return (
         <View style={styles.box}>
-            <View style={{flex: 2}}>      
-                <Image style={styles.realImageStyle} source={require('../assets/MDST.png')}/>
+            <View style={{ flex: 2 }}>
+                <Image style={styles.realImageStyle} source={require('../assets/MDST.png')} />
             </View>
-           <View style={{flex: 4}}>
-               <View style={{flexDirection: 'row'}}>
-                    <Text style={{fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%'}}>Sat, May 22  11:00AM - 2:00PM</Text>
-                    <Image style={{resizeMode: 'contain', marginLeft: '10%'}} source={require('../assets/NotificationBell.png')} />
-               </View>
-                
-                <Text style={{fontWeight: "500", fontSize: 16, marginBottom: '5%'}}>MDST Work Session</Text>
-                <Text style={{fontWeight: '500', fontSize: 13, color: '#0085FF'}}>Online Event (Google Meets)</Text>
-           </View>
-            
+            <View style={{ flex: 4 }}>
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={{ fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%' }}>Sat, May 22  11:00AM - 2:00PM</Text>
+                    <Image style={{ resizeMode: 'contain', marginLeft: '10%' }} source={require('../assets/NotificationBell.png')} />
+                </View>
+
+                <Text style={{ fontWeight: "500", fontSize: 16, marginBottom: '5%' }}>MDST Work Session</Text>
+                <Text style={{ fontWeight: '500', fontSize: 13, color: '#0085FF' }}>Online Event (Google Meets)</Text>
+            </View>
+
         </View>
     );
 }
@@ -44,8 +42,8 @@ const EventBox2 = () => {
 const EventBox3 = () => {
     return (
         <View style={styles.box}>
-            <Image style={styles.realImageStyle} source={require('../assets/Spikeballlogo.png')}/>
-            <Text style={{flex:3}}>Spikeball Tournament</Text>
+            <Image style={styles.realImageStyle} source={require('../assets/Spikeballlogo.png')} />
+            <Text style={{ flex: 3 }}>Spikeball Tournament</Text>
         </View>
     );
 }
@@ -53,7 +51,7 @@ const EventBox3 = () => {
 
 
 function UpcomingEventsScreen({ navigation }) {
-    const myContext =useContext(AppContext);
+    const myContext = useContext(AppContext);
     // event handler function
     const createEventHandler = () => {
         myContext.toggleShowNavBar(false);
@@ -61,48 +59,66 @@ function UpcomingEventsScreen({ navigation }) {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <EventBox/>
-            <EventBox2/>
+
+
+
+        <SafeAreaView style={{ backgroundColor: '#FFFBF3' }}>
+            <View style={{ height: '86%' }}>
+
+
+                <ScrollView contentContainerStyle={styles.container}>
+
+
+
+                    <EventBox />
+                    <EventBox2 />
+
+
+
+
+                </ScrollView>
+            </View>
             <View style={styles.NewEventButton}>
                 <TouchableOpacity onPress={createEventHandler}>
-                    <View style = {styles.selectContainer}>
-                        <Text style = {styles.selectText}>+ Create New Event</Text>
+                    <View style={styles.selectContainer}>
+                        <Text style={styles.selectText}>+ Create New Event</Text>
                     </View>
                 </TouchableOpacity>
             </View>
-          
-            
 
         </SafeAreaView>
+
+
+
     );
 }
 
 UpcomingEventsScreen.navigationOptions = {
     headerTitle: 'Trucks Screen',
     headerLeft: () => {
-      return null;
+        return null;
     },
 };
 
 export default UpcomingEventsScreen;
 
 const styles = StyleSheet.create({
-    container : {
+    container: {
         width: '100%',
-        height: '90%',
+        height: '100%',
         padding: 5,
         flexDirection: 'column',
         flexWrap: 'wrap',
+
+
+
+    },
+    NewEventButton: {
         backgroundColor: '#FFFBF3'
-        
     },
-    NewEventButton : {
-        margin: 10
-    },
-    box : {
+    box: {
         width: '95%',
-        height: '17%',
+        height: '19%',
         padding: 5,
         margin: 10,
         flexDirection: 'row',
@@ -115,21 +131,21 @@ const styles = StyleSheet.create({
         shadowRadius: 1.41,
         elevation: 2,
         backgroundColor: '#F8F8F8'
-        
+
     },
     inner1: {
         flex: 2,
-        
-     },
-     inner2: {
-        flex: 3
-     },
 
-    realImageStyle : {
+    },
+    inner2: {
+        flex: 3
+    },
+
+    realImageStyle: {
         height: '100%',
         resizeMode: 'contain',
         width: '100%'
-        
+
     },
     selectContainer: {
         backgroundColor: '#ffffff',

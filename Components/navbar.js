@@ -20,7 +20,7 @@ const NavBar = () => {
                  elevation: 0,
                  backgroundColor: '#fff',
                  borderRadius: 0,
-                 height: 110,
+                 height: 95,
                  ...styles.shadow
              }
          }}
@@ -28,7 +28,7 @@ const NavBar = () => {
             <Tab.Screen name="Find" component={FindScreen}
                 options={{
                     tabBarIcon: ({focused}) => (
-                        <View style={{alignItems: 'center', justifyContent: 'center', top: 17}}>
+                        <View style={{alignItems: 'center', justifyContent: 'center', top: 5}}>
                             <Image 
                                 source={require('../assets/search_location_icon.png')}
                                 resizeMode='contain'
@@ -50,7 +50,7 @@ const NavBar = () => {
             <Tab.Screen name="Host" component={HostScreen}
                 options={{
                     tabBarIcon: ({focused}) => (
-                        <View style={{alignItems: 'center', justifyContent: 'center', top: 17}}>
+                        <View style={{alignItems: 'center', justifyContent: 'center', top: 5}}>
                             <Image 
                                 source={require('../assets/home_icon.png')}
                                 resizeMode='contain'
@@ -72,7 +72,7 @@ const NavBar = () => {
             <Tab.Screen name="Profile" component={ProfileScreen}
                 options={{
                     tabBarIcon: ({focused}) => (
-                        <View style={{alignItems: 'center', justifyContent: 'center', top: 17}}>
+                        <View style={{alignItems: 'center', justifyContent: 'center', top: 5}}>
                             <Image 
                                 source={require('../assets/user_icon.png')}
                                 resizeMode='contain'

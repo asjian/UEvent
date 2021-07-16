@@ -4,132 +4,153 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { useState, useContext } from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { useNavigation } from '@react-navigation/native'
-import { Field, Formik, } from 'formik';
+import { ErrorMessage, Field, Formik, } from 'formik';
 import CheckBox from '@react-native-community/checkbox';
-import {AntDesign} from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AppContext from '../objects/AppContext';
-import SearchableDropdown from 'react-native-searchable-dropdown';
-import EventTypeSelector from '../objects/FormObjects.js/EventTypeSelector';
-import PrivacySelector from '../objects/FormObjects.js/PrivacySelector';
-import ContentTypeSelector from '../objects/FormObjects.js/ContentTypeSelector';
-import InPersonSelector from '../objects/FormObjects.js/InPersonSelector';
-import StartDateSelector from '../objects/FormObjects.js/StartDateSelector';
-import EndDateSelector from '../objects/FormObjects.js/EndDateSelector';
-import StartTimeSelector from '../objects/FormObjects.js/StartTimeSelector';
-import EndTimeSelector from '../objects/FormObjects.js/EndTimeSelector';
-import TimeInAdvanceSelector from '../objects/FormObjects.js/TimeInAdvanceSelector';
-import ImagePickerExample from '../objects/FormObjects.js/ImagePicker';
+//import SearchableDropdown from 'react-native-searchable-dropdown';
+import EventTypeSelector from '../objects/FormObjects/EventTypeSelector';
+import PrivacySelector from '../objects/FormObjects/PrivacySelector';
+import ContentTypeSelector from '../objects/FormObjects/ContentTypeSelector';
+import InPersonSelector from '../objects/FormObjects/InPersonSelector';
+import StartDateSelector from '../objects/FormObjects/StartDateSelector';
+import EndDateSelector from '../objects/FormObjects/EndDateSelector';
+import StartTimeSelector from '../objects/FormObjects/StartTimeSelector';
+import EndTimeSelector from '../objects/FormObjects/EndTimeSelector';
+import TimeInAdvanceSelector from '../objects/FormObjects/TimeInAdvanceSelector';
+import ImagePickerExample from '../objects/FormObjects/ImagePicker';
 import * as yup from 'yup';
+import { max } from 'react-native-reanimated';
 
 // Header
-function Header({navigation}) {
-    const myContext =useContext(AppContext);
+function Header({ navigation }) {
+    const myContext = useContext(AppContext);
     // event handler function
     const closeHandler = () => {
         myContext.toggleShowNavBar(true);
         navigation.goBack();
     }
     return (
-        <View style = {styles.outerContainer}>
-        <View style = {styles.innerContainer}>
-                <Text style = {styles.headerText}>Create A New Event</Text>
-                <View style = {styles.close}>
-                    <AntDesign name = 'closecircleo' size = {30} onPress = {closeHandler}/>
-                </View> 
-               
-        </View>
+        <View style={styles.outerContainer}>
+            <View style={styles.innerContainer}>
+                <Text style={styles.headerText}>Create A New Event</Text>
+                <View style={styles.close}>
+                    <AntDesign name='closecircleo' size={30} onPress={closeHandler} />
+                </View>
+
+            </View>
         </View>
     );
 }
 // Preview Header
-function PreviewHeader({navigation}) {
-    const myContext =useContext(AppContext);
+function PreviewHeader({ navigation }) {
+    const myContext = useContext(AppContext);
     // event handler function
     const closeHandler = () => {
         myContext.toggleShowNavBar(true);
         navigation.dangerouslyGetParent().goBack();
     }
     return (
-        <View style = {styles.outerContainer}>
-        <View style = {styles.innerContainer}>
-                <Text style = {styles.headerText2}>Preview</Text>
-                <View style = {styles.close}>
-                    <AntDesign name = 'closecircleo' size = {30} onPress = {closeHandler}/>
-                </View> 
-               
-        </View>
+        <View style={styles.outerContainer}>
+            <View style={styles.innerContainer}>
+                <Text style={styles.headerText2}>Preview</Text>
+                <View style={styles.close}>
+                    <AntDesign name='closecircleo' size={30} onPress={closeHandler} />
+                </View>
+
+            </View>
         </View>
     );
 }
 
 // Components
 
-const Back = () => {
-        <TouchableOpacity style = {styles.SearchButton} onPress={() => navigation.navigate("MoreInformation")}>
-                <Image source={require('../assets/Back.png')}/>
-        </TouchableOpacity>
-    
-}
 
-const Next = ({navigation}) => {
+const Next = ({ navigation }) => {
 
     return (
-        <TouchableOpacity style = {styles.SearchButton} onPress={() => navigation.navigate("MoreInformation")}>
-            <Image source={require('../assets/Next.png')}/>
+        <TouchableOpacity style={styles.SearchButton} onPress={() => navigation.navigate("MoreInformation")}>
+            <Image source={require('../assets/Next.png')} />
         </TouchableOpacity>
     );
-    
+
 }
 
 // Screens
 
-const validSchema = yup.object({
-        // first slide
-        EventTitle: yup.string()
-            .required(),
-        OrganizerName: yup.string()
-            .required(), 
-        EventType: yup.string()
-            .required(), 
-        ContentType: yup.string()
-            .required(), 
-        Tags: yup.string()
-            .required(), 
-        Privacy: yup.string()
-            .required(),
-        // second slide
-        InPerson: yup.string()
-            .required(),
-        LocationName: yup.string()
-            .required(),
-        Address: yup.string()
-            .required(),
-        LocationDetails: yup.string()
-            .required(),
-        // third slide
-        StartDay: yup.string()
-            .required(), 
-        StartTime: yup.string()
-            .required(), 
-        EndDay: yup.string()
-            .required(), 
-        EndTime: yup.string()
-            .required(), 
-        Planning: yup.string()
-            .required(), 
-        Registration: yup.string()
-            .required(),
-        // fourth slide
-        EventDescription: yup.string()
-            .required(),
-        OrganizerEmail: yup.string()
-            .required(),
-        OrganizerWebsite: yup.string()
-            .required(),
+const pageOneValidSchema = yup.object({
+    // first slide
+    EventTitle: yup.string()
+        .max(50, 'Event Title Must Be Less Than 50 Characters')
+        .required()
+        .label('Event Title'),
+    OrganizerName: yup.string()
+        .max(50, 'Organizer Name Must Be Less Than 50 Characters')
+        .required()
+        .label('Organizer Name'),
+    EventType: yup.string()
+        .required()
+        .label('Event Type'),
+    ContentType: yup.string()
+        .required()
+        .label('Content Type'),
+    Tags: yup.string()
+        .max(50, 'Max of 10 Tags'),
+    Privacy: yup.string()
+        .required(),
 
 })
+
+const pageTwoValidSchema = yup.object({
+    // second slide
+    InPerson: yup.string()
+        .required()
+        .label('In Person or Online'),
+    LocationName: yup.string()
+        .required(),
+    Address: yup.string()
+        .required(),
+    LocationDetails: yup.string()
+    ,
+
+})
+
+const pageThreeValidSchema = yup.object({
+    // third slide
+    StartDay: yup.string()
+        .required()
+        .label('Start Day'),
+    StartTime: yup.string()
+        .required()
+        .label('Start Time'),
+    EndDay: yup.string()
+        .required()
+        .label('End Day'),
+    EndTime: yup.string()
+        .required()
+        .label('End Time'),
+    Planning: yup.string()
+    ,
+    Registration: yup.string()
+    ,
+
+})
+
+const pageFourValidSchema = yup.object({
+    // fourth slide
+    EventDescription: yup.string()
+        .required()
+        .label('Event Description'),
+    OrganizerEmail: yup.string()
+    ,
+    OrganizerWebsite: yup.string()
+    ,
+
+})
+
+
 // First slide
 const EventInformation = (props) => {
     const navigation = useNavigation();
@@ -140,97 +161,109 @@ const EventInformation = (props) => {
 
     return (
         <SafeAreaView style={styles.containerBack}>
-            
-                <Formik
-                    initialValues={props.data}
-                    onSubmit={handleSubmit}
-                >
-                    {(formikprops) => (
+
+            <Formik
+                initialValues={props.data}
+                onSubmit={handleSubmit}
+                validationSchema={pageOneValidSchema}
+            >
+                {(formikprops) => (
+                    <View>
                         <ScrollView style={styles.scrollContainer}>
                             <View>
-                            <Header navigation={navigation}/>
+                                <Header navigation={navigation} />
                             </View>
-                            <View style={{flexDirection: 'row'}}>
-                                <Image style={{margin: 20, flex: 2/9}}source={require('../assets/Progress-Bar.png')}/>
-                                <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
-                                <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
-                                <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                             </View>
                             <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}> 
+                                <Text style={styles.TextStyle}>
                                     Event Title:
                                 </Text>
-                                <TextInput 
+                                <TextInput
                                     style={styles.InputBox}
                                     placeholder='Eg: MProduct Interest Meeting'
                                     onChangeText={formikprops.handleChange('EventTitle')}
                                     value={formikprops.values.EventTitle}
                                 />
+                                <Text style={styles.errorMessage}>{formikprops.touched.EventTitle && formikprops.errors.EventTitle}</Text>
+
                             </View>
                             <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}> 
+                                <Text style={styles.TextStyle}>
                                     Organizer Name:
                                 </Text>
-                                <TextInput 
+                                <TextInput
                                     style={styles.InputBox}
                                     placeholder='Organization (eg. MProduct) or you (Eg. Alex Jian)'
                                     onChangeText={formikprops.handleChange('OrganizerName')}
                                     value={formikprops.values.OrganizerName}
                                 />
+                                <Text style={styles.errorMessage}>{formikprops.touched.OrganizerName && formikprops.errors.OrganizerName}</Text>
                             </View>
                             <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}> 
+                                <Text style={styles.TextStyle}>
                                     Event Type:
                                 </Text>
-                                <EventTypeSelector 
+                                <EventTypeSelector
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.EventType}
                                 />
+                                <Text style={styles.errorMessage}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
                             </View>
                             <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}> 
+                                <Text style={styles.TextStyle}>
                                     Content Type:
                                 </Text>
                                 <ContentTypeSelector
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.ContentType}
                                 />
+                                <Text style={styles.errorMessage}>{formikprops.touched.ContentType && formikprops.errors.ContentType}</Text>
                             </View>
                             <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}> 
+                                <Text style={styles.TextStyle}>
                                     Tags (10 max):
                                 </Text>
-                                <TextInput 
+                                <TextInput
                                     style={styles.InputBox}
                                     placeholder='Optional, but boosts discoverability. Eg. #design'
                                     onChangeText={formikprops.handleChange('Tags')}
                                     value={formikprops.values.Tags}
                                 />
+                                <Text style={styles.errorMessage}>{formikprops.touched.Tags && formikprops.errors.Tags}</Text>
                             </View>
                             <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}> 
+                                <Text style={styles.TextStyle}>
                                     Privacy:
                                 </Text>
                                 <PrivacySelector
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.Privacy}
                                 />
+                                <Text style={styles.errorMessage}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
-                            <View style={{flexDirection: 'row'}}>
-                        <View style={{flex: 1}}>
-                            
-                        </View>
-                        <View style={{flex: 1}}>
-                            <TouchableOpacity style = {styles.SearchButton} onPress={formikprops.handleSubmit}>
-                                <Image source={require('../assets/Next.png')}/>
-                            </TouchableOpacity>
-                        </View>
-                    
-                    </View>
                         </ScrollView>
-                    )}
-                    
-                </Formik>    
+                        <View style={{ flexDirection: 'row' }}>
+                            <View style={{ flex: 1 }}>
+
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <TouchableOpacity style={{ alignItems: 'center' }} onPress={formikprops.handleSubmit}>
+                                    <View style={styles.nextContainer}>
+                                        <Text style={styles.nextText}>Next</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
+                        </View>
+                    </View>
+                )}
+
+            </Formik>
         </SafeAreaView>
 
     );
@@ -248,77 +281,88 @@ const MoreInformation = (props) => {
             <Formik
                 initialValues={props.data}
                 onSubmit={handleSubmit}
+                validationSchema={pageTwoValidSchema}
             >
                 {(formikprops) => (
-                <ScrollView style={styles.scrollContainer}>
-                    <Header navigation={navigation}/>
-                    <View style={{flexDirection: 'row'}}>
-                        <Image style={{margin: 20, flex: 2/9}}source={require('../assets/Progress-Bar.png')}/>
-                        <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Progress-Bar.png')}/>
-                        <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
-                        <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Gray-Progress-Bar.png')}/>
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            In Person or Online?
-                        </Text>
-                        <InPersonSelector
-                            onChange={formikprops.setFieldValue}
-                            value={formikprops.values.InPerson}
-                        />
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            Location Name:
-                        </Text>
-                        <TextInput 
-                            style={styles.InputBox}
-                            placeholder="Egs. Michigan Union, My House, etc. Can be TBA."
-                            onChangeText={formikprops.handleChange('LocationName')}
-                            value={formikprops.values.LocationName}
-                        />
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            Address:
-                        </Text>
-                        <TextInput 
-                            style={styles.InputBox}
-                            placeholder='Eg: 1111 S State St, Ann Arbor, MI, 48104'
-                            onChangeText={formikprops.handleChange('Address')}
-                            value={formikprops.values.Address}
-                        />
-                    </View>
-                    <View style={{width: '20%'}, {height: '20%'}}>
-                            <Image style={{resizeMode: 'contain'}, {width: '60%'}, {height: '100%'}} source={require('../assets/AA-Map.png')}/>
-                    </View>
-                    
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            Location Details:
-                        </Text>
-                        <TextInput 
-                            style={styles.InputBox}
-                            placeholder='Eg: 2nd floor meeting room'
-                            onChangeText={formikprops.handleChange('LocationDetails')}
-                            value={formikprops.values.LocationDetails}
-                        />
-                    </View>
-                    <View style={{flexDirection: 'row'}}>
-                        <View style={{flex: 1}}>
-                            <TouchableOpacity style = {styles.SearchButton} onPress={() => props.prev(formikprops.values)}>
-                                <Image source={require('../assets/Back.png')}/>
-                            </TouchableOpacity>
+                    <View >
+                        <ScrollView style={styles.scrollContainer}>
+                            <Header navigation={navigation} />
+                            <View style={{ flexDirection: 'row' }}>
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    In Person or Online?
+                                </Text>
+                                <InPersonSelector
+                                    onChange={formikprops.setFieldValue}
+                                    value={formikprops.values.InPerson}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.InPerson && formikprops.errors.InPerson}</Text>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Location Name:
+                                </Text>
+                                <TextInput
+                                    style={styles.InputBox}
+                                    placeholder="Egs. Michigan Union, My House, etc. Can be TBA."
+                                    onChangeText={formikprops.handleChange('LocationName')}
+                                    value={formikprops.values.LocationName}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.LocationName && formikprops.errors.LocationName}</Text>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Address:
+                                </Text>
+                                <TextInput
+                                    style={styles.InputBox}
+                                    placeholder='Eg: 1111 S State St, Ann Arbor, MI, 48104'
+                                    onChangeText={formikprops.handleChange('Address')}
+                                    value={formikprops.values.Address}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
+                            </View>
+                            <View style={{ width: '20%' }, { height: '20%' }}>
+                                <Image style={{ resizeMode: 'contain' }, { width: '60%' }, { height: '100%' }} source={require('../assets/AA-Map.png')} />
+                            </View>
+
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Location Details:
+                                </Text>
+                                <TextInput
+                                    style={styles.InputBox}
+                                    placeholder='Eg: 2nd floor meeting room'
+                                    onChangeText={formikprops.handleChange('LocationDetails')}
+                                    value={formikprops.values.LocationDetails}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>
+                            </View>
+                        </ScrollView>
+                        <View style={{ flexDirection: 'row' }}>
+                            <View style={{ flex: 1 }}>
+                                <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => props.prev(formikprops.values)}>
+                                    <View style={styles.backContainer}>
+                                        <Text style={styles.backText}>Back</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <TouchableOpacity style={{ alignItems: 'center' }} onPress={formikprops.handleSubmit}>
+                                    <View style={styles.nextContainer}>
+                                        <Text style={styles.nextText}>Next</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
                         </View>
-                        <View style={{flex: 1}}>
-                            <TouchableOpacity style = {styles.SearchButton} onPress={formikprops.handleSubmit}>
-                                <Image source={require('../assets/Next.png')}/>
-                            </TouchableOpacity>
-                        </View>
-                    
                     </View>
-                </ScrollView>
-                ) }
+                )}
             </Formik>
         </SafeAreaView>
 
@@ -335,90 +379,105 @@ const EventSchedule = (props) => {
 
     return (
         <SafeAreaView style={styles.containerBack}>
-             <Formik
-                    initialValues={props.data}
-                    onSubmit={handleSubmit}
-                >
-            {(formikprops) => (
-                <ScrollView style={styles.scrollContainer}>
-                    <Header navigation={navigation}/>
-                    <View style={{flexDirection: 'row'}}>
-                        <Image style={{margin: 20, flex: 2/9}} source={require('../assets/Progress-Bar.png')}/>
-                        <Image style={{margin: 20,flex: 2/9}} source={require('../assets/Progress-Bar.png')}/>
-                        <Image style={{margin: 20,flex: 2/9}} source={require('../assets/Progress-Bar.png')}/>
-                        <Image style={{margin: 20,flex: 2/9}} source={require('../assets/Gray-Progress-Bar.png')}/>
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            Start Day:
-                        </Text>
-                        <StartDateSelector 
-                            onChange={formikprops.setFieldValue}
-                            value={formikprops.values.StartDay}
-                        />
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            Start Time:
-                        </Text>
-                        <StartTimeSelector
-                            onChange={formikprops.setFieldValue}
-                            value={formikprops.values.StartTime}
-                        />
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            End Day:
-                        </Text>
-                        <EndDateSelector 
-                            onChange={formikprops.setFieldValue}
-                            value={formikprops.values.EndDay}
-                        />
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            End Time:
-                        </Text>
-                        <EndTimeSelector
-                            onChange={formikprops.setFieldValue}
-                            value={formikprops.values.EndTime}
-                        />
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}>
-                            Requires Planning in Advance
-                        </Text>
-                        <TimeInAdvanceSelector 
-                            onChange={formikprops.setFieldValue}
-                            value={formikprops.values.Planning}
-                        />
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            Requires Registration
-                        </Text>
-                        <TextInput 
-                            style={styles.InputBox}
-                            placeholder='Link to external registration tool'
-                            onChangeText={formikprops.handleChange('Registration')}
-                            value={formikprops.values.Registration}
-                        />
-                    </View>
-                    <View style={{flexDirection: 'row'}}>
-                        <View style={{flex: 1}}>
-                            <TouchableOpacity style = {styles.SearchButton} onPress={() => props.prev(formikprops.values)}>
-                                    <Image source={require('../assets/Back.png')}/>
-                            </TouchableOpacity>
+            <Formik
+                initialValues={props.data}
+                onSubmit={handleSubmit}
+                validationSchema={pageThreeValidSchema}
+            >
+                {(formikprops) => (
+                    <View>
+                        <ScrollView style={styles.scrollContainer}>
+                            <Header navigation={navigation} />
+                            <View style={{ flexDirection: 'row' }}>
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Start Day:
+                                </Text>
+                                <StartDateSelector
+                                    onChange={formikprops.setFieldValue}
+                                    value={formikprops.values.StartDay}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.StartDay && formikprops.errors.StartDay}</Text>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Start Time:
+                                </Text>
+                                <StartTimeSelector
+                                    onChange={formikprops.setFieldValue}
+                                    value={formikprops.values.StartTime}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.StartTime && formikprops.errors.StartTime}</Text>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    End Day:
+                                </Text>
+                                <EndDateSelector
+                                    onChange={formikprops.setFieldValue}
+                                    value={formikprops.values.EndDay}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.EndDay && formikprops.errors.EndDay}</Text>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    End Time:
+                                </Text>
+                                <EndTimeSelector
+                                    onChange={formikprops.setFieldValue}
+                                    value={formikprops.values.EndTime}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.EndTime && formikprops.errors.EndTime}</Text>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Requires Planning in Advance
+                                </Text>
+                                <TimeInAdvanceSelector
+                                    onChange={formikprops.setFieldValue}
+                                    value={formikprops.values.Planning}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.Planning && formikprops.errors.Planning}</Text>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Requires Registration
+                                </Text>
+                                <TextInput
+                                    style={styles.InputBox}
+                                    placeholder='Link to external registration tool'
+                                    onChangeText={formikprops.handleChange('Registration')}
+                                    value={formikprops.values.Registration}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.Registration && formikprops.errors.Registration}</Text>
+                            </View>
+                        </ScrollView>
+
+                        <View style={{ flexDirection: 'row' }}>
+                            <View style={{ flex: 1 }}>
+                                <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => props.prev(formikprops.values)}>
+                                    <View style={styles.backContainer}>
+                                        <Text style={styles.backText}>Back</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <TouchableOpacity style={{ alignItems: 'center' }} onPress={formikprops.handleSubmit}>
+                                    <View style={styles.nextContainer}>
+                                        <Text style={styles.nextText}>Next</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
                         </View>
-                        <View style={{flex: 1}}>
-                            <TouchableOpacity style = {styles.SearchButton} onPress={formikprops.handleSubmit}>
-                                    <Image source={require('../assets/Next.png')}/>
-                            </TouchableOpacity>
-                        </View>
-                    
                     </View>
-                </ScrollView>
-                ) }
+
+                )}
             </Formik>
         </SafeAreaView>
 
@@ -432,85 +491,94 @@ const EventDetails = (props) => {
 
     const handleSubmit = (values) => {
         props.next(values, true);
-         // navigate to preview screen
-         navigation.navigate('Preview', {values: values});
+        // navigate to preview screen
+        navigation.navigate('Preview', { values: values });
     };
 
-    
+
 
     return (
         <SafeAreaView style={styles.containerBack}>
-           <Formik
+            <Formik
                 initialValues={props.data}
-                validationSchema={validSchema}
+                validationSchema={pageFourValidSchema}
                 onSubmit={handleSubmit}
             >
                 {(formikprops) => (
-                <ScrollView style={styles.scrollContainer}>
-                    <Header navigation={navigation}/>
-                    <View style={{flexDirection: 'row'}}>
-                        <Image style={{margin: 20, flex: 2/9}}source={require('../assets/Progress-Bar.png')}/>
-                        <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Progress-Bar.png')}/>
-                        <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Progress-Bar.png')}/>
-                        <Image style={{margin: 20,flex: 2/9}}source={require('../assets/Progress-Bar.png')}/>
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            Event Description:
-                        </Text>
-                        <TextInput 
-                            style={styles.InputBox}
-                            multiline={true}
-                            placeholder='Describe your event here'
-                            onChangeText={formikprops.handleChange('EventDescription')}
-                            value={formikprops.values.EventDescription}
-                        />
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            Organizer Email:
-                        </Text>
-                        <TextInput 
-                            style={styles.InputBox}
-                            placeholder='Optional. eg: mproduct@umich.edu'
-                            onChangeText={formikprops.handleChange('OrganizerEmail')}
-                            value={formikprops.values.OrganizerEmail}
-                        />
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            Organizer Website:
-                        </Text>
-                        <TextInput 
-                            style={styles.InputBox}
-                            placeholder='Optional. Eg: www.mproduct.com'
-                            onChangeText={formikprops.handleChange('OrganizerWebsite')}
-                            value={formikprops.values.OrganizerWebsite}
-                        />
-                    </View>
-                    <View style={styles.containerStyle}>
-                        <Text style={styles.TextStyle}> 
-                            Event Image (2:1 ratio, 10 MB limit):
-                        </Text>
-                        <ImagePickerExample/>
-                    </View>
-                    <View style={{flexDirection: 'row'}}>
-                        <View style={{flex: 1}}>
-                            <TouchableOpacity style = {{marginTop: '20%'}} onPress={() => props.prev(formikprops.values)}>
-                                    <Image source={require('../assets/Back.png')}/>
-                            </TouchableOpacity>
+                    <View>
+                        <ScrollView style={styles.scrollContainer}>
+                            <Header navigation={navigation} />
+                            <View style={{ flexDirection: 'row' }}>
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Event Description:
+                                </Text>
+                                <TextInput
+                                    style={styles.InputBox}
+                                    multiline={true}
+                                    placeholder='Describe your event here'
+                                    onChangeText={formikprops.handleChange('EventDescription')}
+                                    value={formikprops.values.EventDescription}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.EventDescription && formikprops.errors.EventDescription}</Text>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Organizer Email:
+                                </Text>
+                                <TextInput
+                                    style={styles.InputBox}
+                                    placeholder='Optional. eg: mproduct@umich.edu'
+                                    onChangeText={formikprops.handleChange('OrganizerEmail')}
+                                    value={formikprops.values.OrganizerEmail}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.OrganizerEmail && formikprops.errors.OrganizerEmail}</Text>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Organizer Website:
+                                </Text>
+                                <TextInput
+                                    style={styles.InputBox}
+                                    placeholder='Optional. Eg: www.mproduct.com'
+                                    onChangeText={formikprops.handleChange('OrganizerWebsite')}
+                                    value={formikprops.values.OrganizerWebsite}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.OrganizerWebsite && formikprops.errors.OrganizerWebsite}</Text>
+                            </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Event Image (2:1 ratio, 10 MB limit):
+                                </Text>
+                                <ImagePickerExample />
+                            </View>
+                        </ScrollView>
+                        <View style={{ flexDirection: 'row' }}>
+                            <View style={{ flex: 1 }}>
+                                <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => props.prev(formikprops.values)}>
+                                    <View style={styles.backContainer}>
+                                        <Text style={styles.backText}>Back</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <TouchableOpacity style={{ alignItems: 'center' }} onPress={formikprops.handleSubmit}>
+                                    <View style={styles.nextContainer}>
+                                        <Text style={styles.nextText}>Preview</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
                         </View>
-                        <View style={{flex: 1}}>
-                            <TouchableOpacity style = {{marginTop: '20%'}} onPress={formikprops.handleSubmit}>
-                                    <Image source={require('../assets/Preview.png')}/>
-                            </TouchableOpacity>
-                        </View>
-                    
                     </View>
-                </ScrollView>
-                ) }
+                )}
             </Formik>
-            
+
         </SafeAreaView>
 
     );
@@ -518,93 +586,143 @@ const EventDetails = (props) => {
 
 
 
-const Preview = ({route, navigation}) => {
-    const {values} = route.params;
+const Preview = ({ route, navigation }) => {
+    const { values } = route.params;
+
+    const postEventHandler = () => {
+        // POST to server
+        fetch('https://retoolapi.dev/a8DmU4/events', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                Name: values.EventTitle,
+                Tags: values.Tags,
+                Email: values.OrganizerEmail,
+                Avatar: values.EventImage,
+                Images: 'placeholder',
+                Address: values.Address,
+                Privacy: values.Privacy,
+                Website: values.OrganizerWebsite,
+                Invitees: 'placeholder',
+                Latitude: 'placeholder',
+                Attendees: 'placeholder',
+                Longitude: 'placeholder',
+                Organizer: values.OrganizerName,
+                EndDayTime: values.EndTime,
+                Description: values.EventDescription,
+                LocationName: values.LocationName,
+                MainCategory: values.EventType,
+                Registration: values.Registration,
+                StartDayTime: values.StartTime,
+                InPersonVirtual: values.InPerson,
+                OtherCategories: 'placeholder'
+            })
+        });
+        // Navigate to map
+        navigation.popToTop();
+        navigation.dangerouslyGetParent().popToTop();
+        navigation.dangerouslyGetParent().dangerouslyGetParent().navigate("Find");
+    }
+
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={{flex:1, borderBottomWidth: 1}}>
-                <PreviewHeader navigation={navigation}/>
+        <SafeAreaView style={{ backgroundColor: '#FFFBF2' }}>
+            <View style={{ height: '95%' }}>
+                <ScrollView contentContainerStyle={styles.container}>
+
+
+                    <View style={{ flex: 1, borderBottomWidth: 1 }}>
+                        <PreviewHeader navigation={navigation} />
+                    </View>
+
+                    <View style={styles.box}>
+                        <View style={styles.inner1}>
+                            <Image style={styles.realImageStyle} source={require('../assets/YC-Circular.png')} />
+                        </View>
+                        <View style={styles.inner2}>
+                            <Text style={{ fontSize: 20, fontWeight: '500' }}>{values.EventTitle}</Text>
+                        </View>
+                    </View>
+                    <View style={{ flex: 2.5, flexDirection: 'column', borderBottomWidth: 0.2 }}>
+                        <View style={{ flex: 1, flexDirection: 'row', alignContent: 'center' }}>
+                            <View style={{ flex: 1, flexDirection: 'row', alignContent: 'center' }}>
+                                <Image style={{ flex: 1, marginLeft: '10%' }} source={require('../assets/Vector.png')} />
+                                <Text style={{ flex: 9, marginLeft: '10%', fontWeight: '500', color: '#FF8A00', fontSize: 16 }}>{values.OrganizerName}</Text>
+                            </View>
+                            <View style={{ flex: 1, flexDirection: 'row', alignContent: 'center' }}>
+                                <Image style={{ flex: 1, marginLeft: '10%' }} source={require('../assets/ContentType.png')} />
+                                <Text style={{ flex: 9, marginLeft: '10%', fontWeight: '500', color: '#FAB400', fontSize: 16 }}>{values.ContentType}</Text>
+                            </View>
+                        </View>
+                        <View style={{ flex: 1, flexDirection: 'row' }}>
+                            <View style={{ flex: 2 }}>
+                                <Image style={{ resizeMode: 'contain', marginLeft: '30%' }} source={require('../assets/CalendarIcon.png')} />
+                            </View>
+                            <View style={{ flex: 9.5 }}>
+                                <Text style={{ fontWeight: '500', color: '#0085FF', fontSize: 16 }}>{values.StartDay}, {values.StartTime} - {values.EndTime} ({values.InPerson})</Text>
+                            </View>
+                        </View>
+                        <View style={{ flex: 2, flexDirection: 'row', }}>
+                            <View style={{ flex: 1 }}>
+                                <Image style={{ resizeMode: 'contain', width: '80%', height: '80%' }} source={require('../assets/Save.png')} />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Image style={{ resizeMode: 'contain', width: '80%', height: '80%' }} source={require('../assets/ImGoing.png')} />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Image style={{ resizeMode: 'contain', width: '80%', height: '80%' }} source={require('../assets/Share.png')} />
+                            </View>
+                        </View>
+                    </View>
+                    <View style={{ flex: 2 }}>
+                        <Text>placeholder</Text>
+                    </View>
+                    <View style={{ flex: 2, borderBottomWidth: 0.2 }}>
+                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Event Description</Text>
+                        <Text style={{ fontSize: 14 }}>{values.EventDescription}</Text>
+                    </View>
+                    <View style={{ flex: 2 }}>
+                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Location</Text>
+                        <Text style={{ fontSize: 14 }}>{values.LocationName}</Text>
+                        <Text style={{ fontSize: 14 }}>{values.Address}</Text>
+                    </View>
+                    <View style={{ flex: 1, borderTopWidth: 0.2 }} >
+                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Registration</Text>
+                        <Text style={{ fontSize: 14 }}>{values.Registration}</Text>
+                    </View>
+                    <View style={{ flex: 2, borderTopWidth: 0.2 }} >
+                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>More Info</Text>
+                        <Text style={{ fontSize: 14 }}>Website: {values.OrganizerWebsite}</Text>
+                        <Text style={{ fontSize: 14 }}>Email: {values.OrganizerEmail}</Text>
+                    </View>
+
+
+                </ScrollView>
             </View>
-              
-                <View style={styles.box}>
-                    <View style={styles.inner1}>
-                        <Image style={styles.realImageStyle} source={require('../assets/YC-Circular.png')}/>
-                    </View>
-                    <View style={styles.inner2}>
-                        <Text style={{fontSize: 20, fontWeight: '500'}}>{values.EventTitle}</Text>
-                    </View>
-                </View>
-                <View style={{flex:2.5, flexDirection: 'column', borderBottomWidth: 0.2}}>
-                    <View style={{flex: 1, flexDirection:'row',  alignContent: 'center'}}>
-                        <View style={{flex: 1, flexDirection: 'row', alignContent: 'center'}}>
-                            <Image style={{flex: 1, marginLeft: '10%'}} source={require('../assets/Vector.png')}/>
-                            <Text style={{flex: 9, marginLeft: '10%' , fontWeight: '500', color: '#FF8A00', fontSize: 16}}>{values.OrganizerName}</Text>
+            <View style={{ flexDirection: 'row' }}>
+                <View style={{ flex: 1 }}>
+                    <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => navigation.navigate("Form")}>
+                        <View style={styles.backContainer}>
+                            <Text style={styles.backText}>Back</Text>
                         </View>
-                        <View style={{flex: 1, flexDirection: 'row',  alignContent: 'center'}}>
-                            <Image style={{flex: 1, marginLeft: '10%'}} source={require('../assets/ContentType.png')}/>
-                            <Text style={{flex: 9, marginLeft: '10%', fontWeight: '500', color: '#FAB400', fontSize: 16}}>{values.ContentType}</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ flex: 1 }}>
+                    <TouchableOpacity style={{ alignItems: 'center' }} onPress={postEventHandler}>
+                        <View style={styles.nextContainer}>
+                            <Text style={styles.nextText}>Post Event!</Text>
                         </View>
-                    </View>
-                    <View style={{flex: 1, flexDirection: 'row' }}>
-                        <View style={{flex: 2}}>
-                            <Image style={{resizeMode: 'contain', marginLeft: '30%'}} source={require('../assets/CalendarIcon.png')}/>
-                        </View>
-                        <View style={{flex: 9.5}}>
-                            <Text style={{fontWeight: '500', color: '#0085FF', fontSize: 16}}>{values.StartDay}, {values.StartTime} - {values.EndTime} ({values.InPerson})</Text>
-                        </View>
-                    </View>
-                    <View style={{flex: 2, flexDirection: 'row', }}>
-                        <View style={{flex: 1}}>
-                            <Image style={{resizeMode: 'contain', width: '80%', height: '80%'}} source={require('../assets/Save.png')}/>
-                        </View>
-                        <View style={{flex: 1}}>
-                            <Image style={{resizeMode: 'contain', width: '80%', height: '80%'}} source={require('../assets/ImGoing.png')}/>
-                        </View>
-                        <View style={{flex: 1}}>
-                            <Image style={{resizeMode: 'contain', width: '80%', height: '80%'}} source={require('../assets/Share.png')}/>
-                        </View> 
-                    </View>
+                    </TouchableOpacity>
                 </View>
-                <View style={{flex:2}}>
-                    <Text>placeholder</Text>
-                </View>
-                <View style={{flex:2, borderBottomWidth: 0.2}}>
-                    <Text style={{fontWeight: 'bold', fontSize: 16}}>Event Description</Text>
-                    <Text style={{fontSize: 14}}>{values.EventDescription}</Text>
-                </View>
-                <View style={{flex:2}}>
-                    <Text style={{fontWeight: 'bold', fontSize: 16}}>Location</Text>
-                    <Text style={{fontSize: 14}}>{values.LocationName}</Text>
-                    <Text style={{fontSize: 14}}>{values.Address}</Text>
-                </View>
-                <View style={{flex:1, borderTopWidth: 0.2}} >
-                    <Text style={{fontWeight: 'bold', fontSize: 16}}>Registration</Text>
-                    <Text style={{fontSize: 14}}>{values.Registration}</Text>
-                </View>
-                <View style={{flex:2, borderTopWidth: 0.2}} >
-                    <Text style={{fontWeight: 'bold', fontSize: 16}}>More Info</Text>
-                    <Text style={{fontSize: 14}}>Website: {values.OrganizerWebsite}</Text>
-                    <Text style={{fontSize: 14}}>Email: {values.OrganizerEmail}</Text>
-                </View>
-                
-                <View style={{flexDirection: 'row'}}>
-                    <View style={{flex: 1}}>
-                        <TouchableOpacity style = {styles.SearchButton} onPress={() => navigation.navigate("Form")}>
-                                <Image source={require('../assets/Back.png')}/>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{flex: 1}}>
-                        <TouchableOpacity style = {styles.SearchButton} >
-                                <Image source={require('../assets/PostEvent.png')}/>
-                        </TouchableOpacity>
-                    </View>
-                
-                </View>
+
+            </View>
 
         </SafeAreaView>
     );
-} 
-    
+}
+
 
 
 
@@ -623,14 +741,14 @@ const Preview = ({route, navigation}) => {
 }*/}
 const Stack = createStackNavigator()
 
-function UpdateEvent({navigation}) {
+function UpdateEvent({ navigation }) {
     const [data, setData] = useState({
         // first slide
-        EventTitle: '', 
-        OrganizerName: '', 
-        EventType: '', 
-        ContentType: '', 
-        Tags: '', 
+        EventTitle: '',
+        OrganizerName: '',
+        EventType: '',
+        ContentType: '',
+        Tags: '',
         Privacy: '',
         // second slide
         InPerson: '',
@@ -638,11 +756,11 @@ function UpdateEvent({navigation}) {
         Address: '',
         LocationDetails: '',
         // third slide
-        StartDay: '', 
-        StartTime: '', 
-        EndDay: '', 
-        EndTime: '', 
-        Planning: '', 
+        StartDay: '',
+        StartTime: '',
+        EndDay: '',
+        EndTime: '',
+        Planning: '',
         Registration: '',
         // fourth slide
         EventDescription: '',
@@ -655,7 +773,7 @@ function UpdateEvent({navigation}) {
     const [currentStep, setCurrentStep] = useState(0);
 
     const handleNextStep = (newData, final = false) => {
-        setData(prev => ({...prev, ...newData}))
+        setData(prev => ({ ...prev, ...newData }))
 
         if (final) {
             return;
@@ -664,15 +782,15 @@ function UpdateEvent({navigation}) {
     }
 
     const handlePrevStep = (newData) => {
-        setData(prev => ({...prev, ...newData}))
+        setData(prev => ({ ...prev, ...newData }))
         setCurrentStep(prev => prev - 1)
     }
-   
+
     const steps = [
-        <EventInformation next={handleNextStep} data={data}/>, 
-        <MoreInformation next={handleNextStep} prev={handlePrevStep} data={data}/>, 
-        <EventSchedule next={handleNextStep} prev={handlePrevStep} data={data}/>, 
-        <EventDetails next={handleNextStep} prev={handlePrevStep} data={data}/>
+        <EventInformation next={handleNextStep} data={data} />,
+        <MoreInformation next={handleNextStep} prev={handlePrevStep} data={data} />,
+        <EventSchedule next={handleNextStep} prev={handlePrevStep} data={data} />,
+        <EventDetails next={handleNextStep} prev={handlePrevStep} data={data} />
     ];
 
 
@@ -681,36 +799,37 @@ function UpdateEvent({navigation}) {
     );
 }
 
-export default function CreateNewEventScreen({navigation}) {
+export default function CreateNewEventScreen({ navigation }) {
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Form" component={UpdateEvent} options={{headerShown: false}}/>
-            <Stack.Screen name="Preview" component={Preview} options={{headerShown: false}}/>
-       </Stack.Navigator>
+            <Stack.Screen name="Form" component={UpdateEvent} options={{ headerShown: false }} />
+            <Stack.Screen name="Preview" component={Preview} options={{ headerShown: false }} />
+        </Stack.Navigator>
     )
 }
 
-  {/* <Stack.Navigator>
+{/* <Stack.Navigator>
             <Stack.Screen name="Form" component={steps[currentStep]} options={{headerShown: false}}/>
             <Stack.Screen name="Preview" component={Preview} options={{headerShown: false}}/>
        </Stack.Navigator>*/}
 
 const styles = StyleSheet.create({
     containerBack: {
-        backgroundColor: '#FFFBF3'
+        backgroundColor: '#FFFBF3',
+        height: '100%'
     },
-    TextStyle : { 
+    TextStyle: {
         fontSize: 20,
         color: '#09189F',
         margin: 10,
         fontWeight: 'bold'
     },
 
-    containerStyle : {
-        
+    containerStyle: {
+
     },
 
-    InputBox : {
+    InputBox: {
         borderWidth: 0,
         borderBottomWidth: 1,
         borderColor: '#C4C4C4',
@@ -719,52 +838,53 @@ const styles = StyleSheet.create({
         margin: 10
     },
 
-    imageStyle : {
+    imageStyle: {
 
-     },
-     container : {
+    },
+    container: {
         width: '100%',
-        height: '90%',
+        height: '100%',
         padding: 5,
         flexDirection: 'column',
         flexWrap: 'wrap',
         backgroundColor: '#FFFBF2'
-        
+
     },
-    NewEventButton : {
+    NewEventButton: {
         margin: 10
     },
-    box : {
+    box: {
         width: '95%',
         height: '20%',
         padding: 5,
         margin: 10,
         flexDirection: 'row',
         flex: 1,
-        
+
     },
     inner1: {
         flex: 1,
         width: '100%',
         height: '100%'
-     },
-     inner2: {
+    },
+    inner2: {
         flex: 3
-     },
+    },
 
-    realImageStyle : {
+    realImageStyle: {
         height: '100%',
         resizeMode: 'contain',
         width: '100%'
-        
+
     },
     scrollContainer: {
         paddingBottom: 90,
-        zIndex: 0
+        zIndex: 0,
+        height: '90%'
     },
     outerContainer: {
         flex: 1,
-        
+
     },
     innerContainer: {
         marginTop: 5,
@@ -794,5 +914,58 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginLeft: '38%',
     },
+    nextContainer: {
+        backgroundColor: '#ffffff',
+
+        marginHorizontal: 50,
+        marginTop: 5,
+        width: '90%',
+        alignItems: 'center',
+        top: 0,
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowColor: '#000000',
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
+        borderRadius: 10,
+    },
+    backContainer: {
+        backgroundColor: '#ffffff',
+
+        marginHorizontal: 50,
+        marginTop: 5,
+        width: '65%',
+        alignItems: 'center',
+        top: 0,
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowColor: '#000000',
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
+        borderRadius: 10,
+    },
+    nextText: {
+        fontWeight: 'bold',
+        fontSize: 18,
+        paddingVertical: 10,
+        color: '#fab400',
+    },
+    backText: {
+        fontWeight: 'bold',
+        fontSize: 18,
+        paddingVertical: 10,
+        color: '#09189F',
+    },
+    errorMessage: {
+        color: '#D8000C',
+        paddingLeft: '5%'
+
+    }
 
 })

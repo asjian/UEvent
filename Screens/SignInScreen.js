@@ -7,15 +7,15 @@ import {
     Platform,
     StyleSheet ,
     StatusBar,
-    Alert
+    Alert,
+    Image
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
-
 import { useTheme } from 'react-native-paper';
-
 import Users from '../dummies/users';
+import * as Google from "expo-google-app-auth";
 
 const SignInScreen = ({navigation}) => {
 
@@ -108,7 +108,33 @@ const SignInScreen = ({navigation}) => {
         }
         signIn(foundUser);
     }
-
+    const IOS_CLIENT_ID = '343030781035-g5nm8pfeu3c88tr9v5dhoq7tqg13c8di.apps.googleusercontent.com';
+    const signInAsync = async () => {
+        console.log("LoginScreen.js 6 | loggin in");
+        try {
+          const { type, user } = await Google.logInAsync({
+            iosClientId: IOS_CLIENT_ID,
+          });
+          if (type === "success") {
+            // Then you can use the Google REST API
+            console.log("LoginScreen.js 17 | success");
+            if(user.email.length < 10 || user.email.substring(user.email.length-10,user.email.length) != '@umich.edu') {
+                //show some kind of error
+                Alert.alert('Invalid Email', 'Please log in with an @umich.edu email');
+            }
+            else {
+            navigation.navigate('WelcomeScreen');
+            //somehow pass the user to the screens, im thinking global variable/state
+            }
+          }
+          else {
+            console.log("LoginScreen.js 17 | failure");
+              console.log(type);
+          }
+        } catch (error) {
+          console.log("LoginScreen.js 19 | error with login", error);
+        }
+      };
     return (
       <View style={styles.container}>
           <StatusBar backgroundColor='#FFCB05' barStyle="light-content"/>
@@ -202,7 +228,25 @@ const SignInScreen = ({navigation}) => {
             <TouchableOpacity>
                 <Text style={{color: '#FFCB05', marginTop:15}}>Forgot password?</Text>
             </TouchableOpacity>
+
             <View style={styles.button}>
+                <TouchableOpacity style={[styles.signIn, {
+                        flexDirection: 'row',
+                        justifyContent: 'flex-start',
+                        borderColor: '#FFCB05',
+                        borderWidth: 1,
+                    }]}
+                    onPress = {signInAsync}
+                >
+                <Image source = {require('../assets/googlelogo.png')} style = {{width: 30,height: 30,marginLeft: 10.75}}/>
+                <Text style={{
+                        fontWeight: 'bold',
+                        fontSize: 18,
+                        color:'gray',
+                        marginLeft: 24,
+                }}>Sign In With Google</Text>
+                </TouchableOpacity>
+                {/*
                 <TouchableOpacity
                     style={[styles.signIn, {
                         borderColor: '#FFCB05',
@@ -227,6 +271,7 @@ const SignInScreen = ({navigation}) => {
                         color: '#FFCB05'
                     }]}>Sign Up</Text>
                 </TouchableOpacity>
+                */}
             </View>
         </Animatable.View>
       </View>

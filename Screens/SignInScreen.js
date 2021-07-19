@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { 
     View, 
     Text, 
@@ -16,9 +16,11 @@ import Feather from 'react-native-vector-icons/Feather';
 import { useTheme } from 'react-native-paper';
 import Users from '../dummies/users';
 import * as Google from "expo-google-app-auth";
+import Globals from '../../GlobalVariables';
+import AppContext from '../objects/AppContext';
 
 const SignInScreen = ({navigation}) => {
-
+    const myContext = useContext(AppContext);
     const [data, setData] = React.useState({
         username: '',
         password: '',
@@ -108,9 +110,43 @@ const SignInScreen = ({navigation}) => {
         }
         signIn(foundUser);
     }
+
+    const addAndSaveUser = (existsInDataBase,user) => {
+        const fetchurl = Globals.usersURL;
+        if(!existsInDataBase) { //then add to database, and store some default values in globals
+            fetch(fetchurl, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Name: user.name,
+                    Admin: "No",
+                    Email: user.email,
+                    Organization: "No",
+                    EventsHosting: "",
+                    UpcomingEvents: "",
+                })
+            })
+        }
+        //in either case, get the user and save it.
+        fetch(fetchurl + '?Email=' + user.email)
+        .then((response) => response.json())
+        .then((json) => {myContext.initializeUser(json[0])})
+        .catch((error) => console.error(error));
+    }
+
+    const handleUserDataBase = (user) => {
+        const fetchurl = Globals.usersURL + '?Email=' + user.email;
+        fetch(fetchurl)
+          .then((response) => response.json())
+          .then((json) => {addAndSaveUser(json.length != 0,user)})
+          .catch((error) => console.error(error))
+    }
+
     const IOS_CLIENT_ID = '343030781035-g5nm8pfeu3c88tr9v5dhoq7tqg13c8di.apps.googleusercontent.com';
     const signInAsync = async () => {
-        console.log("LoginScreen.js 6 | loggin in");
         try {
           const { type, user } = await Google.logInAsync({
             iosClientId: IOS_CLIENT_ID,
@@ -123,13 +159,14 @@ const SignInScreen = ({navigation}) => {
                 Alert.alert('Invalid Email', 'Please log in with an @umich.edu email');
             }
             else {
-            navigation.navigate('WelcomeScreen');
-            //somehow pass the user to the screens, im thinking global variable/state
+                handleUserDataBase(user);
+                navigation.navigate('WelcomeScreen');
             }
           }
           else {
             console.log("LoginScreen.js 17 | failure");
-              console.log(type);
+            console.log(type);
+            //show some kind of error here, don't know what it will be
           }
         } catch (error) {
           console.log("LoginScreen.js 19 | error with login", error);

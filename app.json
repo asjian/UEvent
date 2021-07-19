@@ -18,9 +18,11 @@
     ],
     "ios": {
       "config": {
-        "googleMapsApiKey": "AIzaSyBm-DpVh1LIC-FAC7cmozW2B84EZBypU_w"
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.343030781035-g5nm8pfeu3c88tr9v5dhoq7tqg13c8di"
+        }
       },
-      "bundleIdentifier": "com.test.test",
+      "bundleIdentifier": "host.exp.exponent",
       "supportsTablet": true
     },
     "android": {

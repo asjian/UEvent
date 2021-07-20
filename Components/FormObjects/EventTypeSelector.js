@@ -1,68 +1,57 @@
+import {Picker} from '@react-native-picker/picker';
 import React, {useState} from 'react';
-import ModalSelector from 'react-native-modal-selector-searchable';
-import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, Alert } from 'react-native';
-import { onChange } from 'react-native-reanimated';
-
+import RNPickerSelect from 'react-native-picker-select';
+import { StyleSheet } from 'react-native';
 
 const EventTypeSelector = ({onChange, value}) => {
+    return (
+        <RNPickerSelect
+            onValueChange={(value) => onChange('EventType', value)}
+            value={value}
 
-    const [textInputValue, setTextInputValue] = useState('');
-    
-
-        let index = 0;
-        const data = [
-            { key: index++, section: true, label: 'Event Type'},
-            { key: index++, label: 'Extracurricular' },
-            { key: index++, label: 'Social' },
-            { key: index++, label: 'Outdoor'}
-            // etc...
-            // Can also add additional custom keys which are passed to the onChange callback
-            
-        ];
-
-        const handleInput = (option)=> { 
-            setTextInputValue(option.label);
-            onChange('EventType', option.label);
-            
-        };
-
-        const handleTextInput = () => {
-            console.log(textInputValue);
-        }
-
-        const full = () => {
-            handleInput;
-            handleTextInput;
-        }
-        
-        
-        return (
-            <View style={{flex:1, justifyContent:'space-around', padding:10}}>
+            items={[
+                { label: 'Extracurricular', value: 'Extracurricular' },
+                { label: 'Social', value: 'Social' },
+                { label: 'Outdoor', value: 'Outdoor' },
+            ]}
+            style={pickerSelectStyles}
+            placeholder={{
+                label: 'Egs. Extracurricular, Social, etc.',
+                value: null,
                 
-                <ModalSelector
-                    data={data}
-                    supportedOrientations={['portrait']}
-                    accessible={true}
-                    scrollViewAccessibilityLabel={'Scrollable options'}
-                    cancelButtonAccessibilityLabel={'Cancel Button'}
-                    onChange={handleInput}
-                    
-                    
-                    >
-                   
+            }}
+        />
+    );
+};
 
-                    <TextInput
-                        style={{borderWidth:1, borderColor:'#ccc', padding:10, height:40}}
-                        editable={false}
-                        placeholder="Egs. Extracurricular, Social, etc."
-                        value={value}
-                        />
-
-                </ModalSelector>
-            </View>
-        );
-    
-}
-
-// export
 export default EventTypeSelector;
+
+const styles = StyleSheet.create({
+    InputBox: {
+        borderWidth: 0,
+        borderBottomWidth: 1,
+        borderColor: '#C4C4C4',
+        padding: 8,
+        width: '80%',
+        margin: 10
+    }
+})
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        borderWidth: 0,
+        borderBottomWidth: 1,
+        borderColor: '#C4C4C4',
+        padding: 8,
+        width: '80%',
+        margin: 10
+    },
+    inputAndroid: {
+        borderWidth: 0,
+        borderBottomWidth: 1,
+        borderColor: '#C4C4C4',
+        padding: 8,
+        width: '80%',
+        margin: 10
+    },
+  });

@@ -19,12 +19,11 @@ import StartDateSelector from '../objects/FormObjects/StartDateSelector';
 import EndDateSelector from '../objects/FormObjects/EndDateSelector';
 import StartTimeSelector from '../objects/FormObjects/StartTimeSelector';
 import EndTimeSelector from '../objects/FormObjects/EndTimeSelector';
-import TimeInAdvanceSelector from '../objects/FormObjects/TimeInAdvanceSelector';
 import ImagePickerExample from '../objects/FormObjects/ImagePicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import Geocoder from 'react-native-geocoding';
 import Globals from '../../GlobalVariables';
-//import { StartDateSelector2 } from '../objects/FormObjects/StartDateSelector2';
 import * as yup from 'yup';
 import { max } from 'react-native-reanimated';
 
@@ -315,7 +314,7 @@ const MoreInformation = (props) => {
             >
                 {(formikprops) => (
                     <View >
-                        <KeyboardAwareScrollView style={styles.scrollContainer}>
+                        <KeyboardAwareScrollView style={styles.scrollContainer} keyboardShouldPersistTaps = "always">
                             <Header navigation={navigation} />
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -360,14 +359,16 @@ const MoreInformation = (props) => {
                                     }}
                                     onPress={(data, details = null) => {
                                         // 'details' is provided when fetchDetails = true
+                                        console.log(data);
                                         createSessionToken();
                                         formikprops.setFieldValue('Address',data.description);
                                     }}
                                     autoFillOnNotFound = {true}
                                     //onNotFound
                                     //onFail
-                                    minLength = {4}
+                                    minLength = {3}
                                     placeholder='Search Locations'
+                                    disableScroll = {true}
                                     textInputProps = {{
                                         onFocus: () => createSessionToken(),
                                     }}
@@ -625,38 +626,23 @@ const EventDetails = (props) => {
 
     );
 }
-
-
-
 const Preview = ({ route, navigation }) => {
     const { values } = route.params;
+    const[key,setKey] = useState('AIzaSyQ71aMba5yieWm7Lqp4KXs6oIOKrwPUI0m');
 
-    const postEventHandler = () => {
-        //get lat lng from address
-        
-        const [key,setKey] = useState('AIzaSyQ71aMba5yieWm7Lqp4KXs6oIOKrwPUI0m');
-        const getKey = () => {
-            console.log('getting key...')
-            const fetchurl = Globals.apiKeysURL;
-            fetch(fetchurl + '?KeyName=Geocoder')
-            .then((response) => response.json())
-            .then((json) => {setKey(json[0].ApiKey)})
-            .catch((error) => {console.error(error)});
-        }
-        if(key == 'AIzaSyQ71aMba5yieWm7Lqp4KXs6oIOKrwPUI0m') {
-            getKey();
-        }
-        Geocoder.init(key);
-
-        const [latlng,setLatLng] = useState(null);
-        Geocoder.from(values.Address)
-		.then(json => {
-			var location = json.results[0].geometry.location;
-			setLatLng(location);
-		})
-		.catch(error => console.warn(error));
-        
-        // POST to server
+    //get api key
+    const getKey = () => {
+        console.log('getting key...')
+        const fetchurl = Globals.apiKeysURL;
+        fetch(fetchurl + '?KeyName=Geocoder')
+        .then((response) => response.json())
+        .then((json) => {setKey(json[0].ApiKey)})
+        .catch((error) => {console.error(error)});
+    }
+    if(key == 'AIzaSyQ71aMba5yieWm7Lqp4KXs6oIOKrwPUI0m') {
+        getKey();
+    }
+    const postToServer = (latlng) => { //post the event to the server, using the translated latitude and longitude
         fetch('https://retoolapi.dev/rJZk4j/events', {
             method: 'post',
             headers: {
@@ -686,7 +672,19 @@ const Preview = ({ route, navigation }) => {
                 InPersonVirtual: values.InPerson,
                 OtherCategories: 'placeholder'
             })
-        });
+        }); 
+    }
+    const postEventHandler = async () => {
+        // translate address to latlng and pass that to a function that posts to the server
+        console.log('apikey is:')
+        console.log(key);
+        Geocoder.init(key);
+        Geocoder.from(values.Address)
+        .then(json => {
+            var location = json.results[0].geometry.location;
+            postToServer(location);
+        })
+        .catch(error => console.warn(error));
         // Navigate to map
         navigation.popToTop();
         navigation.dangerouslyGetParent().popToTop();
@@ -945,7 +943,8 @@ const styles = StyleSheet.create({
     scrollContainer: {
         paddingBottom: 90,
         zIndex: 0,
-        height: '90%'
+        height: '90%',
+
     },
     outerContainer: {
         flex: 1,

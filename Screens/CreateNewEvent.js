@@ -1,5 +1,5 @@
 import React from 'react';
-import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView } from 'react-native';
+import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, KeyboardAvoidingView } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useState, useContext } from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
@@ -21,6 +21,8 @@ import StartTimeSelector from '../objects/FormObjects/StartTimeSelector';
 import EndTimeSelector from '../objects/FormObjects/EndTimeSelector';
 import TimeInAdvanceSelector from '../objects/FormObjects/TimeInAdvanceSelector';
 import ImagePickerExample from '../objects/FormObjects/ImagePicker';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { StartDateSelector2 } from '../objects/FormObjects/StartDateSelector2';
 import * as yup from 'yup';
 import { max } from 'react-native-reanimated';
 
@@ -92,14 +94,17 @@ const pageOneValidSchema = yup.object({
         .label('Organizer Name'),
     EventType: yup.string()
         .required()
-        .label('Event Type'),
+        .label('Event Type')
+        .nullable(),
     ContentType: yup.string()
         .required()
-        .label('Content Type'),
+        .label('Content Type')
+        .nullable(),
     Tags: yup.string()
         .max(50, 'Max of 10 Tags'),
     Privacy: yup.string()
-        .required(),
+        .required()
+        .nullable(),
 
 })
 
@@ -107,7 +112,8 @@ const pageTwoValidSchema = yup.object({
     // second slide
     InPerson: yup.string()
         .required()
-        .label('In Person or Online'),
+        .label('In Person or Online')
+        .nullable(),
     LocationName: yup.string()
         .required(),
     Address: yup.string()
@@ -131,8 +137,6 @@ const pageThreeValidSchema = yup.object({
     EndTime: yup.string()
         .required()
         .label('End Time'),
-    Planning: yup.string()
-    ,
     Registration: yup.string()
     ,
 
@@ -157,7 +161,10 @@ const EventInformation = (props) => {
 
     const handleSubmit = (values) => {
         props.next(values);
+        console.log(values);
     };
+
+    
 
     return (
         <SafeAreaView style={styles.containerBack}>
@@ -169,7 +176,7 @@ const EventInformation = (props) => {
             >
                 {(formikprops) => (
                     <View>
-                        <ScrollView style={styles.scrollContainer}>
+                        <KeyboardAwareScrollView style={styles.scrollContainer}>
                             <View>
                                 <Header navigation={navigation} />
                             </View>
@@ -208,7 +215,7 @@ const EventInformation = (props) => {
                                 <Text style={styles.TextStyle}>
                                     Event Type:
                                 </Text>
-                                <EventTypeSelector
+                                <EventTypeSelector 
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.EventType}
                                 />
@@ -246,7 +253,9 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
-                        </ScrollView>
+                            
+                            
+                        </KeyboardAwareScrollView>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
 
@@ -285,7 +294,7 @@ const MoreInformation = (props) => {
             >
                 {(formikprops) => (
                     <View >
-                        <ScrollView style={styles.scrollContainer}>
+                        <KeyboardAwareScrollView style={styles.scrollContainer}>
                             <Header navigation={navigation} />
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -343,7 +352,8 @@ const MoreInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>
                             </View>
-                        </ScrollView>
+                            
+                        </KeyboardAwareScrollView>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
                                 <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => props.prev(formikprops.values)}>
@@ -386,7 +396,8 @@ const EventSchedule = (props) => {
             >
                 {(formikprops) => (
                     <View>
-                        <ScrollView style={styles.scrollContainer}>
+                        <KeyboardAwareScrollView style={styles.scrollContainer}>
+                            
                             <Header navigation={navigation} />
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -436,16 +447,6 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Requires Planning in Advance
-                                </Text>
-                                <TimeInAdvanceSelector
-                                    onChange={formikprops.setFieldValue}
-                                    value={formikprops.values.Planning}
-                                />
-                                <Text style={styles.errorMessage}>{formikprops.touched.Planning && formikprops.errors.Planning}</Text>
-                            </View>
-                            <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}>
                                     Requires Registration
                                 </Text>
                                 <TextInput
@@ -456,7 +457,7 @@ const EventSchedule = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Registration && formikprops.errors.Registration}</Text>
                             </View>
-                        </ScrollView>
+                        </KeyboardAwareScrollView>
 
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
@@ -506,7 +507,7 @@ const EventDetails = (props) => {
             >
                 {(formikprops) => (
                     <View>
-                        <ScrollView style={styles.scrollContainer}>
+                        <KeyboardAwareScrollView style={styles.scrollContainer}>
                             <Header navigation={navigation} />
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -555,9 +556,12 @@ const EventDetails = (props) => {
                                 <Text style={styles.TextStyle}>
                                     Event Image (2:1 ratio, 10 MB limit):
                                 </Text>
-                                <ImagePickerExample />
+                                <ImagePickerExample 
+                                    onChange={formikprops.setFieldValue}
+                                    value={formikprops.values.EventImage}
+                                />
                             </View>
-                        </ScrollView>
+                        </KeyboardAwareScrollView>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
                                 <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => props.prev(formikprops.values)}>
@@ -591,7 +595,7 @@ const Preview = ({ route, navigation }) => {
 
     const postEventHandler = () => {
         // POST to server
-        fetch('https://retoolapi.dev/a8DmU4/events', {
+        fetch('https://retoolapi.dev/rJZk4j/events', {
             method: 'post',
             headers: {
                 Accept: 'application/json',
@@ -639,21 +643,21 @@ const Preview = ({ route, navigation }) => {
 
                     <View style={styles.box}>
                         <View style={styles.inner1}>
-                            <Image style={styles.realImageStyle} source={require('../assets/YC-Circular.png')} />
+                            <Image style={styles.realImageStyle} source={{uri: values.EventImage}} />
                         </View>
                         <View style={styles.inner2}>
-                            <Text style={{ fontSize: 20, fontWeight: '500' }}>{values.EventTitle}</Text>
+                            <Text style={{fontSize: 24,fontWeight: '500', textAlign: 'center', textAlignVertical: 'center'}} adjustsFontSizeToFit={true} >{values.EventTitle}</Text>
                         </View>
                     </View>
                     <View style={{ flex: 2.5, flexDirection: 'column', borderBottomWidth: 0.2 }}>
                         <View style={{ flex: 1, flexDirection: 'row', alignContent: 'center' }}>
                             <View style={{ flex: 1, flexDirection: 'row', alignContent: 'center' }}>
                                 <Image style={{ flex: 1, marginLeft: '10%' }} source={require('../assets/Vector.png')} />
-                                <Text style={{ flex: 9, marginLeft: '10%', fontWeight: '500', color: '#FF8A00', fontSize: 16 }}>{values.OrganizerName}</Text>
+                                <Text style={{ flex: 9, textAlign: 'center', fontWeight: '500', color: '#FF8A00', fontSize: 16 }}>{values.OrganizerName}</Text>
                             </View>
-                            <View style={{ flex: 1, flexDirection: 'row', alignContent: 'center' }}>
+                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center'  }}>
                                 <Image style={{ flex: 1, marginLeft: '10%' }} source={require('../assets/ContentType.png')} />
-                                <Text style={{ flex: 9, marginLeft: '10%', fontWeight: '500', color: '#FAB400', fontSize: 16 }}>{values.ContentType}</Text>
+                                <Text style={{ flex: 9, textAlign: 'center', fontWeight: '500', color: '#FAB400', fontSize: 16 }}>{values.ContentType}</Text>
                             </View>
                         </View>
                         <View style={{ flex: 1, flexDirection: 'row' }}>
@@ -664,7 +668,7 @@ const Preview = ({ route, navigation }) => {
                                 <Text style={{ fontWeight: '500', color: '#0085FF', fontSize: 16 }}>{values.StartDay}, {values.StartTime} - {values.EndTime} ({values.InPerson})</Text>
                             </View>
                         </View>
-                        <View style={{ flex: 2, flexDirection: 'row', }}>
+                        <View style={{ flex: 2, flexDirection: 'row', paddingHorizontal: '5%', }}>
                             <View style={{ flex: 1 }}>
                                 <Image style={{ resizeMode: 'contain', width: '80%', height: '80%' }} source={require('../assets/Save.png')} />
                             </View>
@@ -676,26 +680,23 @@ const Preview = ({ route, navigation }) => {
                             </View>
                         </View>
                     </View>
-                    <View style={{ flex: 2 }}>
-                        <Text>placeholder</Text>
+                    <View style={{ flex: 2, borderBottomWidth: 0.2, paddingHorizontal: '5%', }}>
+                        <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Event Description</Text>
+                        <Text style={{ fontSize: 16 }}>{values.EventDescription}</Text>
                     </View>
-                    <View style={{ flex: 2, borderBottomWidth: 0.2 }}>
-                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Event Description</Text>
-                        <Text style={{ fontSize: 14 }}>{values.EventDescription}</Text>
+                    <View style={{ flex: 2, paddingHorizontal: '5%', }}>
+                        <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Location</Text>
+                        <Text style={{ fontSize: 16 }}>{values.LocationName}</Text>
+                        <Text style={{ fontSize: 16 }}>{values.Address}</Text>
                     </View>
-                    <View style={{ flex: 2 }}>
-                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Location</Text>
-                        <Text style={{ fontSize: 14 }}>{values.LocationName}</Text>
-                        <Text style={{ fontSize: 14 }}>{values.Address}</Text>
+                    <View style={{ flex: 1, borderTopWidth: 0.2, paddingHorizontal: '5%', }} >
+                        <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Registration</Text>
+                        <Text style={{ fontSize: 16 }}>{values.Registration}</Text>
                     </View>
-                    <View style={{ flex: 1, borderTopWidth: 0.2 }} >
-                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Registration</Text>
-                        <Text style={{ fontSize: 14 }}>{values.Registration}</Text>
-                    </View>
-                    <View style={{ flex: 2, borderTopWidth: 0.2 }} >
-                        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>More Info</Text>
-                        <Text style={{ fontSize: 14 }}>Website: {values.OrganizerWebsite}</Text>
-                        <Text style={{ fontSize: 14 }}>Email: {values.OrganizerEmail}</Text>
+                    <View style={{ flex: 2, borderTopWidth: 0.2, paddingHorizontal: '5%', }} >
+                        <Text style={{ fontWeight: 'bold', fontSize: 18 }}>More Info</Text>
+                        <Text style={{ fontSize: 16 }}>Website: {values.OrganizerWebsite}</Text>
+                        <Text style={{ fontSize: 16 }}>Email: {values.OrganizerEmail}</Text>
                     </View>
 
 
@@ -760,7 +761,6 @@ function UpdateEvent({ navigation }) {
         StartTime: '',
         EndDay: '',
         EndTime: '',
-        Planning: '',
         Registration: '',
         // fourth slide
         EventDescription: '',
@@ -816,7 +816,8 @@ export default function CreateNewEventScreen({ navigation }) {
 const styles = StyleSheet.create({
     containerBack: {
         backgroundColor: '#FFFBF3',
-        height: '100%'
+        height: '100%',
+        
     },
     TextStyle: {
         fontSize: 20,
@@ -844,7 +845,7 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         height: '100%',
-        padding: 5,
+        
         flexDirection: 'column',
         flexWrap: 'wrap',
         backgroundColor: '#FFFBF2'
@@ -859,7 +860,7 @@ const styles = StyleSheet.create({
         padding: 5,
         margin: 10,
         flexDirection: 'row',
-        flex: 1,
+        flex: 1.2,
 
     },
     inner1: {
@@ -868,14 +869,16 @@ const styles = StyleSheet.create({
         height: '100%'
     },
     inner2: {
-        flex: 3
+        flex: 4,
+        justifyContent: 'center',
+        
     },
 
     realImageStyle: {
         height: '100%',
-        resizeMode: 'contain',
-        width: '100%'
-
+        width: '100%',
+        borderRadius: 40
+ 
     },
     scrollContainer: {
         paddingBottom: 90,

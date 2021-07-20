@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Image, View, Platform } from 'react-native';
+import { Button, Image, View, Platform, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
-export default function ImagePickerExample() {
+export default function ImagePickerExample({onChange, value}) {
   const [image, setImage] = useState(null);
 
   useEffect(() => {
@@ -18,16 +18,15 @@ export default function ImagePickerExample() {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.5,
       base64: true
     });
 
-    console.log(result);
-
     if (!result.cancelled) {
+      onChange('EventImage', result.uri);
       setImage(result.uri);
     }
   };
@@ -35,8 +34,18 @@ export default function ImagePickerExample() {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Button title="Pick an image from camera roll" onPress={pickImage} />
-      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+      {value == '' ? (null) 
+      : (value)  && 
+      <Image source={{ uri: value }} style={styles.image} />}
     </View>
   );
 }
 
+const styles = StyleSheet.create({
+  image: {
+    width: 200,
+    height: 200,
+    borderRadius: 200 / 2,
+    overflow: 'hidden'
+  }
+})

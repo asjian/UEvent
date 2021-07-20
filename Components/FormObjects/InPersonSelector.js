@@ -1,54 +1,56 @@
-import React, {Component} from 'react';
-import ModalSelector from 'react-native-modal-selector';
-import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, Alert } from 'react-native';
+import React, {useState} from 'react';
+import RNPickerSelect from 'react-native-picker-select';
+import { StyleSheet } from 'react-native';
 
+const InPersonSelector = ({onChange, value}) => {
+    return (
+        <RNPickerSelect
+            onValueChange={(value) => onChange('InPerson', value)}
+            value={value}
 
-class InPersonSelector extends Component {
+            items={[
+                { label: 'In Person', value: 'In Person' },
+                { label: 'Online', value: 'Online' },
+                { label: 'TBA', value: 'TBA' }
+            ]}
+            style={pickerSelectStyles}
+            placeholder={{
+                label: 'In Person/Online/TBA',
+                value: null,
+                
+            }}
+        />
+    );
+};
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            textInputValue: ''
-        }
-    }
-
-    render() {
-        let index = 0;
-        const data = [
-            { key: index++, section: true, label: 'In Person or Online?' },
-            { key: index++, label: 'In Person' },
-            { key: index++, label: 'Online' },
-            { key: index++, label: 'TBA' }
-            // etc...
-            // Can also add additional custom keys which are passed to the onChange callback
-        ];
-
-        return (
-            <View style={{flex:1, justifyContent:'space-around', padding:10}}>
-
-                <ModalSelector
-                    data={data}
-                    supportedOrientations={['portrait']}
-                    accessible={true}
-                    scrollViewAccessibilityLabel={'Scrollable options'}
-                    cancelButtonAccessibilityLabel={'Cancel Button'}
-                    onChange={(option)=>{ 
-                        this.setState({textInputValue:option.label})
-                        this.props.onChange('InPerson', option.label)
-                    }}>
-
-                    <TextInput
-                        style={{borderWidth:1, borderColor:'#ccc', padding:10, height:40}}
-                        editable={false}
-                        placeholder="In Person/Online/TBA"
-                        value={this.props.value} />
-
-                </ModalSelector>
-            </View>
-        );
-    }
-}
-
-// export
 export default InPersonSelector;
+
+const styles = StyleSheet.create({
+    InputBox: {
+        borderWidth: 0,
+        borderBottomWidth: 1,
+        borderColor: '#C4C4C4',
+        padding: 8,
+        width: '80%',
+        margin: 10
+    }
+})
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        borderWidth: 0,
+        borderBottomWidth: 1,
+        borderColor: '#C4C4C4',
+        padding: 8,
+        width: '80%',
+        margin: 10
+    },
+    inputAndroid: {
+        borderWidth: 0,
+        borderBottomWidth: 1,
+        borderColor: '#C4C4C4',
+        padding: 8,
+        width: '80%',
+        margin: 10
+    },
+  });

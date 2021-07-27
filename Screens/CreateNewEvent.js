@@ -1,10 +1,10 @@
-import React from 'react';
-import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, KeyboardAvoidingView } from 'react-native';
+import React, {useRef,useEffect} from 'react';
+import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useState, useContext } from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { useNavigation } from '@react-navigation/native'
-import { ErrorMessage, Field, Formik, } from 'formik';
+import { ErrorMessage, Field, Formik, yupToFormErrors, FieldArray } from 'formik';
 import CheckBox from '@react-native-community/checkbox';
 import { AntDesign } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -15,24 +15,36 @@ import EventTypeSelector from '../objects/FormObjects/EventTypeSelector';
 import PrivacySelector from '../objects/FormObjects/PrivacySelector';
 import ContentTypeSelector from '../objects/FormObjects/ContentTypeSelector';
 import InPersonSelector from '../objects/FormObjects/InPersonSelector';
-import StartDateSelector from '../objects/FormObjects/StartDateSelector';
-import EndDateSelector from '../objects/FormObjects/EndDateSelector';
-import StartTimeSelector from '../objects/FormObjects/StartTimeSelector';
-import EndTimeSelector from '../objects/FormObjects/EndTimeSelector';
-import TimeInAdvanceSelector from '../objects/FormObjects/TimeInAdvanceSelector';
 import ImagePickerExample from '../objects/FormObjects/ImagePicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { StartDateSelector2 } from '../objects/FormObjects/StartDateSelector2';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import Geocoder from 'react-native-geocoding';
+import Globals from '../../GlobalVariables';
 import * as yup from 'yup';
 import { max } from 'react-native-reanimated';
-
+import LocationAutocomplete from '../objects/FormObjects/LocationAutocomplete';
+import { StartDateSelector } from '../objects/FormObjects/StartDateSelector';
+import { EndDateSelector } from '../objects/FormObjects/EndDateSelector';
+import { StartTimeSelector } from '../objects/FormObjects/StartTimeSelector';
+import { EndTimeSelector } from '../objects/FormObjects/EndTimeSelector';
+import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
 // Header
 function Header({ navigation }) {
     const myContext = useContext(AppContext);
     // event handler function
     const closeHandler = () => {
-        myContext.toggleShowNavBar(true);
-        navigation.goBack();
+        Alert.alert(
+            "Confirmation",
+            "Are you sure you want to exit the form? All form information will be lost",
+            [
+              {
+                text: "Cancel",
+                style: "cancel"
+              },
+              { text: "OK", onPress: () => {navigation.goBack(); myContext.toggleShowNavBar(true);}}
+            ]
+          );
+        
     }
     return (
         <View style={styles.outerContainer}>
@@ -94,11 +106,10 @@ const pageOneValidSchema = yup.object({
         .label('Organizer Name'),
     EventType: yup.string()
         .required()
-        .label('Event Type')
+        .label('Main Event Category')
         .nullable(),
     ContentType: yup.string()
-        .required()
-        .label('Content Type')
+        .label('Other Categories')
         .nullable(),
     Tags: yup.string()
         .max(50, 'Max of 10 Tags'),
@@ -115,9 +126,23 @@ const pageTwoValidSchema = yup.object({
         .label('In Person or Online')
         .nullable(),
     LocationName: yup.string()
-        .required(),
+        .when('InPerson', {
+            is: (value) => value === 'In Person',
+            then: yup.string().required()
+        })
+        .label('Location Name'),
+    EventLink: yup.string()
+        .when('InPerson', {
+            is: (value) => value === 'Online',
+            then: yup.string().required()
+        })
+        .label('Event Link')
+    ,
     Address: yup.string()
-        .required(),
+        .when('InPerson', {
+            is: (value) => value === 'In Person',
+            then: yup.string().required()
+        }),
     LocationDetails: yup.string()
     ,
 
@@ -126,19 +151,20 @@ const pageTwoValidSchema = yup.object({
 const pageThreeValidSchema = yup.object({
     // third slide
     StartDay: yup.string()
-        .required()
-        .label('Start Day'),
+        .required(),
     StartTime: yup.string()
-        .required()
-        .label('Start Time'),
+        .required(),
     EndDay: yup.string()
-        .required()
-        .label('End Day'),
+        .required(),
     EndTime: yup.string()
-        .required()
-        .label('End Time'),
+        .required(),
+    RealStartDateTime: yup.date()
+        ,
+    RealEndDateTime: yup.date()
+        .min(yup.ref('RealStartDateTime'), 
+        ({min}) => `End date and time needs to be after ${min.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} on ${min.toDateString()}` ),
     Registration: yup.string()
-    ,
+    , 
 
 })
 
@@ -164,7 +190,9 @@ const EventInformation = (props) => {
         console.log(values);
     };
 
-    
+    const [isFocused, setFocus] = useState(false);
+    const [isFocused2, setFocus2] = useState(false);
+    const [isFocused6, setFocus6] = useState(false);
 
     return (
         <SafeAreaView style={styles.containerBack}>
@@ -172,13 +200,17 @@ const EventInformation = (props) => {
             <Formik
                 initialValues={props.data}
                 onSubmit={handleSubmit}
-                validationSchema={pageOneValidSchema}
+                // validationSchema={pageOneValidSchema}
+                
             >
                 {(formikprops) => (
                     <View>
                         <KeyboardAwareScrollView style={styles.scrollContainer}>
                             <View>
                                 <Header navigation={navigation} />
+                            </View>
+                            <View>
+                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Event Information</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -191,10 +223,12 @@ const EventInformation = (props) => {
                                     Event Title:
                                 </Text>
                                 <TextInput
-                                    style={styles.InputBox}
+                                    style={[styles.InputBox, {borderColor: isFocused ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Eg: MProduct Interest Meeting'
                                     onChangeText={formikprops.handleChange('EventTitle')}
                                     value={formikprops.values.EventTitle}
+                                    onFocus={() => setFocus(true)}
+                                    onBlur={() => setFocus(false)}
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventTitle && formikprops.errors.EventTitle}</Text>
 
@@ -204,44 +238,37 @@ const EventInformation = (props) => {
                                     Organizer Name:
                                 </Text>
                                 <TextInput
-                                    style={styles.InputBox}
+                                    style={[styles.InputBox, {borderColor: isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Organization (eg. MProduct) or you (Eg. Alex Jian)'
                                     onChangeText={formikprops.handleChange('OrganizerName')}
                                     value={formikprops.values.OrganizerName}
+                                    onFocus={() => setFocus2(true)}
+                                    onBlur={() => setFocus2(false)}
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.OrganizerName && formikprops.errors.OrganizerName}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Event Type:
+                                    Main Event Category:
                                 </Text>
-                                <EventTypeSelector 
-                                    onChange={formikprops.setFieldValue}
-                                    value={formikprops.values.EventType}
-                                />
+                                    <EventTypeSelector 
+                                        onChange={formikprops.setFieldValue}
+                                        value={formikprops.values.EventType}
+
+                                    />
+                               
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Content Type:
+                                    Other Categories:
                                 </Text>
-                                <ContentTypeSelector
+                                <FieldArray name="ContentType" component={ContentTypeSelector}/>
+                                {/*<ContentTypeSelector3
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.ContentType}
-                                />
+                                />*/}
                                 <Text style={styles.errorMessage}>{formikprops.touched.ContentType && formikprops.errors.ContentType}</Text>
-                            </View>
-                            <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}>
-                                    Tags (10 max):
-                                </Text>
-                                <TextInput
-                                    style={styles.InputBox}
-                                    placeholder='Optional, but boosts discoverability. Eg. #design'
-                                    onChangeText={formikprops.handleChange('Tags')}
-                                    value={formikprops.values.Tags}
-                                />
-                                <Text style={styles.errorMessage}>{formikprops.touched.Tags && formikprops.errors.Tags}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -253,12 +280,31 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
+                            <View style={styles.containerStyle}>
+                                <Text style={styles.TextStyle}>
+                                    Tags (10 max):
+                                </Text>
+                                <TextInput
+                                    style={[styles.InputBox, {borderColor: isFocused6 ? '#7b7b7b' : '#C4C4C4'}]}
+                                    placeholder='Optional, but boosts discoverability. Eg. #design'
+                                    onChangeText={formikprops.handleChange('Tags')}
+                                    value={formikprops.values.Tags}
+                                    onFocus={() => setFocus6(true)}
+                                    onBlur={() => setFocus6(false)}
+                                />
+                                <Text style={styles.errorMessage}>{formikprops.touched.Tags && formikprops.errors.Tags}</Text>
+                            </View>
+                            
                             
                             
                         </KeyboardAwareScrollView>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
-
+                                <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} >
+                                    <View style={styles.backContainerInit}>
+                                        <Text style={styles.backText}>Back</Text>
+                                    </View>
+                                </TouchableOpacity>
                             </View>
                             <View style={{ flex: 1 }}>
                                 <TouchableOpacity style={{ alignItems: 'center' }} onPress={formikprops.handleSubmit}>
@@ -285,17 +331,24 @@ const MoreInformation = (props) => {
         props.next(values);
     };
 
+    const [isFocused2, setFocus2] = useState(false);
+    const [isFocused2a, setFocus2a] = useState(false);
+    const [isFocused4, setFocus4] = useState(false);
+
     return (
         <SafeAreaView style={styles.containerBack}>
             <Formik
                 initialValues={props.data}
                 onSubmit={handleSubmit}
                 validationSchema={pageTwoValidSchema}
-            >
+            >         
                 {(formikprops) => (
-                    <View >
-                        <KeyboardAwareScrollView style={styles.scrollContainer}>
+                    <View>
+                        <KeyboardAwareScrollView style={styles.scrollContainer} keyboardShouldPersistTaps = "handled">
                             <Header navigation={navigation} />
+                            <View>
+                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Location Information</Text>
+                            </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -312,48 +365,83 @@ const MoreInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.InPerson && formikprops.errors.InPerson}</Text>
                             </View>
+                
                             <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}>
+                            {formikprops.values.InPerson === 'In Person' &&
+                                (<Text style={styles.TextStyle}>
                                     Location Name:
-                                </Text>
-                                <TextInput
-                                    style={styles.InputBox}
+                                </Text>)
+                            }
+                                {formikprops.values.InPerson === 'In Person' &&
+                                (<TextInput
+                                    style={[styles.InputBox, {borderColor: isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder="Egs. Michigan Union, My House, etc. Can be TBA."
                                     onChangeText={formikprops.handleChange('LocationName')}
                                     value={formikprops.values.LocationName}
-                                />
-                                <Text style={styles.errorMessage}>{formikprops.touched.LocationName && formikprops.errors.LocationName}</Text>
+                                    onFocus={() => setFocus2(true)}
+                                    onBlur={() => setFocus2(false)}
+                                />)
+                            }
+                                {formikprops.values.InPerson === 'In Person' &&
+                                (<Text style={styles.errorMessage}>{formikprops.touched.LocationName && formikprops.errors.LocationName}</Text>)
+                                }
                             </View>
                             <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}>
-                                    Address:
-                                </Text>
-                                <TextInput
-                                    style={styles.InputBox}
-                                    placeholder='Eg: 1111 S State St, Ann Arbor, MI, 48104'
-                                    onChangeText={formikprops.handleChange('Address')}
-                                    value={formikprops.values.Address}
-                                />
-                                <Text style={styles.errorMessage}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
+                            {formikprops.values.InPerson === 'Online' &&
+                                (<Text style={styles.TextStyle}>
+                                    Event Link:
+                                </Text>)
+                            }
+                                {formikprops.values.InPerson === 'Online' &&
+                                (<TextInput
+                                    style={[styles.InputBox, {borderColor: isFocused2a ? '#7b7b7b' : '#C4C4C4'}]}
+                                    placeholder="Egs. Zoom link, Webex"
+                                    onChangeText={formikprops.handleChange('EventLink')}
+                                    value={formikprops.values.EventLink}
+                                    onFocus={() => setFocus2a(true)}
+                                    onBlur={() => setFocus2a(false)}
+                                />)
+                            }
+                                {formikprops.values.InPerson === 'Online' &&
+                                (<Text style={styles.errorMessage}>{formikprops.touched.EventLink && formikprops.errors.EventLink}</Text>)
+                                }
                             </View>
-                            <View style={{ width: '20%' }, { height: '20%' }}>
-                                <Image style={{ resizeMode: 'contain' }, { width: '60%' }, { height: '100%' }} source={require('../assets/AA-Map.png')} />
+                            <View style={styles.containerStyle}>
+                            {formikprops.values.InPerson === 'In Person' &&
+                                (<Text style={styles.TextStyle}>
+                                    Address:
+                                </Text>)
+                            }
+                            {formikprops.values.InPerson === 'In Person' &&
+                                (<LocationAutocomplete address = {formikprops.values.Address} setFormikValue = {formikprops.setFieldValue}/>)
+                            }
+                            {formikprops.values.InPerson === 'In Person' &&
+                                <Text style={styles.errorMessage}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
+                            }
                             </View>
 
                             <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}>
+                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Online')) &&
+                                (<Text style={styles.TextStyle}>
                                     Location Details:
-                                </Text>
-                                <TextInput
-                                    style={styles.InputBox}
+                                </Text>)
+                            }
+                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Online')) &&
+                                (<TextInput
+                                    style={[styles.InputBox, {borderColor: isFocused4 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Eg: 2nd floor meeting room'
                                     onChangeText={formikprops.handleChange('LocationDetails')}
                                     value={formikprops.values.LocationDetails}
-                                />
-                                <Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>
+                                    onFocus={() => setFocus4(true)}
+                                    onBlur={() => setFocus4(false)}
+                                />)
+                            }
+                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Online')) &&
+                                (<Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>)
+                            }
                             </View>
-                            
                         </KeyboardAwareScrollView>
+
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
                                 <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => props.prev(formikprops.values)}>
@@ -387,6 +475,8 @@ const EventSchedule = (props) => {
         props.next(values);
     };
 
+    const [isFocused, setFocus] = useState(false);
+
     return (
         <SafeAreaView style={styles.containerBack}>
             <Formik
@@ -399,6 +489,9 @@ const EventSchedule = (props) => {
                         <KeyboardAwareScrollView style={styles.scrollContainer}>
                             
                             <Header navigation={navigation} />
+                            <View>
+                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Event Schedule</Text>
+                            </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -410,8 +503,9 @@ const EventSchedule = (props) => {
                                     Start Day:
                                 </Text>
                                 <StartDateSelector
-                                    onChange={formikprops.setFieldValue}
-                                    value={formikprops.values.StartDay}
+                                    onChangeFormik={formikprops.setFieldValue}
+                                    realStartDate={formikprops.values.RealStartDateTime}
+                                    realEndDate={formikprops.values.RealEndDateTime}
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.StartDay && formikprops.errors.StartDay}</Text>
                             </View>
@@ -420,8 +514,9 @@ const EventSchedule = (props) => {
                                     Start Time:
                                 </Text>
                                 <StartTimeSelector
-                                    onChange={formikprops.setFieldValue}
-                                    value={formikprops.values.StartTime}
+                                    onChangeFormik={formikprops.setFieldValue}
+                                    realStartDate={formikprops.values.RealStartDateTime}
+                                    realEndDate={formikprops.values.RealEndDateTime}
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.StartTime && formikprops.errors.StartTime}</Text>
                             </View>
@@ -430,30 +525,35 @@ const EventSchedule = (props) => {
                                     End Day:
                                 </Text>
                                 <EndDateSelector
-                                    onChange={formikprops.setFieldValue}
-                                    value={formikprops.values.EndDay}
+                                    onChangeFormik={formikprops.setFieldValue}
+                                    realStartDate={formikprops.values.RealStartDateTime}
+                                    realEndDate={formikprops.values.RealEndDateTime}
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.EndDay && formikprops.errors.EndDay}</Text>
                             </View>
                             <View style={styles.containerStyle}>
-                                <Text style={styles.TextStyle}>
+                                <Text style={{fontSize: 20, color: '#09189F', marginLeft: 20, marginTop: 10, fontWeight: '500'}}>
                                     End Time:
                                 </Text>
                                 <EndTimeSelector
-                                    onChange={formikprops.setFieldValue}
-                                    value={formikprops.values.EndTime}
+                                    onChangeFormik={formikprops.setFieldValue}
+                                    realStartDate={formikprops.values.RealStartDateTime}
+                                    realEndDate={formikprops.values.RealEndDateTime}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.EndTime && formikprops.errors.EndTime}</Text>
+                                <Text style={styles.errorMessage}>{formikprops.touched.RealEndDateTime && formikprops.errors.RealEndDateTime}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
                                     Requires Registration
                                 </Text>
                                 <TextInput
-                                    style={styles.InputBox}
+                                    style={[styles.InputBox, {borderColor: isFocused ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Link to external registration tool'
                                     onChangeText={formikprops.handleChange('Registration')}
                                     value={formikprops.values.Registration}
+                                    onFocus={() => setFocus(true)}
+                                    onBlur={() => setFocus(false)}
+                                    
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Registration && formikprops.errors.Registration}</Text>
                             </View>
@@ -496,7 +596,9 @@ const EventDetails = (props) => {
         navigation.navigate('Preview', { values: values });
     };
 
-
+    const [isFocused, setFocus] = useState(false);
+    const [isFocused2, setFocus2] = useState(false);
+    const [isFocused3, setFocus3] = useState(false);
 
     return (
         <SafeAreaView style={styles.containerBack}>
@@ -509,6 +611,9 @@ const EventDetails = (props) => {
                     <View>
                         <KeyboardAwareScrollView style={styles.scrollContainer}>
                             <Header navigation={navigation} />
+                            <View>
+                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Event Details</Text>
+                            </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -520,11 +625,13 @@ const EventDetails = (props) => {
                                     Event Description:
                                 </Text>
                                 <TextInput
-                                    style={styles.InputBox}
+                                    style={[styles.InputBox, {borderColor: isFocused ? '#7b7b7b' : '#C4C4C4'}]}
                                     multiline={true}
                                     placeholder='Describe your event here'
                                     onChangeText={formikprops.handleChange('EventDescription')}
                                     value={formikprops.values.EventDescription}
+                                    onFocus={() => setFocus(true)}
+                                    onBlur={() => setFocus(false)}
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventDescription && formikprops.errors.EventDescription}</Text>
                             </View>
@@ -533,10 +640,12 @@ const EventDetails = (props) => {
                                     Organizer Email:
                                 </Text>
                                 <TextInput
-                                    style={styles.InputBox}
+                                    style={[styles.InputBox, {borderColor: isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Optional. eg: mproduct@umich.edu'
                                     onChangeText={formikprops.handleChange('OrganizerEmail')}
                                     value={formikprops.values.OrganizerEmail}
+                                    onFocus={() => setFocus2(true)}
+                                    onBlur={() => setFocus2(false)}
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.OrganizerEmail && formikprops.errors.OrganizerEmail}</Text>
                             </View>
@@ -545,10 +654,12 @@ const EventDetails = (props) => {
                                     Organizer Website:
                                 </Text>
                                 <TextInput
-                                    style={styles.InputBox}
+                                    style={[styles.InputBox, {borderColor: isFocused3 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Optional. Eg: www.mproduct.com'
                                     onChangeText={formikprops.handleChange('OrganizerWebsite')}
                                     value={formikprops.values.OrganizerWebsite}
+                                    onFocus={() => setFocus3(true)}
+                                    onBlur={() => setFocus3(false)}
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.OrganizerWebsite && formikprops.errors.OrganizerWebsite}</Text>
                             </View>
@@ -587,14 +698,23 @@ const EventDetails = (props) => {
 
     );
 }
-
-
-
 const Preview = ({ route, navigation }) => {
     const { values } = route.params;
+    const[key,setKey] = useState('AIzaSyQ71aMba5yieWm7Lqp4KXs6oIOKrwPUI0m');
 
-    const postEventHandler = () => {
-        // POST to server
+    //get api key
+    const getKey = () => {
+        console.log('getting key...')
+        const fetchurl = Globals.apiKeysURL;
+        fetch(fetchurl + '?KeyName=Geocoder')
+        .then((response) => response.json())
+        .then((json) => {setKey(json[0].ApiKey)})
+        .catch((error) => {console.error(error)});
+    }
+    if(key == 'AIzaSyQ71aMba5yieWm7Lqp4KXs6oIOKrwPUI0m') {
+        getKey();
+    }
+    const postToServer = (latlng) => { //post the event to the server, using the translated latitude and longitude
         fetch('https://retoolapi.dev/rJZk4j/events', {
             method: 'post',
             headers: {
@@ -610,21 +730,34 @@ const Preview = ({ route, navigation }) => {
                 Address: values.Address,
                 Privacy: values.Privacy,
                 Website: values.OrganizerWebsite,
-                Invitees: 'placeholder',
-                Latitude: 'placeholder',
-                Attendees: 'placeholder',
-                Longitude: 'placeholder',
+                Invitees: '',
+                Latitude: latlng.lat,
+                Attendees: '',
+                Longitude: latlng.lng,
                 Organizer: values.OrganizerName,
                 EndDayTime: values.EndTime,
                 Description: values.EventDescription,
                 LocationName: values.LocationName,
+                EventLink: values.EventLink,
                 MainCategory: values.EventType,
                 Registration: values.Registration,
                 StartDayTime: values.StartTime,
                 InPersonVirtual: values.InPerson,
                 OtherCategories: 'placeholder'
             })
-        });
+        }); 
+    }
+    const postEventHandler = async () => {
+        // translate address to latlng and pass that to a function that posts to the server
+        console.log('apikey is:')
+        console.log(key);
+        Geocoder.init(key);
+        Geocoder.from(values.Address)
+        .then(json => {
+            var location = json.results[0].geometry.location;
+            postToServer(location);
+        })
+        .catch(error => console.warn(error));
         // Navigate to map
         navigation.popToTop();
         navigation.dangerouslyGetParent().popToTop();
@@ -633,7 +766,7 @@ const Preview = ({ route, navigation }) => {
 
     return (
         <SafeAreaView style={{ backgroundColor: '#FFFBF2' }}>
-            <View style={{ height: '95%' }}>
+            <View style={{ height: '93%' }}>
                 <ScrollView contentContainerStyle={styles.container}>
 
 
@@ -743,24 +876,28 @@ const Preview = ({ route, navigation }) => {
 const Stack = createStackNavigator()
 
 function UpdateEvent({ navigation }) {
+    
     const [data, setData] = useState({
         // first slide
         EventTitle: '',
         OrganizerName: '',
         EventType: '',
-        ContentType: '',
+        ContentType: [],
         Tags: '',
         Privacy: '',
         // second slide
         InPerson: '',
         LocationName: '',
+        EventLink: '',
         Address: '',
         LocationDetails: '',
         // third slide
-        StartDay: '',
-        StartTime: '',
-        EndDay: '',
-        EndTime: '',
+        StartDay: initialDateFormat,
+        RealStartDateTime: new Date(),
+        StartTime: time1,
+        EndDay: initialDateFormat,
+        RealEndDateTime: new Date(),
+        EndTime: endTime1,
         Registration: '',
         // fourth slide
         EventDescription: '',
@@ -822,21 +959,32 @@ const styles = StyleSheet.create({
     TextStyle: {
         fontSize: 20,
         color: '#09189F',
-        margin: 10,
-        fontWeight: 'bold'
+        marginLeft: 20,
+        marginTop: 10,
+        fontWeight: '500'
     },
 
     containerStyle: {
 
     },
+    pickerStyle: {
+        borderWidth: 1,
+        borderColor: '#C4C4C4',
+        padding: 8,
+        width: '80%',
+        margin: 10
 
+    },
     InputBox: {
         borderWidth: 0,
         borderBottomWidth: 1,
         borderColor: '#C4C4C4',
         padding: 8,
-        width: '80%',
-        margin: 10
+        width: '88%',
+        marginLeft: 20,
+        marginTop: 10,
+        marginBottom: 10,
+        fontSize: 14
     },
 
     imageStyle: {
@@ -883,7 +1031,8 @@ const styles = StyleSheet.create({
     scrollContainer: {
         paddingBottom: 90,
         zIndex: 0,
-        height: '90%'
+        height: '93%',
+
     },
     outerContainer: {
         flex: 1,
@@ -902,14 +1051,14 @@ const styles = StyleSheet.create({
     },
     close: {
         position: 'absolute',
-        left: 350,
+        left: 370,
         top: 10,
     },
     headerText: {
         fontSize: 24,
         fontWeight: 'bold',
         marginTop: 10,
-        marginLeft: 20.5,
+        textAlign: 'center',
     },
     headerText2: {
         fontSize: 24,
@@ -938,6 +1087,24 @@ const styles = StyleSheet.create({
     backContainer: {
         backgroundColor: '#ffffff',
 
+        marginHorizontal: 50,
+        marginTop: 5,
+        width: '65%',
+        alignItems: 'center',
+        top: 0,
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowColor: '#000000',
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
+        borderRadius: 10,
+    },
+    backContainerInit: {
+        backgroundColor: '#ffffff',
+        opacity: 0.33,
         marginHorizontal: 50,
         marginTop: 5,
         width: '65%',

@@ -1,62 +1,72 @@
-import {Picker} from '@react-native-picker/picker';
-import React, {useState} from 'react';
-import RNPickerSelect from 'react-native-picker-select';
-import { StyleSheet } from 'react-native';
+import React, { Component } from "react"
+import { View, Text, StyleSheet } from "react-native"
+import Select2 from "react-native-select-two"
 
-const ContentTypeSelector = ({onChange, value}) => {
-    return (
-        <RNPickerSelect
-            onValueChange={(value) => onChange('ContentType', value)}
-            value={value}
+const mockData = [
+    { id: 'Parties', name: 'Parties' },
+    { id: 'Career', name: 'Career' },
+    { id: 'Community', name: 'Community' },
+    { id: 'Greek Life', name: 'Greek Life' },
+    { id: 'Games', name: 'Games' },
+    { id: 'Activism', name: 'Activism' },
+    { id: 'Art/Design', name: 'Art/Design' },
+    { id: 'Performance', name: 'Performance' },
+    { id: 'Exhibition', name: 'Exhibition' },
+    { id: 'Science/Tech', name: 'Science/Tech' },
+    { id: 'Language/Literature', name: 'Language/Literature' },
+    { id: 'Other', name: 'Other' }
+]
 
-            items={[
-                { label: 'Software', value: 'Software' },
-                { label: 'Research', value: 'Research' },
-                { label: 'Greek Life', value: 'Greek Life' },
-                { label: 'Professional', value: 'Professional' },
-                { label: 'Consulting', value: 'Consulting' },
-                { label: 'Blockchain', value: 'Blockchain' },
-                { label: 'Finance', value: 'Finance' },
-                { label: 'UX Design', value: 'UX Design' }
-            ]}
-            style={pickerSelectStyles}
-            placeholder={{
-                label: 'Egs. UX Design, House Party, etc.',
-                value: null,
-                
-            }}
-        />
-    );
-};
-
-export default ContentTypeSelector;
-
-const styles = StyleSheet.create({
-    InputBox: {
-        borderWidth: 0,
-        borderBottomWidth: 1,
-        borderColor: '#C4C4C4',
-        padding: 8,
-        width: '80%',
-        margin: 10
+// create a component
+export class ContentTypeSelector extends Component {
+    state = {
+        data: this.props.form.values.ContentType
     }
-})
+  render() {
+    return (
+      <View >
+        <Select2
 
-const pickerSelectStyles = StyleSheet.create({
-    inputIOS: {
-        borderWidth: 0,
-        borderBottomWidth: 1,
-        borderColor: '#C4C4C4',
-        padding: 8,
-        width: '80%',
-        margin: 10
-    },
-    inputAndroid: {
-        borderWidth: 0,
-        borderBottomWidth: 1,
-        borderColor: '#C4C4C4',
-        padding: 8,
-        width: '80%',
-        margin: 10
-    },
-  });
+          isSelectSingle={false}
+          showSearchBox={false}
+          style={{ width: '88%', marginLeft: 20, marginTop: 10, marginBottom: 10}}
+          colorTheme="blue"
+          popupTitle="Select item"
+          title="Select item"
+          selectButtonText='Done'
+          cancelButtonText='Cancel'
+          data={mockData}
+          onSelect={data => {
+            this.setState({data})
+            let i;
+            
+            // clear array
+            for (i = 0; i < this.props.form.values.ContentType.length + 1; ++i) {
+                this.props.pop();
+            }
+            // set new array given by data (might be a more efficient way to do this)
+            let j;
+            for (j = 0; j < data.length; ++j) {
+                this.props.push(data[j]);
+            }
+            
+          }}
+          onRemoveItem={data => {
+            this.setState({ data })
+            let i;
+            let index;
+            // clear array
+            for (i = 0; i < this.props.form.values.ContentType.length + 1; ++i) {
+                this.props.pop();
+            }
+            // set new array given by data (might be a more efficient way to do this)
+            let j;
+            for (j = 0; j < data.length; ++j) {
+                this.props.push(data[j]);
+            }
+          }}
+        />
+      </View>
+    )
+  }
+}

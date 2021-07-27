@@ -3,6 +3,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import { StyleSheet } from 'react-native';
 
 const InPersonSelector = ({onChange, value}) => {
+    const [isFocused, setFocus] = useState(false);
     return (
         <RNPickerSelect
             onValueChange={(value) => onChange('InPerson', value)}
@@ -13,7 +14,16 @@ const InPersonSelector = ({onChange, value}) => {
                 { label: 'Online', value: 'Online' },
                 { label: 'TBA', value: 'TBA' }
             ]}
-            style={pickerSelectStyles}
+            style={{inputIOS: {borderWidth: 1,
+                borderColor: isFocused ? '#7b7b7b' : '#C4C4C4',
+                padding: 8,
+                width: '88%',
+                marginLeft: 20,
+                marginTop: 10,
+                flex: 1,
+                fontSize: 14}}}
+            onOpen={() => setFocus(true)}
+            onClose={() => setFocus(false)}
             placeholder={{
                 label: 'In Person/Online/TBA',
                 value: null,
@@ -38,19 +48,19 @@ const styles = StyleSheet.create({
 
 const pickerSelectStyles = StyleSheet.create({
     inputIOS: {
-        borderWidth: 0,
-        borderBottomWidth: 1,
+        borderWidth: 1,
         borderColor: '#C4C4C4',
         padding: 8,
         width: '80%',
-        margin: 10
+        marginLeft: 20,
+        marginTop: 10
     },
     inputAndroid: {
-        borderWidth: 0,
-        borderBottomWidth: 1,
+        borderWidth: 1,
         borderColor: '#C4C4C4',
         padding: 8,
         width: '80%',
-        margin: 10
+        marginLeft: 20,
+        marginTop: 10
     },
   });

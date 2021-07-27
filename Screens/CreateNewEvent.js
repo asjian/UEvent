@@ -13,7 +13,7 @@ import AppContext from '../objects/AppContext';
 //import SearchableDropdown from 'react-native-searchable-dropdown';
 import EventTypeSelector from '../objects/FormObjects/EventTypeSelector';
 import PrivacySelector from '../objects/FormObjects/PrivacySelector';
-import ContentTypeSelector from '../objects/FormObjects/ContentTypeSelector';
+import {ContentTypeSelector} from '../objects/FormObjects/ContentTypeSelector';
 import InPersonSelector from '../objects/FormObjects/InPersonSelector';
 import ImagePickerExample from '../objects/FormObjects/ImagePicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -200,7 +200,7 @@ const EventInformation = (props) => {
             <Formik
                 initialValues={props.data}
                 onSubmit={handleSubmit}
-                // validationSchema={pageOneValidSchema}
+                validationSchema={pageOneValidSchema}
                 
             >
                 {(formikprops) => (

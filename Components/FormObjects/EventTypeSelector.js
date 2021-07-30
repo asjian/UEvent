@@ -27,10 +27,10 @@ const EventTypeSelector = ({onChange, value}) => {
                 { label: 'Other', value: 'Other' }
             ]}
             style={{inputIOS: {borderWidth: 1,
-                borderColor: isFocused3 ? '#7b7b7b' : '#C4C4C4',
+                borderColor: value !== null || isFocused3 ? '#7b7b7b' : '#C4C4C4',
                 padding: 8,
                 width: '88%',
-                marginLeft: 20,
+                marginLeft: 20, 
                 marginTop: 10,
                 marginBottom: 10,
                 flex: 1,

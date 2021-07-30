@@ -15,7 +15,7 @@ const PrivacySelector = ({onChange, value}) => {
                 { label: 'Private', value: 'Private' },
             ]}
             style={{inputIOS: {borderWidth: 1,
-                borderColor: isFocused5 ? '#7b7b7b' : '#C4C4C4',
+                borderColor: value !== null || isFocused5 ? '#7b7b7b' : '#C4C4C4',
                 padding: 8,
                 width: '88%',
                 marginLeft: 20,

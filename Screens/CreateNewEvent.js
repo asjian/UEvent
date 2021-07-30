@@ -28,6 +28,8 @@ import { EndDateSelector } from '../objects/FormObjects/EndDateSelector';
 import { StartTimeSelector } from '../objects/FormObjects/StartTimeSelector';
 import { EndTimeSelector } from '../objects/FormObjects/EndTimeSelector';
 import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
+import { ContentTypeSelector2 } from '../objects/FormObjects/ContentTypeSelector2';
+
 // Header
 function Header({ navigation }) {
     const myContext = useContext(AppContext);
@@ -108,7 +110,7 @@ const pageOneValidSchema = yup.object({
         .required()
         .label('Main Event Category')
         .nullable(),
-    ContentType: yup.string()
+    ContentType: yup.array()
         .label('Other Categories')
         .nullable(),
     Tags: yup.string()
@@ -223,7 +225,7 @@ const EventInformation = (props) => {
                                     Event Title:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: isFocused ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.EventTitle !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Eg: MProduct Interest Meeting'
                                     onChangeText={formikprops.handleChange('EventTitle')}
                                     value={formikprops.values.EventTitle}
@@ -238,7 +240,7 @@ const EventInformation = (props) => {
                                     Organizer Name:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerName !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Organization (eg. MProduct) or you (Eg. Alex Jian)'
                                     onChangeText={formikprops.handleChange('OrganizerName')}
                                     value={formikprops.values.OrganizerName}
@@ -263,7 +265,10 @@ const EventInformation = (props) => {
                                 <Text style={styles.TextStyle}>
                                     Other Categories:
                                 </Text>
-                                <FieldArray name="ContentType" component={ContentTypeSelector}/>
+                                <View style={{width: '88%', marginLeft: 20, marginTop: 10,  }}>
+                                    <FieldArray name="ContentType" component={ContentTypeSelector} />
+                                </View>
+                                
                                 {/*<ContentTypeSelector3
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.ContentType}
@@ -285,7 +290,7 @@ const EventInformation = (props) => {
                                     Tags (10 max):
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: isFocused6 ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.Tags !== '' || isFocused6 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Optional, but boosts discoverability. Eg. #design'
                                     onChangeText={formikprops.handleChange('Tags')}
                                     value={formikprops.values.Tags}
@@ -374,7 +379,7 @@ const MoreInformation = (props) => {
                             }
                                 {formikprops.values.InPerson === 'In Person' &&
                                 (<TextInput
-                                    style={[styles.InputBox, {borderColor: isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.LocationName !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder="Egs. Michigan Union, My House, etc. Can be TBA."
                                     onChangeText={formikprops.handleChange('LocationName')}
                                     value={formikprops.values.LocationName}
@@ -428,7 +433,7 @@ const MoreInformation = (props) => {
                             }
                             {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Online')) &&
                                 (<TextInput
-                                    style={[styles.InputBox, {borderColor: isFocused4 ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.LocationDetails !== '' || isFocused4 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Eg: 2nd floor meeting room'
                                     onChangeText={formikprops.handleChange('LocationDetails')}
                                     value={formikprops.values.LocationDetails}
@@ -547,7 +552,7 @@ const EventSchedule = (props) => {
                                     Requires Registration
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: isFocused ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.Registration !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Link to external registration tool'
                                     onChangeText={formikprops.handleChange('Registration')}
                                     value={formikprops.values.Registration}
@@ -625,7 +630,7 @@ const EventDetails = (props) => {
                                     Event Description:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: isFocused ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.EventDescription !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
                                     multiline={true}
                                     placeholder='Describe your event here'
                                     onChangeText={formikprops.handleChange('EventDescription')}
@@ -640,7 +645,7 @@ const EventDetails = (props) => {
                                     Organizer Email:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerEmail !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Optional. eg: mproduct@umich.edu'
                                     onChangeText={formikprops.handleChange('OrganizerEmail')}
                                     value={formikprops.values.OrganizerEmail}
@@ -654,7 +659,7 @@ const EventDetails = (props) => {
                                     Organizer Website:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: isFocused3 ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerWebsite !== '' || isFocused3 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Optional. Eg: www.mproduct.com'
                                     onChangeText={formikprops.handleChange('OrganizerWebsite')}
                                     value={formikprops.values.OrganizerWebsite}
@@ -743,7 +748,7 @@ const Preview = ({ route, navigation }) => {
                 Registration: values.Registration,
                 StartDayTime: values.StartTime,
                 InPersonVirtual: values.InPerson,
-                OtherCategories: 'placeholder'
+                OtherCategories: values.ContentType
             })
         }); 
     }
@@ -876,17 +881,23 @@ const Preview = ({ route, navigation }) => {
 const Stack = createStackNavigator()
 
 function UpdateEvent({ navigation }) {
-    
+    // date formatting
+    let dateString = new Date().toString();
+    let initialDateFormat = dateString.substring(0,3)+', '+dateString.substring(4,dateString.indexOf(':')-8);
+    let time = new Date();
+    let time1 = time.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    let endTime = new Date(new Date(time).setHours(time.getHours() + 1));
+    let endTime1 = endTime.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     const [data, setData] = useState({
         // first slide
         EventTitle: '',
         OrganizerName: '',
-        EventType: '',
+        EventType: null,
         ContentType: [],
         Tags: '',
-        Privacy: '',
+        Privacy: null,
         // second slide
-        InPerson: '',
+        InPerson: null,
         LocationName: '',
         EventLink: '',
         Address: '',

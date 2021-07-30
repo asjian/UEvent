@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Image, View, Platform, StyleSheet } from 'react-native';
+import { Button, Image, View, Platform, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function ImagePickerExample({onChange, value}) {
@@ -32,8 +32,12 @@ export default function ImagePickerExample({onChange, value}) {
   };
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Button title="Pick an image from camera roll" onPress={pickImage} />
+    <View style={{alignItems: 'center', flex: 1  }}>
+      <TouchableOpacity onPress={pickImage}>
+        <View style={styles.selectContainer}>
+            <Text style={styles.selectText}>Upload Photo</Text>
+        </View>
+      </TouchableOpacity>
       {value == '' ? (null) 
       : (value)  && 
       <Image source={{ uri: value }} style={styles.image} />}
@@ -45,7 +49,30 @@ const styles = StyleSheet.create({
   image: {
     width: 200,
     height: 200,
-    borderRadius: 200 / 2,
     overflow: 'hidden'
-  }
+  },
+  selectContainer: {
+    backgroundColor: '#ffffff',
+    marginHorizontal: 15,
+    marginTop: 50,
+    width: '40%',
+    alignItems: 'center',
+    top: 0,
+    shadowOffset: {
+        width: 0,
+        height: 1,
+    },
+    shadowColor: '#000000',
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+    borderRadius: 10,
+},
+selectText: {
+    fontWeight: '500',
+    fontSize: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 15
+    
+}
 })

@@ -30,6 +30,8 @@ export default function LocationAutocomplete({address,setFormikValue}) {
     }, []);
 
     const [pressed,setPressed] = useState(false);
+    
+    const [isFocused3, setFocus3] = useState(false);
 
     const [mapRegion,setMapRegion] = useState({
         latitude: 42.278,
@@ -78,6 +80,7 @@ export default function LocationAutocomplete({address,setFormikValue}) {
             textInputProps = {{
                 onFocus: () => {
                     createSessionToken();
+                    setFocus3(true);
                 },
                 onChangeText: (text) => {
                     if(ref.current.isFocused()) {

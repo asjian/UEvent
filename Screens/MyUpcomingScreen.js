@@ -3,10 +3,12 @@ import {StyleSheet, Text, View, SafeAreaView, ScrollView} from 'react-native';
 import BackButton from '../objects/backButton';
 import ProfileButton from '../objects/profileButton';
 import Globals from '../../GlobalVariables';
+import {createAppContainer} from 'react-navigation';
+import {createStackNavigator} from 'react-navigation-stack';
 
 
-
-export default function MyUpcomingScreen({navigation}) {
+export default function MainScreen({navigation}) {
+  {/*
     const user = navigation.getParam('user');
     
     const eventIds = user.UpcomingEvents.split(" ");
@@ -37,11 +39,12 @@ export default function MyUpcomingScreen({navigation}) {
       )
       )
     }
+  */}
     return (
         <SafeAreaView style={styles.button}>
           <BackButton onPress={() => navigation.navigate('MainScreen')} title = 'My Upcoming Events'/>
           <ScrollView>
-            {renderEvents()}
+            <ProfileButton title={'ALEX NERD PARTY'} onPress={() => navigation.navigate('EventDetailsScreen')}/>
           </ScrollView>
         </SafeAreaView>
     );

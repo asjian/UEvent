@@ -28,7 +28,7 @@ import { EndDateSelector } from '../objects/FormObjects/EndDateSelector';
 import { StartTimeSelector } from '../objects/FormObjects/StartTimeSelector';
 import { EndTimeSelector } from '../objects/FormObjects/EndTimeSelector';
 import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
-import { ContentTypeSelector2 } from '../objects/FormObjects/ContentTypeSelector2';
+
 
 // Header
 function Header({ navigation }) {

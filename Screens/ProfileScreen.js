@@ -14,13 +14,14 @@ import OutgoingInvScreen from './OutgoingInvScreen';
 import ProfileButton from '../objects/profileButton';
 import Globals from '../../GlobalVariables';
 import AppContext from '../objects/AppContext';
+import EventDetailsScreen from './EventDetailsScreen';
 
 const HORIZONTALMARGIN = 20.4;
 
 function MainScreen({navigation}) {  
     const myContext = useContext(AppContext);
     const user = {...myContext.user,...{'avatarsource':require('../assets/avatar.jpeg')}}; //that last avatarsource thing is temporary
-
+    const params = {user:user}
     /*
     console.log('fetching categories...')
     fetch('http://47.252.19.227/EventHub/rest/categories')
@@ -41,7 +42,7 @@ function MainScreen({navigation}) {
             </View>
             <View style={styles.buttonContainer}>
                 <Text style = {styles.headerText}>My Event Info</Text>
-                <ProfileButton onPress = {() => navigation.navigate('MyUpcomingScreen')} title = 'My Upcoming Events' />
+                <ProfileButton onPress = {() => navigation.navigate('MyUpcomingScreen', params)} title = 'My Upcoming Events' />
                 <ProfileButton onPress = {() => navigation.navigate('EventsFollowingScreen')} title = "Events I'm Following" />
                 <ProfileButton onPress = {() => navigation.navigate('EventUpdatesScreen')} title = 'Event Updates' />
                 <Text style = {styles.headerText}>Friends</Text>
@@ -121,6 +122,12 @@ const screens = {
           headerShown: false
         },
     },
+    EventDetailsScreen: {
+        screen: EventDetailsScreen,
+        navigationOptions: {
+          headerShown: false
+        },
+    }
 }
 const ProfileNavigator = createStackNavigator(screens);
 

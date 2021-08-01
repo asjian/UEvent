@@ -8,6 +8,7 @@ import TopBar from '../objects/topBar';
 import MapSearchBar from '../objects/mapSearchBar';
 import Search from './Search';
 import CategoryList from './CategoryList';
+import DateRange from './DateRange';
 import TimeRange from './TimeRange';
 import OtherFilters from './OtherFilters';
 //import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
@@ -64,19 +65,19 @@ function MainScreen({navigation}) {
       "OtherCategories": "Greek Life Social Food/Drink "
     });
 
-    const categories = [{name:'Extracurriculars', icon: require('../assets/club.png'), key:0,},
+    const categories = [{name:'Extracurriculars', icon: require('../assets/extracurriculars.png'), key:0,},
     {name:'Parties', icon: require('../assets/parties.png'),key:1,}, {name:'Social',icon: require('../assets/social.png'),key:2,},
     {name:'Career',icon: require('../assets/career.png'),key:3,}, {name:'Networking',icon: require('../assets/networking.png'),key:4,},
-    {name:'Community',icon: require('../assets/community.png'),key:5,}, {name:'Fair/Festival',icon: require('../assets/festival.png'),key:6,}, 
+    {name:'Community',icon: require('../assets/test2.png'),key:5,}, {name:'Fair/Festival',icon: require('../assets/festival.png'),key:6,}, 
     {name:'Greek Life',icon: require('../assets/greeklife.png'),key:7,}, {name:'Sports',icon: require('../assets/sports.png'),key:8,}, 
     {name:'Games',icon: require('../assets/games.png'),key:9,}, {name:'Cultural',icon: require('../assets/cultural.png'),key:10,}, 
     {name:'Activism',icon: require('../assets/activism.png'),key:11,}, {name:'Music',icon: require('../assets/music.png'),key:12,}, 
-    {name:'Art/Design', icon: require('../assets/artdesign.png'),key:13,}, {name:'Food + Drink', icon: require('../assets/food.png'),key:14,}, 
+    {name:'Art/Design', icon: require('../assets/artdesign.png'),key:13,}, {name:'Food + Drink', icon: require('../assets/fooddrink.png'),key:14,}, 
     {name:'Performance', icon: require('../assets/performance.png'),key:15,}, {name:'Presentation', icon: require('../assets/presentation.png'),key:16,}, 
     {name:'Exhibition', icon: require('../assets/exhibition.png'),key:17,}, {name:'Academic', icon: require('../assets/academic.png'),key:18,},
     {name:'Science/Tech', icon: require('../assets/science.png'),key:19,}, {name:'Business/Professional', icon: require('../assets/business.png'),key:20,},
-    {name:'Language/Literature', icon: require('../assets/language.png'),key:21,}, {name:'Religion', icon: require('../assets/religion.png'),key:22,},
     {name:'Other', icon: require('../assets/other.png'),key:23,}];
+
 
     const windowHeight = Dimensions.get('window').height;
     bs = React.createRef();
@@ -329,16 +330,16 @@ function MainScreen({navigation}) {
         }
     }
     const [eventList,setEventList] = useState([]);
-
     const searchParams = {
       SearchType: navigation.getParam('SearchType','none'),
       SearchText: navigation.getParam('SearchText',''),
       Categories: navigation.getParam('Categories',[]),
-      TimeRange: navigation.getParam('TimeRange',{startDate:'',endDate:'',duration:''}),
+      TimeRange: navigation.getParam('TimeRange',{startDate:'',endDate:'',startTime:'',endTime:'',value:'Anytime'}),
       OtherFilters: navigation.getParam('OtherFilters',[]),
       BotSheetInfo: navigation.getParam('BotSheetInfo',{snapPos:snapPosition}),
       CloseBotSheet: navigation.getParam('CloseBotSheet',false),
-    }
+    };
+
     const getEvents = () => {
       console.log('fetching...');
       let fetchurl = Globals.eventsURL;
@@ -350,6 +351,7 @@ function MainScreen({navigation}) {
     const [fetched,setFetched] = useState(false);
       useEffect(() => {
         console.log(searchParams);
+
         if(!fetched) {
           getEvents();
           setFetched(true);
@@ -359,14 +361,11 @@ function MainScreen({navigation}) {
         bs.current.snapTo(0);
       }    
       
-      if(searchParams.SearchType == 'none') {
-        if(snapPosition == 0)
-          myContext.toggleShowNavBar(true);
-        else
-          myContext.toggleShowNavBar(false);
-      } 
+      if(snapPosition == 0)
+        myContext.toggleShowNavBar(true);
       else
         myContext.toggleShowNavBar(false);
+       
 
     }, [navigation]);
     
@@ -379,7 +378,7 @@ function MainScreen({navigation}) {
           return false;
         }
         else if(searchParams.SearchType == 'filter') {
-          if(event.MainCategory == searchParams.Categories[0].name) {
+          if(searchParams.Categories.length>0 && event.MainCategory == searchParams.Categories[0].name) {
             return true;
           }
           return false;
@@ -432,27 +431,26 @@ function MainScreen({navigation}) {
             </MapView>
 
         <View style={styles.topbar}>
-                {searchParams.SearchType=='none'?<TopBar navigation = {navigation} searchDefaultParams = {searchParams}/>:
-                <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>}   
+                <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>
         </View> 
 
-            <View style={styles.pullup}>
-                <BottomSheet
-                    ref={this.bs}
-                    snapPoints={[0, 270, windowHeight - 50]}
-                    renderContent={this.renderInner}
-                    renderHeader={this.renderHeader}
-                    initialSnap={0}
-                    callbackNode={this.fall}
-                    enabledGestureInteraction={true}
-                    onCloseEnd={() => {setSnapPosition(0);if(searchParams.SearchType == 'none')myContext.toggleShowNavBar(true)}}
-                />
-                <Animated.View style={{margin: 20,
-                    opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
-                }}>
-                </Animated.View>   
-            
-            </View>
+        <View style={styles.pullup}>
+            <BottomSheet
+                ref={this.bs}
+                snapPoints={[0, 270, windowHeight - 50]}
+                renderContent={this.renderInner}
+                renderHeader={this.renderHeader}
+                initialSnap={0}
+                callbackNode={this.fall}
+                enabledGestureInteraction={true}
+                onCloseEnd={() => {setSnapPosition(0);myContext.toggleShowNavBar(true)}}
+            />
+            <Animated.View style={{margin: 20,
+                opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
+            }}>
+            </Animated.View>   
+        
+        </View>
         </View>
     );
 }
@@ -475,12 +473,19 @@ const screens = {
         navigationOptions: {
             headerShown: false,
         },
+        mode: 'modal'
     },
     CategoryList: {
         screen: CategoryList,
         navigationOptions: {
             headerShown: false,
         },
+    },
+    DateRange: {
+      screen: DateRange,
+      navigationOptions: {
+        headerShown:false,
+      }
     },
     TimeRange: {
         screen: TimeRange,
@@ -495,7 +500,7 @@ const screens = {
       },
     }
 }
-const FindNavigator = createStackNavigator(screens);
+const FindNavigator = createStackNavigator(screens,{mode: 'modal'});
 
 const FindContainer = createAppContainer(FindNavigator);
 
@@ -516,7 +521,7 @@ const styles = StyleSheet.create({
     },
     topbar: {
         position: 'absolute',
-        top: 50,
+        top: 0,
         width: Dimensions.get('window').width,
     },
     header: {

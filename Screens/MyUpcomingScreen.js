@@ -5,46 +5,50 @@ import ProfileButton from '../objects/profileButton';
 import Globals from '../../GlobalVariables';
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
+import { render } from 'react-dom';
 
 
 export default function MainScreen({navigation}) {
-  {/*
     const user = navigation.getParam('user');
     
     const eventIds = user.UpcomingEvents.split(" ");
     const [eventList, setEventList] = useState([]);
+    const [gotEvents,setGotEvents] = useState(false);
 
-    const getEvent = async(eventID) => {
-      console.log('fetching...');
-      let fetchurl = Globals.eventsURL + '/' + eventID;
-      await fetch (fetchurl)
-        .then((response) => response.json())
-        .then((json) => eventList.push(json[0]))
-        .catch((error) => console.error(error))
+    const getEvent = (eventId) => {
+      let fetchurl = Globals.eventsURL + '/' + eventId;
+
+      fetch (fetchurl)
+      .then((response) => response.json())
+      .then((json) => {setEventList((prevEventList)=>{return [json,...prevEventList]})})
+      .catch((error) => console.error(error))
     }
-
-    for (let i = 0; i < eventIds.length; i++) {
-      getEvent(eventIds[i]);
+    const getUserEvents = () => {
+      for(let i=0; i<eventIds.length;i++) {
+        getEvent(eventIds[i]);
+      }
+      setGotEvents(true);
     }
-
     const renderEvents = () => {
       return (
-      eventList.map((item) => {
-        return (
-        <ProfileButton title={item.Name}>
-
-        </ProfileButton>
-        )
-      }
+        eventList.map((event) => {
+            return (
+              <View key = {event.id}>
+              <ProfileButton title = {event.Name} onPress={() => navigation.navigate('EventDetailsScreen')}/>
+              </View>
+            )
+        }
       )
       )
     }
-  */}
+    if(!gotEvents)
+      getUserEvents();
+
     return (
         <SafeAreaView style={styles.button}>
           <BackButton onPress={() => navigation.navigate('MainScreen')} title = 'My Upcoming Events'/>
           <ScrollView>
-            <ProfileButton title={'ALEX NERD PARTY'} onPress={() => navigation.navigate('EventDetailsScreen')}/>
+            {renderEvents()}
           </ScrollView>
         </SafeAreaView>
     );

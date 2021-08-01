@@ -4,17 +4,26 @@ import {AntDesign} from '@expo/vector-icons';
 import CategoryButton from '../objects/categoryButton';
 
 export default function CategoryList({navigation}) {
-    const categories = [{name:'Extracurriculars', icon: require('../assets/club.png'), key:0,},
+    const categories = [{name:'Extracurriculars', icon: require('../assets/extracurriculars.png'), key:0,},
     {name:'Parties', icon: require('../assets/parties.png'),key:1,}, {name:'Social',icon: require('../assets/social.png'),key:2,},
-    {name:'Community',icon: require('../assets/community.png'),key:3,},{name:'Career',icon: require('../assets/career.png'),key:4,},
-    {name:'Sports',icon: require('../assets/sports.png'),key:5,}, {name:'Games',icon: require('../assets/games.png'),key:6,},
-    {name:'Cultural',icon: require('../assets/culture.png'),key:7,},{name:'Music',icon: require('../assets/music.png'),key:8,},
-    {name:'Art/Design', icon: require('../assets/artdesign.png'),key:9,},{name:'Food + Drink', icon: require('../assets/food.png'),key:10,}];
+    {name:'Career',icon: require('../assets/career.png'),key:3,}, {name:'Networking',icon: require('../assets/networking.png'),key:4,},
+    {name:'Community',icon: require('../assets/test2.png'),key:5,}, {name:'Fair/Festival',icon: require('../assets/festival.png'),key:6,}, 
+    {name:'Greek Life',icon: require('../assets/greeklife.png'),key:7,}, {name:'Sports',icon: require('../assets/sports.png'),key:8,}, 
+    {name:'Games',icon: require('../assets/games.png'),key:9,}, {name:'Cultural',icon: require('../assets/cultural.png'),key:10,}, 
+    {name:'Activism',icon: require('../assets/activism.png'),key:11,}, {name:'Music',icon: require('../assets/music.png'),key:12,}, 
+    {name:'Art/Design', icon: require('../assets/artdesign.png'),key:13,}, {name:'Food + Drink', icon: require('../assets/fooddrink.png'),key:14,}, 
+    {name:'Performance', icon: require('../assets/performance.png'),key:15,}, {name:'Presentation', icon: require('../assets/presentation.png'),key:16,}, 
+    {name:'Exhibition', icon: require('../assets/exhibition.png'),key:17,}, {name:'Academic', icon: require('../assets/academic.png'),key:18,},
+    {name:'Science/Tech', icon: require('../assets/science.png'),key:19,}, {name:'Business/Professional', icon: require('../assets/business.png'),key:20,},
+    {name:'Other', icon: require('../assets/other.png'),key:23,}];
 
     const backParams = {
+        SearchType: navigation.getParam('SearchType'),
+        SearchText: navigation.getParam('SearchText'),
         Categories: navigation.getParam('Categories'),
         TimeRange: navigation.getParam('TimeRange'),
         OtherFilters: navigation.getParam('OtherFilters'),
+        CloseBotSheet: navigation.getParam('CloseBotSheet'),
     }
     let localCategoriesCopy = [];
     for(let i=0;i<backParams.Categories.length;i++) {
@@ -22,7 +31,7 @@ export default function CategoryList({navigation}) {
     }
 
     let totalSelections = navigation.getParam('Categories').length;
-    const [scrollHeight, setScrollHeight] = useState('76%');
+    const [scrollHeight, setScrollHeight] = useState('77%');
 
     const linSearchCategories = (catName) => {
         for(let i=0;i<localCategoriesCopy.length;i++) {
@@ -56,23 +65,36 @@ export default function CategoryList({navigation}) {
             return true;
         }
     }
+    const backHandler = () => {
+        navigation.navigate('MainScreen',backParams);
+    }
     const selectHandler = () => {
+        backParams.CloseBotSheet = true;
         backParams.Categories.length = 0;
         for(let i=0;i<localCategoriesCopy.length;i++) 
-            backParams.Categories.push(localCategoriesCopy[i]);      
-        navigation.navigate('Search',backParams);
+            backParams.Categories.push(localCategoriesCopy[i]);   
+
+        backParams.SearchType = 'filter';
+        if(backParams.Categories.length == 0 && (backParams.TimeRange.startDate == '' && backParams.TimeRange.endDate == '' && 
+            backParams.TimeRange.startTime == '' && backParams.TimeRange.endTime == '')) {
+            if(backParams.SearchText == '')
+                backParams.SearchType = 'none';
+            else
+                backParams.SearchType = 'text';
+        }
+        navigation.navigate('MainScreen',backParams);
     }
     return (
         <View style = {styles.container}>
             <View style = {styles.headerContainer}>
-                <TouchableOpacity onPress = {() => {navigation.navigate('Search',backParams)}}>
+                <TouchableOpacity onPress = {backHandler}>
                     <Text style = {styles.backText}>Back</Text>
                 </TouchableOpacity>
                 <Text style = {styles.headerText}>Event Categories</Text>
             </View>
             <View style = {[styles.scrollContainer,{height:scrollHeight}]}>
             <Text style = {[styles.instructionsText]}>Select up to 3 categories</Text>
-            <View style = {{borderBottomColor: '#d4d4d4',borderBottomWidth: 1.5,marginTop: 5,marginBottom:3,marginHorizontal:-23,}}/>
+            <View style = {{borderBottomColor: '#d4d4d4',borderBottomWidth: 1.5,marginTop: 5,marginBottom:0,marginHorizontal:-23,}}/>
             <ScrollView /*onMomentumScrollBegin = {() => {setScrollHeight('100%')}} onMomentumScrollEnd = {() => {setScrollHeight('77%')}*/>
                 {categories.map((item) => {
                     return (
@@ -102,23 +124,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerText: {
-        fontWeight: 'bold',
-        fontSize: 25,
+        fontWeight: '600',
+        fontSize: 22,
         marginVertical: 15,
     },
     instructionsText: {
         fontWeight: '500',
-        fontSize: 20,
+        fontSize: 18,
         marginTop: 25,
         marginBottom: 10,
-        marginLeft: 67,
+        marginLeft: 78,
     },
     backText: {
         fontWeight:'bold',
         fontSize: 18,
         color: '#0085ff',
         left: 23,
-        marginRight: 64,
+        marginRight: 75,
     },
     scrollContainer: {
         marginLeft: 25,
@@ -126,11 +148,10 @@ const styles = StyleSheet.create({
     selectContainer: {
         backgroundColor: '#ffffff',
         position: 'absolute',
-        marginHorizontal: 50,
-        marginTop: 10,
-        width: '75%',
+        marginHorizontal: 58,
+        marginTop: 7,
+        width: '70%',
         alignItems: 'center',
-        top: 0,
         shadowOffset: {
             width: 0,
             height: 1,
@@ -143,7 +164,7 @@ const styles = StyleSheet.create({
     },
     selectText: {
         fontWeight: 'bold',
-        fontSize: 30,
+        fontSize: 26,
         paddingVertical: 10,
         color: '#fab400',
     },

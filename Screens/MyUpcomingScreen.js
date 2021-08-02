@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View, SafeAreaView, ScrollView} from 'react-native';
 import BackButton from '../objects/backButton';
-import ProfileButton from '../objects/profileButton';
+import ProfileButton from '../objects/UpcomingEventButton';
 import Globals from '../../GlobalVariables';
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
@@ -34,7 +34,10 @@ export default function MainScreen({navigation}) {
         eventList.map((event) => {
             return (
               <View key = {event.id}>
-              <ProfileButton title = {event.Name} onPress={() => navigation.navigate('EventDetailsScreen')}/>
+              <ProfileButton title = {event.Name} 
+              location = {event.LocationName} 
+              time = {event.StartDayTime.split(' ')[1] + ' - ' + event.EndDayTime.split(' ')[1]} 
+              onPress={() => navigation.navigate('EventDetailsScreen', event.id)}/>
               </View>
             )
         }

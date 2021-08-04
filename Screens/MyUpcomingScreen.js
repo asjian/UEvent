@@ -36,8 +36,8 @@ export default function MainScreen({navigation}) {
               <View key = {event.id}>
               <ProfileButton title = {event.Name} 
               location = {event.LocationName} 
-              time = {event.StartDayTime.split(' ')[1] + ' - ' + event.EndDayTime.split(' ')[1]} 
-              onPress={() => navigation.navigate('EventDetailsScreen', event.id)}/>
+              time = {event.StartDayTime.split(' ')[0].split('/')[0] + '/' + event.StartDayTime.split(' ')[0].split('/')[1] + ', ' + event.StartDayTime.split(' ')[1] + ' - ' + event.EndDayTime.split(' ')[1]} 
+              onPress={() => navigation.navigate('EventDetailsScreen', {eventId: event.id}, {eventsHosting: user.eventsHosting})}/>
               </View>
             )
         }

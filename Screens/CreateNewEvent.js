@@ -27,7 +27,6 @@ import { StartDateSelector } from '../objects/FormObjects/StartDateSelector';
 import { EndDateSelector } from '../objects/FormObjects/EndDateSelector';
 import { StartTimeSelector } from '../objects/FormObjects/StartTimeSelector';
 import { EndTimeSelector } from '../objects/FormObjects/EndTimeSelector';
-import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
 
 
 // Header
@@ -65,8 +64,17 @@ function PreviewHeader({ navigation }) {
     const myContext = useContext(AppContext);
     // event handler function
     const closeHandler = () => {
-        myContext.toggleShowNavBar(true);
-        navigation.dangerouslyGetParent().goBack();
+        Alert.alert(
+            "Confirmation",
+            "Are you sure you want to exit the form? All form information will be lost",
+            [
+              {
+                text: "Cancel",
+                style: "cancel"
+              },
+              { text: "OK", onPress: () => {navigation.dangerouslyGetParent().goBack(); myContext.toggleShowNavBar(true);}}
+            ]
+          );
     }
     return (
         <View style={styles.outerContainer}>

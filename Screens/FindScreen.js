@@ -8,7 +8,6 @@ import TopBar from '../objects/topBar';
 import MapSearchBar from '../objects/mapSearchBar';
 import Search from './Search';
 import CategoryList from './CategoryList';
-import DateRange from './DateRange';
 import TimeRange from './TimeRange';
 import OtherFilters from './OtherFilters';
 //import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
@@ -78,6 +77,8 @@ function MainScreen({navigation}) {
     {name:'Science/Tech', icon: require('../assets/science.png'),key:19,}, {name:'Business/Professional', icon: require('../assets/business.png'),key:20,},
     {name:'Other', icon: require('../assets/other.png'),key:23,}];
 
+    const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
+      {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
 
     const windowHeight = Dimensions.get('window').height;
     bs = React.createRef();
@@ -85,18 +86,18 @@ function MainScreen({navigation}) {
 
     const renderCategories = () => {
       let pic = ""
-      for (let i = 0; i < categories.length; i++) {
-        if (categories[i].name == currentEvent.MainCategory) {
-          pic = categories[i].icon
+      for (let i = 0; i < inPerson.length; i++) {
+        if (inPerson[i].name == currentEvent.InPersonVirtual) {
+          pic = inPerson[i].icon
         }
       }
       return (
         <View style={{flexDirection: 'row'}}>
           <Image
             source={pic}
-            style={{width:18, height: 18}}>
+            style={{width:18, height: 18, tintColor: 'orange'}}>
           </Image>
-          <Text style={{marginLeft: 5}}>{currentEvent.MainCategory}</Text>
+          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.InPersonVirtual}</Text>
         </View>
       )
     }
@@ -150,38 +151,47 @@ function MainScreen({navigation}) {
       }
     }
 
-    const [buttonColor1, setButtonColor1] = useState('#D3D3D3')
-
-    const toggle1 = () => {
-      if (buttonColor1 == '#D3D3D3') {
-        setButtonColor1('#FFCB05')
-      } else {
-        setButtonColor1('#D3D3D3')
+    const [buttonColor1, setButtonColor1] = useState('#FFF')
+  
+      const toggle1 = () => {
+        if (buttonColor1 == '#FFF') {
+          setButtonColor1('#FFCB05')
+        } else {
+          setButtonColor1('#FFF')
+        }
       }
-    }
-
-    const [buttonColor2, setButtonColor2] = useState('#D3D3D3')
-
-    const toggle2 = () => {
-      if (buttonColor2 == '#D3D3D3') {
-        setButtonColor2('#FFCB05')
-      } else {
-        setButtonColor2('#D3D3D3')
+  
+      const [buttonColor2, setButtonColor2] = useState('#FFF')
+  
+      const toggle2 = () => {
+        if (buttonColor2 == '#FFF') {
+          setButtonColor2('#FFCB05')
+        } else {
+          setButtonColor2('#FFF')
+        }
       }
-    }
+  
+      const [buttonColor3, setButtonColor3] = useState('#FFF')
+  
+      const toggle3 = () => {
+        if (buttonColor3 == '#FFF') {
+          setButtonColor3('#FFCB05')
+        } else {
+          setButtonColor3('#FFF')
+        }
+      }
 
-    const [buttonColor3, setButtonColor3] = useState('#D3D3D3')
-
-    const toggle3 = () => {
-      if (buttonColor3 == '#D3D3D3') {
-        setButtonColor3('#FFCB05')
+    const borderColor = (buttonColor) => {
+      if (buttonColor == '#FFF') {
+        return 'black'
       } else {
-        setButtonColor3('#D3D3D3')
+        return 'white'
       }
     }
 
     const [isTruncated, setIsTruncated] = useState(true);
     const resultString = isTruncated ? currentEvent.Description.slice(0, 133) : currentEvent.Description;
+    const readMore = isTruncated ? 'Read More' : 'Read Less'
     const toggle = () => {
       setIsTruncated(!isTruncated);
     }
@@ -190,9 +200,9 @@ function MainScreen({navigation}) {
       if (resultString.length > 130) {
         return (
           <TouchableOpacity onPress={toggle}>
-            <Text style={{color: '#FFCB05', marginBottom: 10}}>Read More</Text>
+            <Text style={{color: '#FFCB05', marginBottom: 10}}>{readMore}</Text>
           </TouchableOpacity>
-        )
+        );
       }
     }
   
@@ -202,15 +212,15 @@ function MainScreen({navigation}) {
           <View>
             <Text style={{
               fontSize: 24,
-              width: Dimensions.get('window').width - 100,
+              width: Dimensions.get('window').width - 105,
               marginRight: 10    
               }} 
               numberOfLines={2}>
                 {currentEvent.Name}
               </Text>
           </View>
-          <View style={{backgroundColor: '#D3D3D3', borderRadius: 5, padding: 5, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{color: 'white'}}>{currentEvent.Privacy}</Text>
+          <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{color: 'black'}}>{currentEvent.Privacy}</Text>
           </View>
           
         </View>
@@ -219,7 +229,7 @@ function MainScreen({navigation}) {
             source={require('../assets/Vector.png')}
             style={{width:18, height: 18}}>
           </Image>
-          <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15}}>{currentEvent.Organizer}</Text>
+          <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.Organizer}</Text>
           {renderCategories()}
         </View>
         <View style={styles.panelDate}>
@@ -227,11 +237,13 @@ function MainScreen({navigation}) {
             source={require('../assets/CalendarIcon.png')}
             style={{width:18, height:18}}
           ></Image>
-          <Text style={{marginLeft: 5}}>{currentEvent.StartDayTime}</Text>
+          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{currentEvent.StartDayTime}</Text>
         </View>
         <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 55 }}>
           <TouchableOpacity style={{backgroundColor: buttonColor1,
             borderRadius: 8,
+            borderColor: borderColor(buttonColor1),
+            borderWidth: 1,
             width: (Dimensions.get('window').width - 81.6) / 3,
             height: 55,
             alignItems: 'center',
@@ -242,13 +254,19 @@ function MainScreen({navigation}) {
             <View>
               <Image
                 source={require('../assets/star.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: 'white'}}
+                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor1)}}
               ></Image>
-              <Text style={styles.panelButtonTitle}>Save</Text>
+              <Text style={{
+                fontSize: 17,
+                fontWeight: 'bold',
+                color: borderColor(buttonColor1),
+              }}>Save</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity style={{backgroundColor: buttonColor2,
             borderRadius: 8,
+            borderColor: borderColor(buttonColor2),
+            borderWidth: 1,
             width: (Dimensions.get('window').width - 81.6) / 3,
             height: 55,
             alignItems: 'center',
@@ -259,13 +277,19 @@ function MainScreen({navigation}) {
             <View>
               <Image
                 source={require('../assets/check2.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: 'white'}}
+                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
               ></Image>
-              <Text style={styles.panelButtonTitle}>I'm Going</Text>
+              <Text style={{
+                fontSize: 17,
+                fontWeight: 'bold',
+                color: borderColor(buttonColor2),
+              }}>I'm Going</Text>
             </View>   
           </TouchableOpacity>
           <TouchableOpacity style={{backgroundColor: buttonColor3,
             borderRadius: 8,
+            borderColor: borderColor(buttonColor3),
+            borderWidth: 1,
             width: (Dimensions.get('window').width - 81.6) / 3,
             height: 55,
             alignItems: 'center',
@@ -276,31 +300,57 @@ function MainScreen({navigation}) {
             <View>
               <Image
                 source={require('../assets/share2.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: 'white'}}
+                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
               ></Image>
-              <Text style={styles.panelButtonTitle}>Share</Text>
+              <Text style={{
+                fontSize: 17,
+                fontWeight: 'bold',
+                color: borderColor(buttonColor3),
+              }}>Share</Text>
             </View>
           </TouchableOpacity>
         </View>
-        
-        
           <View>
             <Image source={require('../assets/avatar.jpeg')}
             resizeMode= 'cover'
             style={{width: Dimensions.get('window').width - 40.8, height: 200, marginBottom: 20}}>
             </Image>
           </View>
-          <Text style={{fontWeight: 'bold'}}>Event Description</Text>
+          <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Event Description</Text>
           <View>
-            <Text>{resultString.replace(/(\r\n|\n|\r)/gm, " ")}</Text>
+            <Text style={{marginBottom: 5}}>{resultString.replace(/(\r\n|\n|\r)/gm, " ")}</Text>
             {renderButton()}
           </View>
-          <Text style={{fontWeight: 'bold'}}>Location</Text>
+          <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Location</Text>
           <Text>{currentEvent.LocationName}</Text>
-          <Text style={{marginBottom: Dimensions.get('window').height}}>{currentEvent.Address}</Text>
+          <Text style={{marginBottom: 10}}>{currentEvent.Address}</Text>
           {registration()}
           {moreDetails()}
-        
+          
+            <TouchableOpacity style={{flexDirection: 'row'}}>
+              <Image
+                source={require('../assets/CalendarIcon.png')}
+                style={{width:18, height: 18, marginBottom: 5}}>
+              </Image>
+              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: '#03a9f4'}}>Add Event to Calendar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{flexDirection: 'row'}}>
+              <Image
+                source={require('../assets/share2.png')}
+                style={{width:18, height: 18, tintColor: '#FFCB05', marginBottom: 5}}>
+              </Image>
+              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: '#FFCB05'}}>Share</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{flexDirection: 'row'}}>
+              <Image
+                source={require('../assets/report.png')}
+                style={{width:18, height: 18, tintColor: 'red', marginBottom: Dimensions.get('window').height}}>
+              </Image>
+              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: 'red'}}>Report</Text>
+            </TouchableOpacity>
+          
+          
+          
       </View>
     );
     
@@ -330,16 +380,16 @@ function MainScreen({navigation}) {
         }
     }
     const [eventList,setEventList] = useState([]);
+
     const searchParams = {
       SearchType: navigation.getParam('SearchType','none'),
       SearchText: navigation.getParam('SearchText',''),
       Categories: navigation.getParam('Categories',[]),
-      TimeRange: navigation.getParam('TimeRange',{startDate:'',endDate:'',startTime:'',endTime:'',value:'Anytime'}),
+      TimeRange: navigation.getParam('TimeRange',{startDate:'',endDate:'',duration:''}),
       OtherFilters: navigation.getParam('OtherFilters',[]),
       BotSheetInfo: navigation.getParam('BotSheetInfo',{snapPos:snapPosition}),
       CloseBotSheet: navigation.getParam('CloseBotSheet',false),
-    };
-
+    }
     const getEvents = () => {
       console.log('fetching...');
       let fetchurl = Globals.eventsURL;
@@ -348,10 +398,10 @@ function MainScreen({navigation}) {
         .then((json) => {setEventList(json)})
         .catch((error) => console.error(error))
     }
+    
     const [fetched,setFetched] = useState(false);
       useEffect(() => {
         console.log(searchParams);
-
         if(!fetched) {
           getEvents();
           setFetched(true);
@@ -361,11 +411,14 @@ function MainScreen({navigation}) {
         bs.current.snapTo(0);
       }    
       
-      if(snapPosition == 0)
-        myContext.toggleShowNavBar(true);
+      if(searchParams.SearchType == 'none') {
+        if(snapPosition == 0)
+          myContext.toggleShowNavBar(true);
+        else
+          myContext.toggleShowNavBar(false);
+      } 
       else
         myContext.toggleShowNavBar(false);
-       
 
     }, [navigation]);
     
@@ -378,7 +431,7 @@ function MainScreen({navigation}) {
           return false;
         }
         else if(searchParams.SearchType == 'filter') {
-          if(searchParams.Categories.length>0 && event.MainCategory == searchParams.Categories[0].name) {
+          if(event.MainCategory == searchParams.Categories[0].name) {
             return true;
           }
           return false;
@@ -431,26 +484,27 @@ function MainScreen({navigation}) {
             </MapView>
 
         <View style={styles.topbar}>
-                <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>
+                {searchParams.SearchType=='none'?<TopBar navigation = {navigation} searchDefaultParams = {searchParams}/>:
+                <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>}   
         </View> 
 
-        <View style={styles.pullup}>
-            <BottomSheet
-                ref={this.bs}
-                snapPoints={[0, 270, windowHeight - 50]}
-                renderContent={this.renderInner}
-                renderHeader={this.renderHeader}
-                initialSnap={0}
-                callbackNode={this.fall}
-                enabledGestureInteraction={true}
-                onCloseEnd={() => {setSnapPosition(0);myContext.toggleShowNavBar(true)}}
-            />
-            <Animated.View style={{margin: 20,
-                opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
-            }}>
-            </Animated.View>   
-        
-        </View>
+            <View style={styles.pullup}>
+                <BottomSheet
+                    ref={this.bs}
+                    snapPoints={[0, 270, windowHeight - 50]}
+                    renderContent={this.renderInner}
+                    renderHeader={this.renderHeader}
+                    initialSnap={0}
+                    callbackNode={this.fall}
+                    enabledGestureInteraction={true}
+                    onCloseEnd={() => {setSnapPosition(0);if(searchParams.SearchType == 'none')myContext.toggleShowNavBar(true)}}
+                />
+                <Animated.View style={{margin: 20,
+                    opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
+                }}>
+                </Animated.View>   
+            
+            </View>
         </View>
     );
 }
@@ -473,19 +527,12 @@ const screens = {
         navigationOptions: {
             headerShown: false,
         },
-        mode: 'modal'
     },
     CategoryList: {
         screen: CategoryList,
         navigationOptions: {
             headerShown: false,
         },
-    },
-    DateRange: {
-      screen: DateRange,
-      navigationOptions: {
-        headerShown:false,
-      }
     },
     TimeRange: {
         screen: TimeRange,
@@ -500,7 +547,7 @@ const screens = {
       },
     }
 }
-const FindNavigator = createStackNavigator(screens,{mode: 'modal'});
+const FindNavigator = createStackNavigator(screens);
 
 const FindContainer = createAppContainer(FindNavigator);
 
@@ -521,7 +568,7 @@ const styles = StyleSheet.create({
     },
     topbar: {
         position: 'absolute',
-        top: 0,
+        top: 50,
         width: Dimensions.get('window').width,
     },
     header: {

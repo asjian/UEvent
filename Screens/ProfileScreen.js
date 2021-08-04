@@ -5,16 +5,13 @@ import {createStackNavigator} from 'react-navigation-stack';
 import MyUpcomingScreen from './MyUpcomingScreen';
 import EventsFollowingScreen from './EventsFollowingScreen';
 import EventUpdatesScreen from './EventUpdatesScreen';
-import AddFriendsScreen from './AddFriendsScreen';
-import FriendRequestsScreen from './FriendRequestsScreen';
-import FriendsListScreen from './FriendsListScreen';
-import WhereFriendsScreen from './WhereFriendsScreen';
 import IncomingInvScreen from './IncomingInvScreen';
 import OutgoingInvScreen from './OutgoingInvScreen';
 import ProfileButton from '../objects/profileButton';
 import Globals from '../../GlobalVariables';
 import AppContext from '../objects/AppContext';
 import EventDetailsScreen from './EventDetailsScreen';
+import InviteScreen from './InviteScreen';
 
 const HORIZONTALMARGIN = 20.4;
 
@@ -45,11 +42,6 @@ function MainScreen({navigation}) {
                 <ProfileButton onPress = {() => navigation.navigate('MyUpcomingScreen', params)} title = 'My Upcoming Events' />
                 <ProfileButton onPress = {() => navigation.navigate('EventsFollowingScreen')} title = "Events I'm Following" />
                 <ProfileButton onPress = {() => navigation.navigate('EventUpdatesScreen')} title = 'Event Updates' />
-                <Text style = {styles.headerText}>Friends</Text>
-                <ProfileButton onPress = {() => navigation.navigate('AddFriendsScreen')} title = 'Add Friends' />
-                <ProfileButton onPress = {() => navigation.navigate('FriendRequestsScreen')} title = 'Friend Requests' />
-                <ProfileButton onPress = {() => navigation.navigate('FriendsListScreen')} title = 'Friends List' />
-                <ProfileButton onPress = {() => navigation.navigate('WhereFriendsScreen')} title = 'Where my Friends are Going' />
                 <Text style = {styles.headerText}>Invitations</Text>
                 <ProfileButton onPress = {() => navigation.navigate('IncomingInvScreen')} title = 'Incoming Invitations' />
                 <ProfileButton onPress = {() => navigation.navigate('OutgoingInvScreen')} title = 'Outgoing Invitations' />
@@ -86,30 +78,6 @@ const screens = {
             headerShown: false,
         },
     },
-    AddFriendsScreen: {
-        screen: AddFriendsScreen,
-        navigationOptions: {
-            headerShown: false,
-        },
-    },
-    FriendRequestsScreen: {
-      screen: FriendRequestsScreen,
-      navigationOptions: {
-        headerShown: false
-      },
-    },
-    FriendsListScreen: {
-        screen: FriendsListScreen,
-        navigationOptions: {
-          headerShown: false
-        },
-    },
-    WhereFriendsScreen: {
-        screen: WhereFriendsScreen,
-        navigationOptions: {
-          headerShown: false
-        },
-    },
     IncomingInvScreen: {
         screen: IncomingInvScreen,
         navigationOptions: {
@@ -127,7 +95,13 @@ const screens = {
         navigationOptions: {
           headerShown: false
         },
-    }
+    },
+    InviteScreen: {
+        screen: InviteScreen,
+        navigationOptions: {
+          headerShown: false
+        },
+    },
 }
 const ProfileNavigator = createStackNavigator(screens);
 

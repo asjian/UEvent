@@ -1,52 +1,33 @@
-import React, { useContext } from 'react';
-import { SafeAreaView, View, Text, Button, StyleSheet, Image, ParentView, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { SafeAreaView, View, Text, Button, StyleSheet, Image, ParentView, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import AppContext from '../objects/AppContext';
+import Globals from '../../GlobalVariables';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import ManageEventScreen from './ManageEvent';
 
-const EventBox = () => {
+
+const EventBox = ({navigation, myContext, item}) => {
     return (
-        <View style={styles.box}>
+        
+            <TouchableOpacity onPress={() => {myContext.toggleShowNavBar(false);navigation.navigate('Manage Event', { screen: 'Manage Event', params: {item: item} });}} style={styles.box}>
             <View style={{ flex: 2 }}>
-                <Image style={styles.realImageStyle} source={require('../assets/YC-Circular.png')} />
+                <Image style={styles.realImageStyle} source={require('../assets/user_icon.png')} />
             </View>
             <View style={{ flex: 4 }}>
                 <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%' }}>Sat, May 25  1:00PM - 2:00PM</Text>
+                    <Text style={{ fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%' }}>{item.StartDayTime} - {item.EndDayTime}</Text>
                     <Image style={{ resizeMode: 'contain', marginLeft: '10%' }} source={require('../assets/NotificationBell.png')} />
                 </View>
-                <Text style={{ fontWeight: "500", fontSize: 16, marginBottom: '3%' }}>Startups 101 - Everything You Need To Know To Start</Text>
-                <Text style={{ fontWeight: '500', fontSize: 13, color: '#0085FF' }}>Stephen M. Ross School of Business</Text>
+                <Text style={{ fontWeight: "500", fontSize: 16, marginBottom: '3%' }}>{item.Name}</Text>
+                <Text style={{ fontWeight: '500', fontSize: 13, color: '#0085FF' }}>{item.LocationName}</Text>
             </View>
-        </View>
-    );
-}
-const EventBox2 = () => {
-    return (
-        <View style={styles.box}>
-            <View style={{ flex: 2 }}>
-                <Image style={styles.realImageStyle} source={require('../assets/MDST.png')} />
-            </View>
-            <View style={{ flex: 4 }}>
-                <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%' }}>Sat, May 22  11:00AM - 2:00PM</Text>
-                    <Image style={{ resizeMode: 'contain', marginLeft: '10%' }} source={require('../assets/NotificationBell.png')} />
-                </View>
-
-                <Text style={{ fontWeight: "500", fontSize: 16, marginBottom: '5%' }}>MDST Work Session</Text>
-                <Text style={{ fontWeight: '500', fontSize: 13, color: '#0085FF' }}>Online Event (Google Meets)</Text>
-            </View>
-
-        </View>
+            
+            </TouchableOpacity>
+        
+        
     );
 }
 
-const EventBox3 = () => {
-    return (
-        <View style={styles.box}>
-            <Image style={styles.realImageStyle} source={require('../assets/Spikeballlogo.png')} />
-            <Text style={{ flex: 3 }}>Spikeball Tournament</Text>
-        </View>
-    );
-}
 
 
 
@@ -58,25 +39,46 @@ function UpcomingEventsScreen({ navigation }) {
         navigation.navigate('Create a New Event');
     }
 
+    const [UpcomingEvents, setUpcomingEvents] = useState([]);
+
+    const getEvents = () => {
+        console.log('fetching upcoming events...');
+        let fetchurl = Globals.eventsURL;
+        fetch(fetchurl)
+          .then((response) => response.json())
+          .then((json) => {setUpcomingEvents(json)})
+          .catch((error) => console.error(error))
+    }
+      const [fetched,setFetched] = useState(false);
+
+        useEffect(() => {
+          if(!fetched) {
+            getEvents();
+            setFetched(true);
+          }
+        });
+        
+    const renderItem = ({ item }) => (
+        <EventBox item={item} navigation={navigation} myContext={myContext}  />
+    );
+
     return (
 
 
 
-        <SafeAreaView style={{ backgroundColor: '#FFFBF3' }}>
-            <View style={{ height: '86%' }}>
+        <SafeAreaView style={{ backgroundColor: '#FFFBF3', height: '100%' }}>
+            <View style={{ height: '80%' }}>
 
+                
 
-                <ScrollView contentContainerStyle={styles.container}>
-
-
-
-                    <EventBox />
-                    <EventBox2 />
-
-
-
-
-                </ScrollView>
+                    <FlatList 
+                        data={UpcomingEvents}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id.toString()}
+                        style={{height: '100%'}}
+                    />
+                
+                
             </View>
             <View style={styles.NewEventButton}>
                 <TouchableOpacity onPress={createEventHandler}>
@@ -118,8 +120,7 @@ const styles = StyleSheet.create({
     },
     box: {
         width: '95%',
-        height: '19%',
-        padding: 5,
+        padding: 10,
         margin: 10,
         flexDirection: 'row',
         shadowOffset: {
@@ -130,7 +131,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
-        backgroundColor: '#F8F8F8'
+        backgroundColor: '#F8F8F8',
+        flex: 1
 
     },
     inner1: {
@@ -171,4 +173,5 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         color: '#fab400',
     }
+
 })

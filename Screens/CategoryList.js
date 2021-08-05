@@ -4,18 +4,18 @@ import {AntDesign} from '@expo/vector-icons';
 import CategoryButton from '../objects/categoryButton';
 
 export default function CategoryList({navigation}) {
-    const categories = [{name:'Extracurriculars', icon: require('../assets/extracurriculars.png'), key:0,},
-    {name:'Parties', icon: require('../assets/parties.png'),key:1,}, {name:'Social',icon: require('../assets/social.png'),key:2,},
-    {name:'Career',icon: require('../assets/career.png'),key:3,}, {name:'Networking',icon: require('../assets/networking.png'),key:4,},
-    {name:'Community',icon: require('../assets/test2.png'),key:5,}, {name:'Fair/Festival',icon: require('../assets/festival.png'),key:6,}, 
-    {name:'Greek Life',icon: require('../assets/greeklife.png'),key:7,}, {name:'Sports',icon: require('../assets/sports.png'),key:8,}, 
-    {name:'Games',icon: require('../assets/games.png'),key:9,}, {name:'Cultural',icon: require('../assets/cultural.png'),key:10,}, 
-    {name:'Activism',icon: require('../assets/activism.png'),key:11,}, {name:'Music',icon: require('../assets/music.png'),key:12,}, 
-    {name:'Art/Design', icon: require('../assets/artdesign.png'),key:13,}, {name:'Food + Drink', icon: require('../assets/fooddrink.png'),key:14,}, 
-    {name:'Performance', icon: require('../assets/performance.png'),key:15,}, {name:'Presentation', icon: require('../assets/presentation.png'),key:16,}, 
-    {name:'Exhibition', icon: require('../assets/exhibition.png'),key:17,}, {name:'Academic', icon: require('../assets/academic.png'),key:18,},
-    {name:'Science/Tech', icon: require('../assets/science.png'),key:19,}, {name:'Business/Professional', icon: require('../assets/business.png'),key:20,},
-    {name:'Other', icon: require('../assets/other.png'),key:23,}];
+    const categories = [{name:'Extracurriculars', icon: require('../assets/extracurriculars.png'), key:1,},
+    {name:'Parties', icon: require('../assets/parties.png'),key:2,}, {name:'Social',icon: require('../assets/social.png'),key:3,},
+    {name:'Career',icon: require('../assets/career.png'),key:4,}, {name:'Networking',icon: require('../assets/networking.png'),key:5,},
+    {name:'Community',icon: require('../assets/test2.png'),key:6,}, {name:'Fair/Festival',icon: require('../assets/festival.png'),key:7,}, 
+    {name:'Greek Life',icon: require('../assets/greeklife.png'),key:8,}, {name:'Sports',icon: require('../assets/sports.png'),key:9,}, 
+    {name:'Games',icon: require('../assets/games.png'),key:10,}, {name:'Cultural',icon: require('../assets/cultural.png'),key:11,}, 
+    {name:'Activism',icon: require('../assets/activism.png'),key:12,}, {name:'Music',icon: require('../assets/music.png'),key:13,}, 
+    {name:'Art/Design', icon: require('../assets/artdesign.png'),key:14,}, {name:'Food + Drink', icon: require('../assets/fooddrink.png'),key:15,}, 
+    {name:'Performance', icon: require('../assets/performance.png'),key:16,}, {name:'Presentation', icon: require('../assets/presentation.png'),key:17,}, 
+    {name:'Exhibition', icon: require('../assets/exhibition.png'),key:18,}, {name:'Academic', icon: require('../assets/academic.png'),key:19,},
+    {name:'Science/Tech', icon: require('../assets/science.png'),key:20,}, {name:'Business/Professional', icon: require('../assets/business.png'),key:21,},
+    {name:'Other', icon: require('../assets/other.png'),key:22,}];
 
     const backParams = {
         SearchType: navigation.getParam('SearchType'),

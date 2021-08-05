@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, Button, StyleSheet, Image, ParentView, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+//import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import ManageEventScreen from './ManageEvent';
 
 
@@ -15,10 +15,10 @@ const EventBox = ({navigation, myContext, item}) => {
             </View>
             <View style={{ flex: 4 }}>
                 <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%' }}>{item.StartDayTime} - {item.EndDayTime}</Text>
+                    <Text style={{ fontWeight: '500', fontSize: 13, color: '#09189F', marginBottom: '5%' }}>{item.startTime} - {item.endTime}</Text>
                     <Image style={{ resizeMode: 'contain', marginLeft: '10%' }} source={require('../assets/NotificationBell.png')} />
                 </View>
-                <Text style={{ fontWeight: "500", fontSize: 16, marginBottom: '3%' }}>{item.Name}</Text>
+                <Text style={{ fontWeight: "500", fontSize: 16, marginBottom: '3%' }}>{item.name}</Text>
                 <Text style={{ fontWeight: '500', fontSize: 13, color: '#0085FF' }}>{item.LocationName}</Text>
             </View>
             
@@ -63,22 +63,14 @@ function UpcomingEventsScreen({ navigation }) {
     );
 
     return (
-
-
-
         <SafeAreaView style={{ backgroundColor: '#FFFBF3', height: '100%' }}>
             <View style={{ height: '80%' }}>
-
-                
-
                     <FlatList 
                         data={UpcomingEvents}
                         renderItem={renderItem}
-                        keyExtractor={item => item.id.toString()}
+                        keyExtractor={item => item.eventId.toString()}
                         style={{height: '100%'}}
                     />
-                
-                
             </View>
             <View style={styles.NewEventButton}>
                 <TouchableOpacity onPress={createEventHandler}>
@@ -89,9 +81,6 @@ function UpcomingEventsScreen({ navigation }) {
             </View>
 
         </SafeAreaView>
-
-
-
     );
 }
 
@@ -111,9 +100,6 @@ const styles = StyleSheet.create({
         padding: 5,
         flexDirection: 'column',
         flexWrap: 'wrap',
-
-
-
     },
     NewEventButton: {
         backgroundColor: '#FFFBF3'

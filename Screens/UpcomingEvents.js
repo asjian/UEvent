@@ -68,7 +68,7 @@ function UpcomingEventsScreen({ navigation }) {
                     <FlatList 
                         data={UpcomingEvents}
                         renderItem={renderItem}
-                        keyExtractor={item => item.eventId.toString()}
+                        keyExtractor={item => item.id.toString()}
                         style={{height: '100%'}}
                     />
             </View>

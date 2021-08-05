@@ -1,4 +1,11 @@
-usersURL = 'https://retoolapi.dev/mR2CoY/users'
-eventsURL = 'https://retoolapi.dev/a8DmU4/events'
+usersURL = //'https://retoolapi.dev/mR2CoY/users'
+'http://47.252.19.227/EventHub/rest/users'
+eventsURL = //'https://retoolapi.dev/a8DmU4/events'
+'https://retoolapi.dev/lvF3hn/events'
+//'http://47.252.19.227/EventHub/rest/events'
+//'https://retoolapi.dev/CNVOvx/collisionevents'
+//'https://retoolapi.dev/QYxrD6/bugtests'
 
-export default  {usersURL, eventsURL}
+apiKeysURL = 'https://retoolapi.dev/kfQilA/apikeys'
+
+export default  {usersURL, eventsURL, apiKeysURL}

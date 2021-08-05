@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image} from 'react-native';
+import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image, Share} from 'react-native';
 import { createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import BottomSheet from 'reanimated-bottom-sheet';
@@ -8,6 +8,7 @@ import TopBar from '../objects/topBar';
 import MapSearchBar from '../objects/mapSearchBar';
 import Search from './Search';
 import CategoryList from './CategoryList';
+import DateRange from './DateRange';
 import TimeRange from './TimeRange';
 import OtherFilters from './OtherFilters';
 //import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
@@ -16,16 +17,6 @@ import {Marker} from 'react-native-maps';
 import LocationPin from '../objects/locationPin';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-
-//a sub branch of the main find screen
-function DetailsScreen({ navigation }) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Button onPress={() => navigation.navigate('MainScreen')} title="BACK" />
-      </View>
-    );
-}
 
 //custom bottom sheet
 function MainScreen({navigation}) {
@@ -41,44 +32,30 @@ function MainScreen({navigation}) {
     */  
     const [currentEvent,setCurrentEvent] = useState({
       "id": 1,
-      "Name": "OSU Pregame Tailgate",
+      "name": "OSU Pregame Tailgate",
       "Tags": "",
       "Email": "",
       "Avatar": "",
       "Images": "",
-      "Address": "1520 S University Ave, Ann Arbor, MI 48104",
-      "Privacy": "Public",
-      "Website": "",
+      "location": "1520 S University Ave, Ann Arbor, MI 48104",
+      "privateEvent": "Public",
+      "organizerWebsite": "",
       "Invitees": "",
-      "Latitude": "42.27475",
+      "latitude": "42.27475",
       "Attendees": "",
-      "Longitude": "-83.72904",
-      "Organizer": "FIJI",
-      "EndDayTime": "7/8/2021 19:30",
-      "Description": "Come pregame with us before the game against Ohio State! \nThere will be food, drink, and plenty of chances to meet the \nbrothers of Phi Gamma Delta. We plan to have around 50\npeople at our tailgate, and you can find us by looking for the\npop-up tents labeled with our logo.",
-      "LocationName": "FIJI House",
-      "MainCategory": "Parties",
-      "Registration": "",
-      "StartDayTime": "7/8/2021",
-      "InPersonVirtual": "In Person",
-      "OtherCategories": "Greek Life Social Food/Drink "
+      "longitude": "-83.72904",
+      "organizer": "FIJI",
+      "endTime": "7/8/2021 19:30",
+      "description": "Come pregame with us before the game against Ohio State! \nThere will be food, drink, and plenty of chances to meet the \nbrothers of Phi Gamma Delta. We plan to have around 50\npeople at our tailgate, and you can find us by looking for the\npop-up tents labeled with our logo.",
+      "locationName": "FIJI House",
+      "mainCategoryIdId": "Parties",
+      "registrationLink": "",
+      "startTime": "7/8/2021",
+      "virtualEvent": "In Person",
+      "categoryIds": "Greek Life Social Food/Drink "
     });
-
-    const categories = [{name:'Extracurriculars', icon: require('../assets/extracurriculars.png'), key:0,},
-    {name:'Parties', icon: require('../assets/parties.png'),key:1,}, {name:'Social',icon: require('../assets/social.png'),key:2,},
-    {name:'Career',icon: require('../assets/career.png'),key:3,}, {name:'Networking',icon: require('../assets/networking.png'),key:4,},
-    {name:'Community',icon: require('../assets/test2.png'),key:5,}, {name:'Fair/Festival',icon: require('../assets/festival.png'),key:6,}, 
-    {name:'Greek Life',icon: require('../assets/greeklife.png'),key:7,}, {name:'Sports',icon: require('../assets/sports.png'),key:8,}, 
-    {name:'Games',icon: require('../assets/games.png'),key:9,}, {name:'Cultural',icon: require('../assets/cultural.png'),key:10,}, 
-    {name:'Activism',icon: require('../assets/activism.png'),key:11,}, {name:'Music',icon: require('../assets/music.png'),key:12,}, 
-    {name:'Art/Design', icon: require('../assets/artdesign.png'),key:13,}, {name:'Food + Drink', icon: require('../assets/fooddrink.png'),key:14,}, 
-    {name:'Performance', icon: require('../assets/performance.png'),key:15,}, {name:'Presentation', icon: require('../assets/presentation.png'),key:16,}, 
-    {name:'Exhibition', icon: require('../assets/exhibition.png'),key:17,}, {name:'Academic', icon: require('../assets/academic.png'),key:18,},
-    {name:'Science/Tech', icon: require('../assets/science.png'),key:19,}, {name:'Business/Professional', icon: require('../assets/business.png'),key:20,},
-    {name:'Other', icon: require('../assets/other.png'),key:23,}];
-
     const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
-      {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
+    {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
 
     const windowHeight = Dimensions.get('window').height;
     bs = React.createRef();
@@ -87,7 +64,7 @@ function MainScreen({navigation}) {
     const renderCategories = () => {
       let pic = ""
       for (let i = 0; i < inPerson.length; i++) {
-        if (inPerson[i].name == currentEvent.InPersonVirtual) {
+        if (inPerson[i].name == currentEvent.virtualEvent) {
           pic = inPerson[i].icon
         }
       }
@@ -97,24 +74,22 @@ function MainScreen({navigation}) {
             source={pic}
             style={{width:18, height: 18, tintColor: 'orange'}}>
           </Image>
-          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.InPersonVirtual}</Text>
+          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.virtualEvent}</Text>
         </View>
       )
     }
-    
     const registration = () => {
-      if(currentEvent.Registration != '') {
+      if(currentEvent.registrationLink != '') {
         return (
           <View>
             <Text style={{fontWeight: 'bold'}}>Registration</Text>
-            <Text>{currentEvent.Registration}</Text>
+            <Text>{currentEvent.registrationLink}</Text>
           </View>
         )
       }
     }
-
     const moreDetails = () => {
-      if(currentEvent.Email != '' && currentEvent.Website != '') {
+      if(currentEvent.Email != '' && currentEvent.organizerWebsite != '') {
         return (
           <View>
             <Text style={{fontWeight: 'bold'}}>More Details</Text>
@@ -124,7 +99,7 @@ function MainScreen({navigation}) {
             </View>
             <View style={{flexDirection: 'row'}}>
               <Text>Website: </Text>
-              <Text>{currentEvent.Website}</Text>
+              <Text>{currentEvent.organizerWebsite}</Text>
             </View>
           </View>
         )
@@ -138,13 +113,13 @@ function MainScreen({navigation}) {
             </View>
           </View>
         )
-      } else if (currentEvent.Website != '') {
+      } else if (currentEvent.organizerWebsite != '') {
         return (
           <View>
             <Text style={{fontWeight: 'bold'}}>More Details</Text>
             <View style={{flexDirection: 'row'}}>
               <Text>Website: </Text>
-              <Text>{currentEvent.Website}</Text>
+              <Text>{currentEvent.organizerWebsite}</Text>
             </View>
           </View>
         )
@@ -170,17 +145,29 @@ function MainScreen({navigation}) {
           setButtonColor2('#FFF')
         }
       }
+      const share = async () => {
+        Share.share(
+          {
+            title: 'test title',
+            url: 'fakeurl',
+          },
+          {
+            excludedActivityTypes: [
+              // 'com.apple.UIKit.activity.PostToWeibo',
+            ],
+          }
+        );
+      };
   
       const [buttonColor3, setButtonColor3] = useState('#FFF')
-  
       const toggle3 = () => {
         if (buttonColor3 == '#FFF') {
           setButtonColor3('#FFCB05')
+          share();
         } else {
           setButtonColor3('#FFF')
         }
       }
-
     const borderColor = (buttonColor) => {
       if (buttonColor == '#FFF') {
         return 'black'
@@ -190,12 +177,11 @@ function MainScreen({navigation}) {
     }
 
     const [isTruncated, setIsTruncated] = useState(true);
-    const resultString = isTruncated ? currentEvent.Description.slice(0, 133) : currentEvent.Description;
+    const resultString = isTruncated ? currentEvent.description.slice(0, 133) : currentEvent.description;
     const readMore = isTruncated ? 'Read More' : 'Read Less'
     const toggle = () => {
       setIsTruncated(!isTruncated);
     }
-
     const renderButton = () => {
       if (resultString.length > 130) {
         return (
@@ -205,7 +191,6 @@ function MainScreen({navigation}) {
         );
       }
     }
-  
     renderInner = () => (
       <View style={styles.panel}>
         <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
@@ -216,11 +201,11 @@ function MainScreen({navigation}) {
               marginRight: 10    
               }} 
               numberOfLines={2}>
-                {currentEvent.Name}
+                {currentEvent.name}
               </Text>
           </View>
           <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{color: 'black'}}>{currentEvent.Privacy}</Text>
+            <Text style={{color: 'black'}}>{currentEvent.privateEvent}</Text>
           </View>
           
         </View>
@@ -229,7 +214,7 @@ function MainScreen({navigation}) {
             source={require('../assets/Vector.png')}
             style={{width:18, height: 18}}>
           </Image>
-          <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.Organizer}</Text>
+          <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.organizer}</Text>
           {renderCategories()}
         </View>
         <View style={styles.panelDate}>
@@ -237,7 +222,7 @@ function MainScreen({navigation}) {
             source={require('../assets/CalendarIcon.png')}
             style={{width:18, height:18}}
           ></Image>
-          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{currentEvent.StartDayTime}</Text>
+          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{currentEvent.startTime}</Text>
         </View>
         <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 55 }}>
           <TouchableOpacity style={{backgroundColor: buttonColor1,
@@ -322,8 +307,8 @@ function MainScreen({navigation}) {
             {renderButton()}
           </View>
           <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Location</Text>
-          <Text>{currentEvent.LocationName}</Text>
-          <Text style={{marginBottom: 10}}>{currentEvent.Address}</Text>
+          <Text>{currentEvent.locationName}</Text>
+          <Text style={{marginBottom: 10}}>{currentEvent.location}</Text>
           {registration()}
           {moreDetails()}
           
@@ -348,9 +333,6 @@ function MainScreen({navigation}) {
               </Image>
               <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: 'red'}}>Report</Text>
             </TouchableOpacity>
-          
-          
-          
       </View>
     );
     
@@ -380,58 +362,55 @@ function MainScreen({navigation}) {
         }
     }
     const [eventList,setEventList] = useState([]);
-
+    //const [searchResults,setSearchResults] = useState([]);
+    //each time search is called change the searchResults list, not the main one, that way it's fast to revert back on clear
     const searchParams = {
       SearchType: navigation.getParam('SearchType','none'),
       SearchText: navigation.getParam('SearchText',''),
       Categories: navigation.getParam('Categories',[]),
-      TimeRange: navigation.getParam('TimeRange',{startDate:'',endDate:'',duration:''}),
+      TimeRange: navigation.getParam('TimeRange',{startDate:'',endDate:'',startTime:'',endTime:'',value:'Anytime'}),
       OtherFilters: navigation.getParam('OtherFilters',[]),
       BotSheetInfo: navigation.getParam('BotSheetInfo',{snapPos:snapPosition}),
       CloseBotSheet: navigation.getParam('CloseBotSheet',false),
-    }
+    };
     const getEvents = () => {
       console.log('fetching...');
       let fetchurl = Globals.eventsURL;
       fetch(fetchurl)
         .then((response) => response.json())
-        .then((json) => {setEventList(json)})
+        .then((json) => {console.log(json);setEventList(json)})
         .catch((error) => console.error(error))
     }
-    
     const [fetched,setFetched] = useState(false);
-      useEffect(() => {
+    useEffect(() => {
         console.log(searchParams);
-        if(!fetched) {
+
+        //if(!fetched) {
           getEvents();
           setFetched(true);
-        }
-      
-      if(searchParams.CloseBotSheet == true) {
-        bs.current.snapTo(0);
-      }    
-      
-      if(searchParams.SearchType == 'none') {
-        if(snapPosition == 0)
-          myContext.toggleShowNavBar(true);
-        else
-          myContext.toggleShowNavBar(false);
-      } 
-      else
-        myContext.toggleShowNavBar(false);
+        //}
+
+    if(searchParams.CloseBotSheet == true) {
+      bs.current.snapTo(0);
+    }    
+    
+    if(snapPosition == 0)
+      myContext.toggleShowNavBar(true);
+    else
+      myContext.toggleShowNavBar(false);
+       
 
     }, [navigation]);
     
-
     const matchesCriteria = (event) => {
-      if(event.InPersonVirtual == 'In Person') { //first line of basic checks
+      if(event.virtualEvent == 'In Person') { //first line of basic checks
         if(searchParams.SearchType == 'text') {
-          if(event.Name == searchParams.SearchText)
+          if(event.name == searchParams.SearchText)
             return true;
           return false;
         }
         else if(searchParams.SearchType == 'filter') {
-          if(event.MainCategory == searchParams.Categories[0].name) {
+          if(searchParams.Categories.length>0 && event.mainCategoryId == searchParams.Categories[0].name) {
             return true;
           }
           return false;
@@ -443,14 +422,15 @@ function MainScreen({navigation}) {
       return false;
     }
     renderEvents = () => {
+        //if there is a search then return searchResults.map(...)
         return (
           eventList.map((item) => {
             if(matchesCriteria(item)) {
             return (
               <Marker key = {item.id}
-              coordinate = {{latitude: parseFloat(item.Latitude), longitude: parseFloat(item.Longitude)}} 
+              coordinate = {{latitude: parseFloat(item.latitude), longitude: parseFloat(item.longitude)}} 
               onPress = {() => openBottomSheet(item)}>
-                <LocationPin title = {item.Name}/>
+                <LocationPin title = {item.name}/>
               </Marker>
             )
             }
@@ -475,36 +455,35 @@ function MainScreen({navigation}) {
             >
             {renderEvents()}
             
-            {/*
-            <MapView.Marker coordinate = {{latitude: 42.275200, longitude: -83.735474}}>
-                <LocationCircle name = "Joe's Pizza"/>
-            </MapView.Marker>
-            */}
+            <Marker key = '100'
+            coordinate = {{latitude: 42.275200, longitude: -83.735474}}
+            onPress = {() => {console.log('pressed');searchParams.Categories.length = 0;navigation.navigate('MainScreen',searchParams)}}>
+                <LocationPin title = "Clear Search From Outside"/>
+            </Marker>
             
             </MapView>
 
         <View style={styles.topbar}>
-                {searchParams.SearchType=='none'?<TopBar navigation = {navigation} searchDefaultParams = {searchParams}/>:
-                <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>}   
+                <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>
         </View> 
 
-            <View style={styles.pullup}>
-                <BottomSheet
-                    ref={this.bs}
-                    snapPoints={[0, 270, windowHeight - 50]}
-                    renderContent={this.renderInner}
-                    renderHeader={this.renderHeader}
-                    initialSnap={0}
-                    callbackNode={this.fall}
-                    enabledGestureInteraction={true}
-                    onCloseEnd={() => {setSnapPosition(0);if(searchParams.SearchType == 'none')myContext.toggleShowNavBar(true)}}
-                />
-                <Animated.View style={{margin: 20,
-                    opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
-                }}>
-                </Animated.View>   
-            
-            </View>
+        <View style={styles.pullup}>
+            <BottomSheet
+                ref={this.bs}
+                snapPoints={[0, 270, windowHeight - 50]}
+                renderContent={this.renderInner}
+                renderHeader={this.renderHeader}
+                initialSnap={0}
+                callbackNode={this.fall}
+                enabledGestureInteraction={true}
+                onCloseEnd={() => {setSnapPosition(0);myContext.toggleShowNavBar(true)}}
+            />
+            <Animated.View style={{margin: 20,
+                opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
+            }}>
+            </Animated.View>   
+        
+        </View>
         </View>
     );
 }
@@ -516,23 +495,24 @@ const screens = {
             headerShown: false
         },
     },
-    DetailsScreen: {
-        screen: DetailsScreen,
-        navigationOptions: {
-            headerShown: false
-        },
-    },
     Search: {
         screen: Search,
         navigationOptions: {
             headerShown: false,
         },
+        mode: 'modal'
     },
     CategoryList: {
         screen: CategoryList,
         navigationOptions: {
             headerShown: false,
         },
+    },
+    DateRange: {
+      screen: DateRange,
+      navigationOptions: {
+        headerShown:false,
+      }
     },
     TimeRange: {
         screen: TimeRange,
@@ -547,7 +527,7 @@ const screens = {
       },
     }
 }
-const FindNavigator = createStackNavigator(screens);
+const FindNavigator = createStackNavigator(screens,{mode: 'modal'});
 
 const FindContainer = createAppContainer(FindNavigator);
 
@@ -558,7 +538,7 @@ export default function FindScreen() {
 }
 
 const styles = StyleSheet.create({
-    map: {
+     map: {
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
         flex:1,
@@ -568,7 +548,7 @@ const styles = StyleSheet.create({
     },
     topbar: {
         position: 'absolute',
-        top: 50,
+        top: 0,
         width: Dimensions.get('window').width,
     },
     header: {

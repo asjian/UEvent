@@ -10,7 +10,7 @@ import { render } from 'react-dom';
 
 export default function MainScreen({navigation}) {
     const user = navigation.getParam('user');
-    
+    console.log(user);
     const eventIds = user.UpcomingEvents.split(" ");
     const [eventList, setEventList] = useState([]);
     const [gotEvents,setGotEvents] = useState(false);
@@ -34,9 +34,9 @@ export default function MainScreen({navigation}) {
         eventList.map((event) => {
             return (
               <View key = {event.id}>
-              <ProfileButton title = {event.Name} 
-              location = {event.LocationName} 
-              time = {event.StartDayTime.split(' ')[0].split('/')[0] + '/' + event.StartDayTime.split(' ')[0].split('/')[1] + ', ' + event.StartDayTime.split(' ')[1] + ' - ' + event.EndDayTime.split(' ')[1]} 
+              <ProfileButton title = {event.name} 
+              location = {event.locationName} 
+              time = {event.startTime.split(' ')[0].split('/')[0] + '/' + event.startTime.split(' ')[0].split('/')[1] + ', ' + event.startTime.split(' ')[1] + ' - ' + event.endTime.split(' ')[1]} 
               onPress={() => navigation.navigate('EventDetailsScreen', {eventId: event.id}, {eventsHosting: user.eventsHosting})}/>
               </View>
             )

@@ -30,8 +30,7 @@ export default function LocationAutocomplete({address,setFormikValue}) {
     }, []);
 
     const [pressed,setPressed] = useState(false);
-    
-    const [isFocused3, setFocus3] = useState(false);
+    const [isFocused3,setFocus3] = useState(false);
 
     const [mapRegion,setMapRegion] = useState({
         latitude: 42.278,
@@ -57,9 +56,14 @@ export default function LocationAutocomplete({address,setFormikValue}) {
             onPress={(data, details = null) => {
                 // 'details' is provided when fetchDetails = true         
                 setPressed(true);
-                setMapRegion({latitude:details.geometry.location.lat,longitude:details.geometry.location.lng,latitudeDelta:0.012,longitudeDelta:0.006});
+                setFormikValue('locationSelected',true);
+                setMapRegion({latitude:details.geometry.location.lat,longitude:details.geometry.location.lng,latitudeDelta:0.0025,longitudeDelta:0.00125});
                 createSessionToken();
                 setFormikValue('Address',data.description);
+                setFormikValue('Latitude',details.geometry.location.lat);
+                setFormikValue('Longitude',details.geometry.location.lng);
+                //console.log(data);
+                console.log(details);
             }}
             //autoFillOnNotFound = {true}
             //onNotFound
@@ -72,9 +76,14 @@ export default function LocationAutocomplete({address,setFormikValue}) {
                 textInput: {
                     backgroundColor: '#fffbf2',
                     height: 40,
-                    borderBottomColor: '#c4c4c4',
                     borderBottomWidth: 1,
-                    fontSize: 14,
+                    borderBottomColor: address !== '' || isFocused3 ? '#7b7b7b' : '#C4C4C4',
+                    padding: 8,
+                    width: '88%',
+                    marginLeft: 20,
+                    marginTop: 10,
+                    marginBottom: 10,
+                    fontSize: 14
                 }
             }}
             textInputProps = {{
@@ -85,17 +94,11 @@ export default function LocationAutocomplete({address,setFormikValue}) {
                 onChangeText: (text) => {
                     if(ref.current.isFocused()) {
                         setPressed(false);
+                        setFormikValue('locationSelected',false);
                         setFormikValue('Address',text);
                         ref.current.setAddressText(text);
                     }
                 },
-                onSubmitEditing: () => {
-                    if(!pressed) {
-                        //display form error somehow
-                        console.log('please choose an address from the dropdown');
-                    }
-                }
-                //the other error with tapping out before completing a valid address probably needs to be done in the main file
             }
             }
         />

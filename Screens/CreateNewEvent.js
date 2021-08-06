@@ -27,6 +27,8 @@ import { StartDateSelector } from '../objects/FormObjects/StartDateSelector';
 import { EndDateSelector } from '../objects/FormObjects/EndDateSelector';
 import { StartTimeSelector } from '../objects/FormObjects/StartTimeSelector';
 import { EndTimeSelector } from '../objects/FormObjects/EndTimeSelector';
+import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
+import { NavigationActions } from 'react-navigation';
 
 
 // Header
@@ -88,10 +90,7 @@ function PreviewHeader({ navigation }) {
         </View>
     );
 }
-
 // Components
-
-
 const Next = ({ navigation }) => {
 
     return (
@@ -133,7 +132,7 @@ const pageTwoValidSchema = yup.object({
     // second slide
     InPerson: yup.string()
         .required()
-        .label('In Person or Online')
+        .label('In Person or Virtual')
         .nullable(),
     LocationName: yup.string()
         .when('InPerson', {
@@ -143,16 +142,22 @@ const pageTwoValidSchema = yup.object({
         .label('Location Name'),
     EventLink: yup.string()
         .when('InPerson', {
-            is: (value) => value === 'Online',
+            is: (value) => value === 'Virtual',
             then: yup.string().required()
         })
         .label('Event Link')
     ,
+    
     Address: yup.string()
         .when('InPerson', {
             is: (value) => value === 'In Person',
             then: yup.string().required()
+        })
+        .when(['InPerson', 'locationSelected'], {
+            is: (InPerson, locationSelected) => (InPerson === 'In Person') && (locationSelected === false),
+            then: yup.string().test('scheme', 'Must select a real address', (value, context) => value === '')
         }),
+        
     LocationDetails: yup.string()
     ,
 
@@ -400,12 +405,12 @@ const MoreInformation = (props) => {
                                 }
                             </View>
                             <View style={styles.containerStyle}>
-                            {formikprops.values.InPerson === 'Online' &&
+                            {formikprops.values.InPerson === 'Virtual' &&
                                 (<Text style={styles.TextStyle}>
                                     Event Link:
                                 </Text>)
                             }
-                                {formikprops.values.InPerson === 'Online' &&
+                                {formikprops.values.InPerson === 'Virtual' &&
                                 (<TextInput
                                     style={[styles.InputBox, {borderColor: isFocused2a ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder="Egs. Zoom link, Webex"
@@ -415,7 +420,7 @@ const MoreInformation = (props) => {
                                     onBlur={() => setFocus2a(false)}
                                 />)
                             }
-                                {formikprops.values.InPerson === 'Online' &&
+                                {formikprops.values.InPerson === 'Virtual' &&
                                 (<Text style={styles.errorMessage}>{formikprops.touched.EventLink && formikprops.errors.EventLink}</Text>)
                                 }
                             </View>
@@ -426,7 +431,7 @@ const MoreInformation = (props) => {
                                 </Text>)
                             }
                             {formikprops.values.InPerson === 'In Person' &&
-                                (<LocationAutocomplete address = {formikprops.values.Address} setFormikValue = {formikprops.setFieldValue}/>)
+                                (<LocationAutocomplete address = {formikprops.values.Address} setFormikValue = {formikprops.setFieldValue} />)
                             }
                             {formikprops.values.InPerson === 'In Person' &&
                                 <Text style={styles.errorMessage}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
@@ -434,12 +439,12 @@ const MoreInformation = (props) => {
                             </View>
 
                             <View style={styles.containerStyle}>
-                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Online')) &&
+                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
                                 (<Text style={styles.TextStyle}>
                                     Location Details:
                                 </Text>)
                             }
-                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Online')) &&
+                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
                                 (<TextInput
                                     style={[styles.InputBox, {borderColor: formikprops.values.LocationDetails !== '' || isFocused4 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Eg: 2nd floor meeting room'
@@ -449,7 +454,7 @@ const MoreInformation = (props) => {
                                     onBlur={() => setFocus4(false)}
                                 />)
                             }
-                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Online')) &&
+                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
                                 (<Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>)
                             }
                             </View>
@@ -713,21 +718,10 @@ const EventDetails = (props) => {
 }
 const Preview = ({ route, navigation }) => {
     const { values } = route.params;
-    const[key,setKey] = useState('AIzaSyQ71aMba5yieWm7Lqp4KXs6oIOKrwPUI0m');
+    const myContext = useContext(AppContext);
 
-    //get api key
-    const getKey = () => {
-        console.log('getting key...')
-        const fetchurl = Globals.apiKeysURL;
-        fetch(fetchurl + '?KeyName=Geocoder')
-        .then((response) => response.json())
-        .then((json) => {setKey(json[0].ApiKey)})
-        .catch((error) => {console.error(error)});
-    }
-    if(key == 'AIzaSyQ71aMba5yieWm7Lqp4KXs6oIOKrwPUI0m') {
-        getKey();
-    }
-    const postToServer = (latlng) => { //post the event to the server, using the translated latitude and longitude
+    const postToServer = () => { //post the event to the server
+        /*
         fetch('https://retoolapi.dev/rJZk4j/events', {
             method: 'post',
             headers: {
@@ -759,22 +753,42 @@ const Preview = ({ route, navigation }) => {
                 OtherCategories: values.ContentType
             })
         }); 
+        */
+        console.log(myContext.user.id + 3);
+
+        fetch(Globals.eventsURL + '/json/add', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: values.EventTitle,
+                //hostId: myContext.user.id,
+                hostId: 1,
+                organizer: values.OrganizerName,
+                locationName: values.LocationName,
+                location: values.Address,
+                latitude: values.Latitude,
+                longitude: values.Longitude,
+                description: values.EventDescription,
+                startTime: "2021-08-01 19:00:00",
+                endTime: "2021-08-01 22:00:00",
+                privateEvent: values.Privacy!='Public',
+                virtualEvent: values.InPerson!='In Person',
+                registrationLink: values.Registration,
+                mainCategoryId: 2,
+                }
+                )
+        }); 
     }
     const postEventHandler = async () => {
-        // translate address to latlng and pass that to a function that posts to the server
-        console.log('apikey is:')
-        console.log(key);
-        Geocoder.init(key);
-        Geocoder.from(values.Address)
-        .then(json => {
-            var location = json.results[0].geometry.location;
-            postToServer(location);
-        })
-        .catch(error => console.warn(error));
+        postToServer();
         // Navigate to map
         navigation.popToTop();
         navigation.dangerouslyGetParent().popToTop();
-        navigation.dangerouslyGetParent().dangerouslyGetParent().navigate("Find");
+        navigation.dangerouslyGetParent().dangerouslyGetParent().navigate('Find');
+        myContext.toggleShowNavBar(true);
     }
 
     return (
@@ -909,6 +923,7 @@ function UpdateEvent({ navigation }) {
         LocationName: '',
         EventLink: '',
         Address: '',
+        locationSelected: false,
         LocationDetails: '',
         // third slide
         StartDay: initialDateFormat,

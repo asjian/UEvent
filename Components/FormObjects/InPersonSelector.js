@@ -11,7 +11,7 @@ const InPersonSelector = ({onChange, value}) => {
 
             items={[
                 { label: 'In Person', value: 'In Person' },
-                { label: 'Online', value: 'Online' },
+                { label: 'Virtual', value: 'Virtual' },
                 { label: 'TBA', value: 'TBA' }
             ]}
             style={{inputIOS: {borderWidth: 1,
@@ -25,7 +25,7 @@ const InPersonSelector = ({onChange, value}) => {
             onOpen={() => setFocus(true)}
             onClose={() => setFocus(false)}
             placeholder={{
-                label: 'In Person/Online/TBA',
+                label: 'In Person/Virtual/TBA',
                 value: null,
                 
             }}

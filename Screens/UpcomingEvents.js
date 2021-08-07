@@ -1,10 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, Button, StyleSheet, Image, ParentView, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import React, { useContext, useState, useEffect,useRef } from 'react';
+import { SafeAreaView, View, Text, Animated, StyleSheet, Image, TouchableHighlight, TouchableOpacity, ScrollView, FlatList, Dimensions } from 'react-native';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
 //import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import ManageEventScreen from './ManageEvent';
-
 
 const EventBox = ({navigation, myContext, item}) => {
     return (
@@ -27,10 +26,6 @@ const EventBox = ({navigation, myContext, item}) => {
         
     );
 }
-
-
-
-
 function UpcomingEventsScreen({ navigation }) {
     const myContext = useContext(AppContext);
     // event handler function
@@ -57,29 +52,64 @@ function UpcomingEventsScreen({ navigation }) {
             setFetched(true);
           }
         });
-        
+
     const renderItem = ({ item }) => (
         <EventBox item={item} navigation={navigation} myContext={myContext}  />
     );
-
+    /*
+    const [visible,setVisible] = useState(true);
+    const [offset,setOffset] = useState(0);
+    const [up,setUp] = useState(false);
+    const fadeAnim = useRef(new Animated.Value(1)).current;
+    
+    const fadeIn = () => {
+      // Will change fadeAnim value to 1 in 5 seconds
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    };
+    const fadeOut = () => {
+      // Will change fadeAnim value to 0 in 3 seconds
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true
+      }).start(({finished}) => {if(finished)setVisible(false)});
+    };
+    
+    const handleVisibility = (nativeEvent) => {
+        const currentOffset = nativeEvent.contentOffset.y;
+        console.log('currentOffset: ' + currentOffset);
+        //console.log('offset: ' + offset);
+        setUp(currentOffset<offset?true:false);
+        setOffset(currentOffset);
+    }
+    */
     return (
         <SafeAreaView style={{ backgroundColor: '#FFFBF3', height: '100%' }}>
-            <View style={{ height: '80%' }}>
+            <View style={{ height: '92%' }}>
+
                     <FlatList 
                         data={UpcomingEvents}
                         renderItem={renderItem}
                         keyExtractor={item => item.id.toString()}
                         style={{height: '100%'}}
-                    />
+                        //onScroll = {({nativeEvent}) => handleVisibility(nativeEvent)}
+                        //onMomentumScrollBegin = {() => {console.log('momentum');if(up){setVisible(true);fadeIn()}}}
+                        //onEndReachedThreshold = {0.01}
+                        //onEndReached = {() => {console.log('maybe end');if(offset > 5){console.log('end');fadeOut()}}}
+                        contentContainerStyle = {{paddingTop:20,paddingBottom:80}}
+                    />   
+                    
+                    <TouchableHighlight activeOpacity = {0.7} onPress={createEventHandler}>
+                        <View style = {styles.selectContainer}>
+                            <Text style={[styles.selectText,{paddingHorizontal:50}]}>+ Create New Event</Text>
+                        </View>
+                    </TouchableHighlight>
+                    
             </View>
-            <View style={styles.NewEventButton}>
-                <TouchableOpacity onPress={createEventHandler}>
-                    <View style={styles.selectContainer}>
-                        <Text style={styles.selectText}>+ Create New Event</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-
         </SafeAreaView>
     );
 }
@@ -107,7 +137,7 @@ const styles = StyleSheet.create({
     box: {
         width: '95%',
         padding: 10,
-        margin: 10,
+        marginBottom: 20,
         flexDirection: 'row',
         shadowOffset: {
             width: 0,
@@ -137,24 +167,33 @@ const styles = StyleSheet.create({
     },
     selectContainer: {
         backgroundColor: '#ffffff',
+        
         position: 'absolute',
-        marginHorizontal: 50,
-        marginTop: 5,
+        left: 52,
+        bottom: 20,
+        
         width: '75%',
         alignItems: 'center',
-        top: 0,
+        shadowColor: "#000",
         shadowOffset: {
             width: 0,
-            height: 1,
+            height: 2,
         },
-        shadowColor: '#000000',
-        shadowOpacity: 0.2,
-        shadowRadius: 1.41,
-        elevation: 2,
-        borderRadius: 10,
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        borderRadius: 50,
+    },
+    selectInvisible: {
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        marginHorizontal: 50,
+        bottom: 20,
+        width: '0%',
+        alignItems: 'center',
     },
     selectText: {
-        fontWeight: 'bold',
+        fontWeight: '600',
         fontSize: 22,
         paddingVertical: 15,
         color: '#fab400',

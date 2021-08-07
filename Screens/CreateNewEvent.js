@@ -11,7 +11,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AppContext from '../objects/AppContext';
 //import SearchableDropdown from 'react-native-searchable-dropdown';
-import EventTypeSelector from '../objects/FormObjects/EventTypeSelector';
+import {EventTypeSelector} from '../objects/FormObjects/EventTypeSelector';
 import PrivacySelector from '../objects/FormObjects/PrivacySelector';
 import {ContentTypeSelector} from '../objects/FormObjects/ContentTypeSelector';
 import InPersonSelector from '../objects/FormObjects/InPersonSelector';
@@ -155,7 +155,7 @@ const pageTwoValidSchema = yup.object({
         })
         .when(['InPerson', 'locationSelected'], {
             is: (InPerson, locationSelected) => (InPerson === 'In Person') && (locationSelected === false),
-            then: yup.string().test('scheme', 'Must select a real address', (value, context) => value === '')
+            then: yup.string().test('scheme', 'Please choose an adress from the dropdown', (value, context) => value === '')
         }),
         
     LocationDetails: yup.string()
@@ -194,8 +194,6 @@ const pageFourValidSchema = yup.object({
     ,
 
 })
-
-
 // First slide
 const EventInformation = (props) => {
     const navigation = useNavigation();
@@ -215,8 +213,7 @@ const EventInformation = (props) => {
             <Formik
                 initialValues={props.data}
                 onSubmit={handleSubmit}
-                validationSchema={pageOneValidSchema}
-                
+                validationSchema={pageOneValidSchema}              
             >
                 {(formikprops) => (
                     <View>
@@ -225,10 +222,10 @@ const EventInformation = (props) => {
                                 <Header navigation={navigation} />
                             </View>
                             <View>
-                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Event Information</Text>
+                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 23, marginTop: 20, fontWeight: '500'}}>Event Information</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ marginLeft:23, marginRight:20, marginVertical: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
@@ -238,8 +235,9 @@ const EventInformation = (props) => {
                                     Event Title:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.EventTitle !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.EventTitle !== '' || isFocused ? '#7b7b7b' : '#c4c4c4'}]}
                                     placeholder='Eg: MProduct Interest Meeting'
+                                    placeholderTextColor = '#a3a3a3'
                                     onChangeText={formikprops.handleChange('EventTitle')}
                                     value={formikprops.values.EventTitle}
                                     onFocus={() => setFocus(true)}
@@ -253,8 +251,10 @@ const EventInformation = (props) => {
                                     Organizer Name:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerName !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerName !== '' || isFocused2 ? '#7b7b7b' : '#c4c4c4'}]}
                                     placeholder='Organization (eg. MProduct) or you (Eg. Alex Jian)'
+                                    placeholderTextColor = '#a3a3a3'
+                                    textAlign = 'left'
                                     onChangeText={formikprops.handleChange('OrganizerName')}
                                     value={formikprops.values.OrganizerName}
                                     onFocus={() => setFocus2(true)}
@@ -266,11 +266,9 @@ const EventInformation = (props) => {
                                 <Text style={styles.TextStyle}>
                                     Main Event Category:
                                 </Text>
-                                    <EventTypeSelector 
-                                        onChange={formikprops.setFieldValue}
-                                        value={formikprops.values.EventType}
-
-                                    />
+                                <View style={{width: '88%', marginLeft: 20, marginTop: 10, }}>
+                                    <FieldArray name="EventType" component={EventTypeSelector} />
+                                </View>
                                
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
                             </View>
@@ -278,7 +276,7 @@ const EventInformation = (props) => {
                                 <Text style={styles.TextStyle}>
                                     Other Categories:
                                 </Text>
-                                <View style={{width: '88%', marginLeft: 20, marginTop: 10,  }}>
+                                <View style={{width: '88%', marginLeft: 20, marginTop: 10, }}>
                                     <FieldArray name="ContentType" component={ContentTypeSelector} />
                                 </View>
                                 
@@ -298,6 +296,7 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
+                            {/*
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
                                     Tags (10 max):
@@ -312,9 +311,7 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Tags && formikprops.errors.Tags}</Text>
                             </View>
-                            
-                            
-                            
+                            */}             
                         </KeyboardAwareScrollView>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
@@ -991,11 +988,11 @@ const styles = StyleSheet.create({
         
     },
     TextStyle: {
-        fontSize: 20,
+        fontSize: 18,
+        fontWeight: '500',
         color: '#09189F',
-        marginLeft: 20,
+        marginLeft: 23,
         marginTop: 10,
-        fontWeight: '500'
     },
 
     containerStyle: {
@@ -1011,14 +1008,14 @@ const styles = StyleSheet.create({
     },
     InputBox: {
         borderWidth: 0,
-        borderBottomWidth: 1,
+        borderBottomWidth: 1.5,
         borderColor: '#C4C4C4',
-        padding: 8,
+        paddingVertical: 8,
         width: '88%',
-        marginLeft: 20,
-        marginTop: 10,
+        marginLeft: 24,
+        marginTop: 5,
         marginBottom: 10,
-        fontSize: 14
+        fontSize: 15,
     },
 
     imageStyle: {
@@ -1070,10 +1067,9 @@ const styles = StyleSheet.create({
     },
     outerContainer: {
         flex: 1,
-
     },
     innerContainer: {
-        marginTop: 5,
+        marginTop: 0,
     },
     searchContainer: {
         marginTop: 10,
@@ -1085,7 +1081,7 @@ const styles = StyleSheet.create({
     },
     close: {
         position: 'absolute',
-        left: 370,
+        left: 365,
         top: 10,
     },
     headerText: {

@@ -2,20 +2,22 @@ import React, {useState,Component} from 'react';
 import {StyleSheet, Text, View,TouchableOpacity,ScrollView,Alert} from 'react-native';
 import {AntDesign} from '@expo/vector-icons';
 import CategoryButton from '../objects/categoryButton';
+import Globals from '../../GlobalVariables';
 
 export default function CategoryList({navigation}) {
-    const categories = [{name:'Extracurriculars', icon: require('../assets/extracurriculars.png'), key:1,},
-    {name:'Parties', icon: require('../assets/parties.png'),key:2,}, {name:'Social',icon: require('../assets/social.png'),key:3,},
-    {name:'Career',icon: require('../assets/career.png'),key:4,}, {name:'Networking',icon: require('../assets/networking.png'),key:5,},
-    {name:'Community',icon: require('../assets/test2.png'),key:6,}, {name:'Fair/Festival',icon: require('../assets/festival.png'),key:7,}, 
-    {name:'Greek Life',icon: require('../assets/greeklife.png'),key:8,}, {name:'Sports',icon: require('../assets/sports.png'),key:9,}, 
-    {name:'Games',icon: require('../assets/games.png'),key:10,}, {name:'Cultural',icon: require('../assets/cultural.png'),key:11,}, 
-    {name:'Activism',icon: require('../assets/activism.png'),key:12,}, {name:'Music',icon: require('../assets/music.png'),key:13,}, 
-    {name:'Art/Design', icon: require('../assets/artdesign.png'),key:14,}, {name:'Food + Drink', icon: require('../assets/fooddrink.png'),key:15,}, 
-    {name:'Performance', icon: require('../assets/performance.png'),key:16,}, {name:'Presentation', icon: require('../assets/presentation.png'),key:17,}, 
-    {name:'Exhibition', icon: require('../assets/exhibition.png'),key:18,}, {name:'Academic', icon: require('../assets/academic.png'),key:19,},
-    {name:'Science/Tech', icon: require('../assets/science.png'),key:20,}, {name:'Business/Professional', icon: require('../assets/business.png'),key:21,},
-    {name:'Other', icon: require('../assets/other.png'),key:22,}];
+    const categories = [];
+    for(let i=0;i<Globals.categories.length;i++) {
+        const name = Globals.categories[i].name;
+        const id = Globals.categories[i].categoryId;
+        const icon = require('../assets/categories.png');
+
+        const assetName = name.replace(/\W/g, '')
+        if(Globals.categoryAssets.hasOwnProperty(assetName)) {
+            icon = Globals.categoryAssets[assetName];
+        }
+
+        categories.push({name:name,icon:icon,key:id})
+    }
 
     const backParams = {
         SearchType: navigation.getParam('SearchType'),
@@ -31,7 +33,6 @@ export default function CategoryList({navigation}) {
     }
 
     let totalSelections = navigation.getParam('Categories').length;
-    const [scrollHeight, setScrollHeight] = useState('77%');
 
     const linSearchCategories = (catName) => {
         for(let i=0;i<localCategoriesCopy.length;i++) {
@@ -92,7 +93,7 @@ export default function CategoryList({navigation}) {
                 </TouchableOpacity>
                 <Text style = {styles.headerText}>Event Categories</Text>
             </View>
-            <View style = {[styles.scrollContainer,{height:scrollHeight}]}>
+            <View style = {[styles.scrollContainer,{height:'77%'}]}>
             <Text style = {[styles.instructionsText]}>Select up to 3 categories</Text>
             <View style = {{borderBottomColor: '#d4d4d4',borderBottomWidth: 1.5,marginTop: 5,marginBottom:0,marginHorizontal:-23,}}/>
             <ScrollView /*onMomentumScrollBegin = {() => {setScrollHeight('100%')}} onMomentumScrollEnd = {() => {setScrollHeight('77%')}*/>

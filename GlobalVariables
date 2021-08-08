@@ -1,11 +1,27 @@
-usersURL = 'https://retoolapi.dev/mR2CoY/users'
+const usersURL = 'https://retoolapi.dev/mR2CoY/users'
 //'http://47.252.19.227/EventHub/rest/users'
-eventsURL = //'https://retoolapi.dev/a8DmU4/events'
-'https://retoolapi.dev/lvF3hn/events'
+const eventsURL = 'https://retoolapi.dev/lvF3hn/events'
 //'http://47.252.19.227/EventHub/rest/events'
 //'https://retoolapi.dev/CNVOvx/collisionevents'
 //'https://retoolapi.dev/QYxrD6/bugtests'
 
-apiKeysURL = 'https://retoolapi.dev/kfQilA/apikeys'
+const apiKeysURL = 'https://retoolapi.dev/kfQilA/apikeys'
+const categoriesURL = 'http://47.252.19.227/EventHub/rest/categories'
 
-export default  {usersURL, eventsURL, apiKeysURL}
+const categoryAssets = {Extracurriculars: require('./app/assets/extracurriculars.png'),
+Parties: require('./app/assets/parties.png'), Social: require('./app/assets/social.png'),
+Career: require('./app/assets/career.png'), Networking: require('./app/assets/networking.png'),
+Community: require('./app/assets/test2.png'), FairFestival: require('./app/assets/festival.png'),
+GreekLife: require('./app/assets/greeklife.png'), Sports: require('./app/assets/sports.png'),
+Games: require('./app/assets/games.png'), Cultural: require('./app/assets/cultural.png'), 
+Activism: require('./app/assets/activism.png'), Music: require('./app/assets/music.png'), 
+ArtDesign: require('./app/assets/artdesign.png'), FoodDrink: require('./app/assets/fooddrink.png'), 
+Performance: require('./app/assets/performance.png'),Presentation: require('./app/assets/presentation.png'),
+Exhibition: require('./app/assets/exhibition.png'), Academic: require('./app/assets/academic.png'),
+ScienceTech: require('./app/assets/science.png'), BusinessProfessional: require('./app/assets/business.png'),
+Other: require('./app/assets/other.png')};
+
+const categories = [];
+
+
+export default  {usersURL, eventsURL, apiKeysURL, categoriesURL, categoryAssets, categories}

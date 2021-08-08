@@ -3,7 +3,9 @@ import { View, StyleSheet,Text,Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
+import Globals from '../../../GlobalVariables';
 
+/*
 const categories = [{name:'Extracurriculars', icon: require('../../assets/extracurriculars.png'), id:1,},
 {name:'Parties', icon: require('../../assets/parties.png'),id:2,}, {name:'Social',icon: require('../../assets/social.png'),id:3,},
 {name:'Career',icon: require('../../assets/career.png'),id:4,}, {name:'Networking',icon: require('../../assets/networking.png'),id:5,},
@@ -16,17 +18,10 @@ const categories = [{name:'Extracurriculars', icon: require('../../assets/extrac
 {name:'Exhibition', icon: require('../../assets/exhibition.png'),id:18,}, {name:'Academic', icon: require('../../assets/academic.png'),id:19,},
 {name:'Science/Tech', icon: require('../../assets/science.png'),id:20,}, {name:'Business/Professional', icon: require('../../assets/business.png'),id:21,},
 {name:'Other', icon: require('../../assets/other.png'),id:22,}];
+*/
+const categories = Globals.categories;
 
 const items = [
-  // this is the parent or 'item'
-  /*
-  {
-    name: 'Categories',
-    id: 0,
-    // these are the children or 'sub items'
-    children:  categories
-  }
-  */
  {
   children: categories
  }
@@ -58,7 +53,7 @@ export class EventTypeSelector extends Component {
           ref={SectionedMultiSelect2 => this.SectionedMultiSelect2 = SectionedMultiSelect2}
           items={items}
           IconRenderer={MaterialIcons}
-          uniqueKey="id"
+          uniqueKey="categoryId"
           subKey="children"
           selectText="Choose a Category"
           showDropDowns={false}

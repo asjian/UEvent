@@ -3,19 +3,9 @@ import { View, StyleSheet,Text,Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
+import Globals from '../../../GlobalVariables';
 
-const categories = [{name:'Extracurriculars', icon: require('../../assets/extracurriculars.png'), id:1,},
-{name:'Parties', icon: require('../../assets/parties.png'),id:2,}, {name:'Social',icon: require('../../assets/social.png'),id:3,},
-{name:'Career',icon: require('../../assets/career.png'),id:4,}, {name:'Networking',icon: require('../../assets/networking.png'),id:5,},
-{name:'Community',icon: require('../../assets/test2.png'),id:6,}, {name:'Fair/Festival',icon: require('../../assets/festival.png'),id:7,}, 
-{name:'Greek Life',icon: require('../../assets/greeklife.png'),id:8,}, {name:'Sports',icon: require('../../assets/sports.png'),id:9,}, 
-{name:'Games',icon: require('../../assets/games.png'),id:10,}, {name:'Cultural',icon: require('../../assets/cultural.png'),id:11,}, 
-{name:'Activism',icon: require('../../assets/activism.png'),id:12,}, {name:'Music',icon: require('../../assets/music.png'),id:13,}, 
-{name:'Art/Design', icon: require('../../assets/artdesign.png'),id:14,}, {name:'Food + Drink', icon: require('../../assets/fooddrink.png'),id:15,}, 
-{name:'Performance', icon: require('../../assets/performance.png'),id:16,}, {name:'Presentation', icon: require('../../assets/presentation.png'),id:17,}, 
-{name:'Exhibition', icon: require('../../assets/exhibition.png'),id:18,}, {name:'Academic', icon: require('../../assets/academic.png'),id:19,},
-{name:'Science/Tech', icon: require('../../assets/science.png'),id:20,}, {name:'Business/Professional', icon: require('../../assets/business.png'),id:21,},
-{name:'Other', icon: require('../../assets/other.png'),id:22,}];
+const categories = Globals.categories;
 
 const items = [
   // this is the parent or 'item'
@@ -74,7 +64,7 @@ export class ContentTypeSelector extends Component {
           ref={SectionedMultiSelect => this.SectionedMultiSelect = SectionedMultiSelect}
           items={items}
           IconRenderer={MaterialIcons}
-          uniqueKey="id"
+          uniqueKey="categoryId"
           subKey="children"
           selectText="More Categories If Needed"
           showDropDowns={false}

@@ -17,6 +17,7 @@ import {Marker} from 'react-native-maps';
 import LocationPin from '../objects/locationPin';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
+import ProfileButton from '../objects/UpcomingEventButton';
 
 //custom bottom sheet
 function MainScreen({navigation}) {
@@ -59,7 +60,9 @@ function MainScreen({navigation}) {
 
     const windowHeight = Dimensions.get('window').height;
     bs = React.createRef();
+    bs2 = React.createRef();
     fall = new Animated.Value(1);
+    
 
     const renderCategories = () => {
       let pic = ""
@@ -161,12 +164,7 @@ function MainScreen({navigation}) {
   
       const [buttonColor3, setButtonColor3] = useState('#FFF')
       const toggle3 = () => {
-        if (buttonColor3 == '#FFF') {
-          setButtonColor3('#FFCB05')
-          share();
-        } else {
-          setButtonColor3('#FFF')
-        }
+        share();
       }
     const borderColor = (buttonColor) => {
       if (buttonColor == '#FFF') {
@@ -189,6 +187,15 @@ function MainScreen({navigation}) {
             <Text style={{color: '#FFCB05', marginBottom: 10}}>{readMore}</Text>
           </TouchableOpacity>
         );
+      }
+    }
+
+    const renderTime = () => {
+      if (currentEvent.startTime.split(' ')[0] == currentEvent.endTime.split(' ')[0]) {
+        return currentEvent.startTime + ' - ' + currentEvent.endTime.split(' ')[1]
+      }
+      else {
+        return currentEvent.startTime + ' - ' + currentEvent.endTime
       }
     }
     renderInner = () => (
@@ -222,9 +229,9 @@ function MainScreen({navigation}) {
             source={require('../assets/CalendarIcon.png')}
             style={{width:18, height:18}}
           ></Image>
-          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{currentEvent.startTime}</Text>
+          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{renderTime()}</Text>
         </View>
-        <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 55 }}>
+        <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
           <TouchableOpacity style={{backgroundColor: buttonColor1,
             borderRadius: 8,
             borderColor: borderColor(buttonColor1),
@@ -321,13 +328,6 @@ function MainScreen({navigation}) {
             </TouchableOpacity>
             <TouchableOpacity style={{flexDirection: 'row'}}>
               <Image
-                source={require('../assets/share2.png')}
-                style={{width:18, height: 18, tintColor: '#FFCB05', marginBottom: 5}}>
-              </Image>
-              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: '#FFCB05'}}>Share</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{flexDirection: 'row'}}>
-              <Image
                 source={require('../assets/report.png')}
                 style={{width:18, height: 18, tintColor: 'red', marginBottom: Dimensions.get('window').height}}>
               </Image>
@@ -345,6 +345,27 @@ function MainScreen({navigation}) {
         </View>
     );
 
+    renderInner2 = () => (
+      <View style={{backgroundColor: '#fff'}}>
+        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
+        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
+        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
+        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
+        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
+        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
+      </View>
+    )
+
+    renderHeader2 = () => (
+      <View style={styles.header}>
+        <View style={styles.panelHeader}>
+          <View style={styles.panelHandle}>
+          </View>
+        </View>
+      </View>
+  );
+
+
     const [latDelta, setLatDelta] = useState(0.015);
     const [longDelta, setLongDelta] = useState(latDelta/2);
     
@@ -359,6 +380,19 @@ function MainScreen({navigation}) {
             bs.current.snapTo(1);
             setCurrentEvent(event);
             setSnapPosition(1);
+        }
+    }
+
+    const [snapPosition2,setSnapPosition2] = useState(0);
+    
+    const openBottomSheet2 = () => {
+        if(snapPosition2 == 1) {
+            
+        }
+        else if(snapPosition2 == 0) {
+            myContext.toggleShowNavBar(false);
+            bs2.current.snapTo(1);
+            setSnapPosition2(1);
         }
     }
     const [eventList,setEventList] = useState([]);
@@ -421,6 +455,7 @@ function MainScreen({navigation}) {
       }
       return false;
     }
+
     renderEvents = () => {
         //if there is a search then return searchResults.map(...)
         return (
@@ -454,7 +489,12 @@ function MainScreen({navigation}) {
             rotateEnabled = {false}  
             >
             {renderEvents()}
-            
+            <Marker
+            coordinate = {{latitude: 42.276200, longitude: -83.735474}}
+            onPress = {() => openBottomSheet2()}
+            >
+              <LocationPin title = "lmfao another bottomsheet"/>
+            </Marker>
             <Marker key = '100'
             coordinate = {{latitude: 42.275200, longitude: -83.735474}}
             onPress = {() => {console.log('pressed');searchParams.Categories.length = 0;navigation.navigate('MainScreen',searchParams)}}>
@@ -477,6 +517,23 @@ function MainScreen({navigation}) {
                 callbackNode={this.fall}
                 enabledGestureInteraction={true}
                 onCloseEnd={() => {setSnapPosition(0);myContext.toggleShowNavBar(true)}}
+            />
+            <Animated.View style={{margin: 20,
+                opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
+            }}>
+            </Animated.View>   
+        
+        </View>
+        <View style={styles.pullup}>
+            <BottomSheet
+                ref={this.bs2}
+                snapPoints={[0, 270, windowHeight - 50]}
+                renderContent={this.renderInner2}
+                renderHeader={this.renderHeader2}
+                initialSnap={0}
+                callbackNode={this.fall}
+                enabledGestureInteraction={true}
+                onCloseEnd={() => {setSnapPosition2(0);myContext.toggleShowNavBar(true)}}
             />
             <Animated.View style={{margin: 20,
                 opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),

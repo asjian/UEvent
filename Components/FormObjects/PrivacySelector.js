@@ -2,6 +2,8 @@ import {Picker} from '@react-native-picker/picker';
 import React, {useState} from 'react';
 import RNPickerSelect from 'react-native-picker-select';
 import { StyleSheet } from 'react-native';
+import Globals from '../../../GlobalVariables';
+
 
 const PrivacySelector = ({onChange, value}) => {
     const [isFocused5, setFocus5] = useState(false);
@@ -16,13 +18,13 @@ const PrivacySelector = ({onChange, value}) => {
             ]}
             style={{inputIOS: {borderWidth: 1,
                 borderColor: value !== null || isFocused5 ? '#7b7b7b' : '#C4C4C4',
-                padding: 8,
+                padding: Globals.HR(8),
                 width: '88%',
-                marginLeft: 20,
-                marginTop: 10,
-                marginBottom: 10,
+                marginLeft: Globals.WR(20), 
+                marginTop: Globals.HR(10),
+                marginBottom: Globals.HR(10),
                 flex: 1,
-                fontSize: 14}}}
+                fontSize: Globals.HR(14)}}}
             
             onOpen={() => setFocus5(true)}
             onClose={() => setFocus5(false)}

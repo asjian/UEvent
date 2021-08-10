@@ -17,7 +17,7 @@ import {Marker} from 'react-native-maps';
 import LocationPin from '../objects/locationPin';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
-import ProfileButton from '../objects/UpcomingEventButton';
+import ProfileButton from '../objects/searchResults';
 
 //custom bottom sheet
 function MainScreen({navigation}) {
@@ -352,19 +352,27 @@ function MainScreen({navigation}) {
         <ProfileButton title = 'ALEX IS A NERD' location = ''/>
         <ProfileButton title = 'ALEX IS A NERD' location = ''/>
         <ProfileButton title = 'ALEX IS A NERD' location = ''/>
-        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
+        <View style={{backgroundColor: '#fff', marginBottom: windowHeight}}></View>
       </View>
     )
-
+    
     renderHeader2 = () => (
-      <View style={styles.header}>
-        <View style={styles.panelHeader}>
-          <View style={styles.panelHandle}>
+      <View style={{backgroundColor: '#fff',
+        shadowColor: '#333333',
+        shadowOffset: {width: -1, height: -2},
+        shadowRadius: 2,
+        shadowOpacity: 0.4,
+        paddingTop: 25,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20}}>
+          <View style={{alignItems: 'flex-end'}}>
+            <TouchableOpacity style={{width: 80}}>
+              <Text style={{fontWeight: 'bold', color: 'red', fontSize: 16, marginRight: 25, marginBottom: 25}}>CLEAR</Text>
+            </TouchableOpacity>
           </View>
-        </View>
+            
       </View>
   );
-
 
     const [latDelta, setLatDelta] = useState(0.015);
     const [longDelta, setLongDelta] = useState(latDelta/2);
@@ -510,7 +518,7 @@ function MainScreen({navigation}) {
         <View style={styles.pullup}>
             <BottomSheet
                 ref={this.bs}
-                snapPoints={[0, 270, windowHeight - 50]}
+                snapPoints={[0, 260, windowHeight - 100]}
                 renderContent={this.renderInner}
                 renderHeader={this.renderHeader}
                 initialSnap={0}
@@ -527,7 +535,7 @@ function MainScreen({navigation}) {
         <View style={styles.pullup}>
             <BottomSheet
                 ref={this.bs2}
-                snapPoints={[0, 270, windowHeight - 50]}
+                snapPoints={[0, windowHeight - 160, 70]}
                 renderContent={this.renderInner2}
                 renderHeader={this.renderHeader2}
                 initialSnap={0}

@@ -1,5 +1,5 @@
 import React, {useRef,useEffect} from 'react';
-import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
+import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert, Dimensions } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useState, useContext } from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
@@ -11,7 +11,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AppContext from '../objects/AppContext';
 //import SearchableDropdown from 'react-native-searchable-dropdown';
-import {EventTypeSelector} from '../objects/FormObjects/EventTypeSelector';
+import EventTypeSelector from '../objects/FormObjects/EventTypeSelector';
 import PrivacySelector from '../objects/FormObjects/PrivacySelector';
 import {ContentTypeSelector} from '../objects/FormObjects/ContentTypeSelector';
 import InPersonSelector from '../objects/FormObjects/InPersonSelector';
@@ -31,6 +31,18 @@ import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
 import { NavigationActions } from 'react-navigation';
 
 
+const HR = (pixelNumber) => {
+    const responsiveMultiplier = 926 / pixelNumber;
+    const responsiveNumber = windowHeight / responsiveMultiplier;
+    return responsiveNumber;
+}
+
+const WR = (pixelNumber) => {
+    const responsiveMultiplier = 428 / pixelNumber;
+    const responsiveNumber = windowWidth / responsiveMultiplier;
+    return responsiveNumber;
+}
+
 // Header
 function Header({ navigation }) {
     const myContext = useContext(AppContext);
@@ -44,17 +56,19 @@ function Header({ navigation }) {
                 text: "Cancel",
                 style: "cancel"
               },
-              { text: "OK", onPress: () => {navigation.goBack(); myContext.toggleShowNavBar(true);}}
+              { text: "OK", onPress: () => {navigation.goBack(); myContext.toggleShowNavBar(true); console.log(styles.headerText.fontSize);}}
             ]
           );
         
+          
     }
+    
     return (
         <View style={styles.outerContainer}>
             <View style={styles.innerContainer}>
                 <Text style={styles.headerText}>Create A New Event</Text>
                 <View style={styles.close}>
-                    <AntDesign name='closecircleo' size={30} onPress={closeHandler} />
+                    <AntDesign name='closecircleo' size={windowHeight / 30.87} onPress={closeHandler} />
                 </View>
 
             </View>
@@ -83,7 +97,7 @@ function PreviewHeader({ navigation }) {
             <View style={styles.innerContainer}>
                 <Text style={styles.headerText2}>Preview</Text>
                 <View style={styles.close}>
-                    <AntDesign name='closecircleo' size={30} onPress={closeHandler} />
+                    <AntDesign name='closecircleo' size={HR(30)} onPress={closeHandler} />
                 </View>
 
             </View>
@@ -155,7 +169,7 @@ const pageTwoValidSchema = yup.object({
         })
         .when(['InPerson', 'locationSelected'], {
             is: (InPerson, locationSelected) => (InPerson === 'In Person') && (locationSelected === false),
-            then: yup.string().test('scheme', 'Please choose an adress from the dropdown', (value, context) => value === '')
+            then: yup.string().test('scheme', 'Must select a real address', (value, context) => value === '')
         }),
         
     LocationDetails: yup.string()
@@ -194,26 +208,31 @@ const pageFourValidSchema = yup.object({
     ,
 
 })
+
+
 // First slide
 const EventInformation = (props) => {
     const navigation = useNavigation();
 
     const handleSubmit = (values) => {
         props.next(values);
-        console.log(values);
     };
 
     const [isFocused, setFocus] = useState(false);
     const [isFocused2, setFocus2] = useState(false);
     const [isFocused6, setFocus6] = useState(false);
 
+    
+
+    
     return (
         <SafeAreaView style={styles.containerBack}>
 
             <Formik
                 initialValues={props.data}
                 onSubmit={handleSubmit}
-                validationSchema={pageOneValidSchema}              
+                validationSchema={pageOneValidSchema}
+                
             >
                 {(formikprops) => (
                     <View>
@@ -222,22 +241,21 @@ const EventInformation = (props) => {
                                 <Header navigation={navigation} />
                             </View>
                             <View>
-                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 23, marginTop: 20, fontWeight: '500'}}>Event Information</Text>
+                                <Text style={{color: '#09189F', fontSize: windowHeight / 42.09 , marginLeft: windowWidth / 21.4, marginTop: windowHeight / 42.09, fontWeight: '500'}}>Event Information</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ marginLeft:23, marginRight:20, marginVertical: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: windowWidth / 21.4, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: windowWidth / 21.4, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: windowWidth / 21.4, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: windowWidth / 21.4, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
                                     Event Title:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.EventTitle !== '' || isFocused ? '#7b7b7b' : '#c4c4c4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.EventTitle !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Eg: MProduct Interest Meeting'
-                                    placeholderTextColor = '#a3a3a3'
                                     onChangeText={formikprops.handleChange('EventTitle')}
                                     value={formikprops.values.EventTitle}
                                     onFocus={() => setFocus(true)}
@@ -251,10 +269,8 @@ const EventInformation = (props) => {
                                     Organizer Name:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerName !== '' || isFocused2 ? '#7b7b7b' : '#c4c4c4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerName !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Organization (eg. MProduct) or you (Eg. Alex Jian)'
-                                    placeholderTextColor = '#a3a3a3'
-                                    textAlign = 'left'
                                     onChangeText={formikprops.handleChange('OrganizerName')}
                                     value={formikprops.values.OrganizerName}
                                     onFocus={() => setFocus2(true)}
@@ -266,9 +282,11 @@ const EventInformation = (props) => {
                                 <Text style={styles.TextStyle}>
                                     Main Event Category:
                                 </Text>
-                                <View style={{width: '88%', marginLeft: 20, marginTop: 10, }}>
-                                    <FieldArray name="EventType" component={EventTypeSelector} />
-                                </View>
+                                    <EventTypeSelector 
+                                        onChange={formikprops.setFieldValue}
+                                        value={formikprops.values.EventType}
+
+                                    />
                                
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
                             </View>
@@ -276,7 +294,7 @@ const EventInformation = (props) => {
                                 <Text style={styles.TextStyle}>
                                     Other Categories:
                                 </Text>
-                                <View style={{width: '88%', marginLeft: 20, marginTop: 10, }}>
+                                <View style={{width: '88%', marginLeft: HR(20), marginTop: HR(10),  }}>
                                     <FieldArray name="ContentType" component={ContentTypeSelector} />
                                 </View>
                                 
@@ -296,7 +314,6 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
-                            {/*
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
                                     Tags (10 max):
@@ -311,7 +328,9 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Tags && formikprops.errors.Tags}</Text>
                             </View>
-                            */}             
+                            
+                            
+                            
                         </KeyboardAwareScrollView>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
@@ -362,13 +381,13 @@ const MoreInformation = (props) => {
                         <KeyboardAwareScrollView style={styles.scrollContainer} keyboardShouldPersistTaps = "handled">
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Location Information</Text>
+                                <Text style={{color: '#09189F', fontSize: HR(22) , marginLeft: WR(20), marginTop: HR(20), fontWeight: '500'}}>Location Information</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -505,13 +524,13 @@ const EventSchedule = (props) => {
                             
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Event Schedule</Text>
+                                <Text style={{color: '#09189F', fontSize: HR(22) , marginLeft: WR(20), marginTop: HR(20), fontWeight: '500'}}>Event Schedule</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -627,13 +646,13 @@ const EventDetails = (props) => {
                         <KeyboardAwareScrollView style={styles.scrollContainer}>
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Event Details</Text>
+                                <Text style={{color: '#09189F', fontSize: HR(22) , marginLeft: WR(20), marginTop: HR(20), fontWeight: '500'}}>Event Details</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -717,6 +736,135 @@ const Preview = ({ route, navigation }) => {
     const { values } = route.params;
     const myContext = useContext(AppContext);
 
+    // Helper functions
+    const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
+    {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
+
+   
+
+    const renderCategories = () => {
+        let pic = ""
+        for (let i = 0; i < inPerson.length; i++) {
+          if (inPerson[i].name == values.InPerson) {
+            pic = inPerson[i].icon
+          }
+        }
+        return (
+          <View style={{flexDirection: 'row'}}>
+            <Image
+              source={pic}
+              style={{width:18, height: 18, tintColor: 'orange'}}>
+            </Image>
+            <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{values.InPerson}</Text>
+          </View>
+        )
+      }
+
+      const registration = () => {
+        if(values.Registration != '') {
+          return (
+            <View>
+              <Text style={{fontWeight: 'bold'}}>Registration</Text>
+              <Text>{values.Registration}</Text>
+            </View>
+          )
+        }
+      }
+      const moreDetails = () => {
+        if(values.OrganizerEmail != '' && values.OrganizerWebsite != '') {
+          return (
+            <View>
+              <Text style={{fontWeight: 'bold'}}>More Details</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text>Email: </Text>
+                <Text>{values.OrganizerEmail}</Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Text>Website: </Text>
+                <Text>{values.OrganizerWebsite}</Text>
+              </View>
+            </View>
+          )
+        } else if (values.OrganizerEmail != '') {
+          return (
+            <View>
+              <Text style={{fontWeight: 'bold'}}>More Details</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text>Email: </Text>
+                <Text>{values.OrganizerEmail}</Text>
+              </View>
+            </View>
+          )
+        } else if (values.OrganizerWebsite != '') {
+          return (
+            <View>
+              <Text style={{fontWeight: 'bold'}}>More Details</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text>Website: </Text>
+                <Text>{values.OrganizerWebsite}</Text>
+              </View>
+            </View>
+          )
+        }
+      }
+  
+      const [buttonColor1, setButtonColor1] = useState('#FFF')
+    
+        const toggle1 = () => {
+          if (buttonColor1 == '#FFF') {
+            setButtonColor1('#FFCB05')
+          } else {
+            setButtonColor1('#FFF')
+          }
+        }
+    
+        const [buttonColor2, setButtonColor2] = useState('#FFF')
+    
+        const toggle2 = () => {
+          if (buttonColor2 == '#FFF') {
+            setButtonColor2('#FFCB05')
+          } else {
+            setButtonColor2('#FFF')
+          }
+        }
+    
+        const [buttonColor3, setButtonColor3] = useState('#FFF')
+        const toggle3 = () => {
+          
+        }
+      const borderColor = (buttonColor) => {
+        if (buttonColor == '#FFF') {
+          return 'black'
+        } else {
+          return 'white'
+        }
+      }
+  
+      const [isTruncated, setIsTruncated] = useState(true);
+      const resultString = isTruncated ? values.EventDescription.slice(0, 133) : values.EventDescription;
+      const readMore = isTruncated ? 'Read More' : 'Read Less'
+      const toggle = () => {
+        setIsTruncated(!isTruncated);
+      }
+      const renderButton = () => {
+        if (resultString.length > 130) {
+          return (
+            <TouchableOpacity onPress={toggle}>
+              <Text style={{color: '#FFCB05', marginBottom: 10}}>{readMore}</Text>
+            </TouchableOpacity>
+          );
+        }
+      }
+  
+      const renderTime = () => {
+        if (values.StartDay == values.EndDay) {
+          return values.StartDay + ' - ' + values.EndTime
+        }
+        else {
+          return values.StartTime + ' - ' + values.EndTime
+        }
+      }
+
     const postToServer = () => { //post the event to the server
         /*
         fetch('https://retoolapi.dev/rJZk4j/events', {
@@ -789,77 +937,153 @@ const Preview = ({ route, navigation }) => {
     }
 
     return (
-        <SafeAreaView style={{ backgroundColor: '#FFFBF2' }}>
-            <View style={{ height: '93%' }}>
-                <ScrollView contentContainerStyle={styles.container}>
-
-
-                    <View style={{ flex: 1, borderBottomWidth: 1 }}>
-                        <PreviewHeader navigation={navigation} />
-                    </View>
-
-                    <View style={styles.box}>
-                        <View style={styles.inner1}>
-                            <Image style={styles.realImageStyle} source={{uri: values.EventImage}} />
-                        </View>
-                        <View style={styles.inner2}>
-                            <Text style={{fontSize: 24,fontWeight: '500', textAlign: 'center', textAlignVertical: 'center'}} adjustsFontSizeToFit={true} >{values.EventTitle}</Text>
-                        </View>
-                    </View>
-                    <View style={{ flex: 2.5, flexDirection: 'column', borderBottomWidth: 0.2 }}>
-                        <View style={{ flex: 1, flexDirection: 'row', alignContent: 'center' }}>
-                            <View style={{ flex: 1, flexDirection: 'row', alignContent: 'center' }}>
-                                <Image style={{ flex: 1, marginLeft: '10%' }} source={require('../assets/Vector.png')} />
-                                <Text style={{ flex: 9, textAlign: 'center', fontWeight: '500', color: '#FF8A00', fontSize: 16 }}>{values.OrganizerName}</Text>
-                            </View>
-                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center'  }}>
-                                <Image style={{ flex: 1, marginLeft: '10%' }} source={require('../assets/ContentType.png')} />
-                                <Text style={{ flex: 9, textAlign: 'center', fontWeight: '500', color: '#FAB400', fontSize: 16 }}>{values.ContentType}</Text>
-                            </View>
-                        </View>
-                        <View style={{ flex: 1, flexDirection: 'row' }}>
-                            <View style={{ flex: 2 }}>
-                                <Image style={{ resizeMode: 'contain', marginLeft: '30%' }} source={require('../assets/CalendarIcon.png')} />
-                            </View>
-                            <View style={{ flex: 9.5 }}>
-                                <Text style={{ fontWeight: '500', color: '#0085FF', fontSize: 16 }}>{values.StartDay}, {values.StartTime} - {values.EndTime} ({values.InPerson})</Text>
-                            </View>
-                        </View>
-                        <View style={{ flex: 2, flexDirection: 'row', paddingHorizontal: '5%', }}>
-                            <View style={{ flex: 1 }}>
-                                <Image style={{ resizeMode: 'contain', width: '80%', height: '80%' }} source={require('../assets/Save.png')} />
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Image style={{ resizeMode: 'contain', width: '80%', height: '80%' }} source={require('../assets/ImGoing.png')} />
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Image style={{ resizeMode: 'contain', width: '80%', height: '80%' }} source={require('../assets/Share.png')} />
-                            </View>
-                        </View>
-                    </View>
-                    <View style={{ flex: 2, borderBottomWidth: 0.2, paddingHorizontal: '5%', }}>
-                        <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Event Description</Text>
-                        <Text style={{ fontSize: 16 }}>{values.EventDescription}</Text>
-                    </View>
-                    <View style={{ flex: 2, paddingHorizontal: '5%', }}>
-                        <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Location</Text>
-                        <Text style={{ fontSize: 16 }}>{values.LocationName}</Text>
-                        <Text style={{ fontSize: 16 }}>{values.Address}</Text>
-                    </View>
-                    <View style={{ flex: 1, borderTopWidth: 0.2, paddingHorizontal: '5%', }} >
-                        <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Registration</Text>
-                        <Text style={{ fontSize: 16 }}>{values.Registration}</Text>
-                    </View>
-                    <View style={{ flex: 2, borderTopWidth: 0.2, paddingHorizontal: '5%', }} >
-                        <Text style={{ fontWeight: 'bold', fontSize: 18 }}>More Info</Text>
-                        <Text style={{ fontSize: 16 }}>Website: {values.OrganizerWebsite}</Text>
-                        <Text style={{ fontSize: 16 }}>Email: {values.OrganizerEmail}</Text>
-                    </View>
-
-
-                </ScrollView>
+    <SafeAreaView style={{
+        flex: 1,
+        height: '100%',
+        backgroundColor: '#fff'
+        }} >
+        <View style={{flex: 1}}>
+            <PreviewHeader navigation={navigation} />
+        </View>
+    <ScrollView contentContainerStyle={{height: '78%'}}>
+        <View style={styles.panel}>
+        <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
+          <View>
+            <Text style={{
+              fontSize: 24,
+              width: Dimensions.get('window').width - 105,
+              marginRight: 10    
+              }} 
+              numberOfLines={2}>
+                {values.EventTitle}
+              </Text>
+          </View>
+          <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{color: 'black'}}>{values.Privacy}</Text>
+          </View>
+          
+        </View>
+        <View style={styles.panelHost}>
+          <Image
+            source={require('../assets/Vector.png')}
+            style={{width:18, height: 18}}>
+          </Image>
+          <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{values.OrganizerName}</Text>
+          {renderCategories()}
+        </View>
+        <View style={styles.panelDate}>
+          <Image
+            source={require('../assets/CalendarIcon.png')}
+            style={{width:18, height:18}}
+          ></Image>
+          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{renderTime()}</Text>
+        </View>
+        <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
+          <TouchableOpacity style={{backgroundColor: buttonColor1,
+            borderRadius: 8,
+            borderColor: borderColor(buttonColor1),
+            borderWidth: 1,
+            width: (Dimensions.get('window').width - 81.6) / 3,
+            height: 55,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginHorizontal: 15,
+            }}
+            onPress={toggle1}>
+            <View>
+              <Image
+                source={require('../assets/star.png')}
+                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor1)}}
+              ></Image>
+              <Text style={{
+                fontSize: 17,
+                fontWeight: 'bold',
+                color: borderColor(buttonColor1),
+              }}>Save</Text>
             </View>
-            <View style={{ flexDirection: 'row' }}>
+          </TouchableOpacity>
+          <TouchableOpacity style={{backgroundColor: buttonColor2,
+            borderRadius: 8,
+            borderColor: borderColor(buttonColor2),
+            borderWidth: 1,
+            width: (Dimensions.get('window').width - 81.6) / 3,
+            height: 55,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginHorizontal: 15,
+            }}
+            onPress={toggle2}>
+            <View>
+              <Image
+                source={require('../assets/check2.png')}
+                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
+              ></Image>
+              <Text style={{
+                fontSize: 17,
+                fontWeight: 'bold',
+                color: borderColor(buttonColor2),
+              }}>I'm Going</Text>
+            </View>   
+          </TouchableOpacity>
+          <TouchableOpacity style={{backgroundColor: buttonColor3,
+            borderRadius: 8,
+            borderColor: borderColor(buttonColor3),
+            borderWidth: 1,
+            width: (Dimensions.get('window').width - 81.6) / 3,
+            height: 55,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginHorizontal: 15,
+            }}
+            onPress={toggle3}>
+            <View>
+              <Image
+                source={require('../assets/share2.png')}
+                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
+              ></Image>
+              <Text style={{
+                fontSize: 17,
+                fontWeight: 'bold',
+                color: borderColor(buttonColor3),
+              }}>Share</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+          <View>
+            <Image source={{uri: values.EventImage}}
+            resizeMode= 'cover'
+            style={{width: Dimensions.get('window').width - 40.8, height: 200, marginBottom: 20}}>
+            </Image>
+          </View>
+          <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Event Description</Text>
+          <View>
+            <Text style={{marginBottom: 5}}>{resultString.replace(/(\r\n|\n|\r)/gm, " ")}</Text>
+            {renderButton()}
+          </View>
+          <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Location</Text>
+          <Text>{values.locationName}</Text>
+          <Text style={{marginBottom: 10}}>{values.Address}</Text>
+          {registration()}
+          {moreDetails()}
+          
+            <TouchableOpacity style={{flexDirection: 'row'}}>
+              <Image
+                source={require('../assets/CalendarIcon.png')}
+                style={{width:18, height: 18, marginBottom: 5}}>
+              </Image>
+              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: '#03a9f4'}}>Add Event to Calendar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{flexDirection: 'row'}}>
+              <Image
+                source={require('../assets/report.png')}
+                style={{width:18, height: 18, tintColor: 'red', marginBottom: Dimensions.get('window').height}}>
+              </Image>
+              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: 'red'}}>Report</Text>
+            </TouchableOpacity>
+      </View>
+      </ScrollView>
+        
+            <View style={{ flexDirection: 'row', flex: 1}}>
                 <View style={{ flex: 1 }}>
                     <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => navigation.navigate("Form")}>
                         <View style={styles.backContainer}>
@@ -981,6 +1205,9 @@ export default function CreateNewEventScreen({ navigation }) {
             <Stack.Screen name="Preview" component={Preview} options={{headerShown: false}}/>
        </Stack.Navigator>*/}
 
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
     containerBack: {
         backgroundColor: '#FFFBF3',
@@ -988,11 +1215,11 @@ const styles = StyleSheet.create({
         
     },
     TextStyle: {
-        fontSize: 18,
-        fontWeight: '500',
+        fontSize: windowHeight / 46.3,
         color: '#09189F',
-        marginLeft: 23,
-        marginTop: 10,
+        marginLeft: windowWidth / 21.4,
+        marginTop: windowHeight / 92.6,
+        fontWeight: '500'
     },
 
     containerStyle: {
@@ -1008,14 +1235,14 @@ const styles = StyleSheet.create({
     },
     InputBox: {
         borderWidth: 0,
-        borderBottomWidth: 1.5,
+        borderBottomWidth: 1,
         borderColor: '#C4C4C4',
-        paddingVertical: 8,
+        padding: HR(8),
         width: '88%',
-        marginLeft: 24,
-        marginTop: 5,
-        marginBottom: 10,
-        fontSize: 15,
+        marginLeft: HR(20),
+        marginTop: HR(10),
+        marginBottom: HR(10),
+        fontSize: HR(14)
     },
 
     imageStyle: {
@@ -1067,6 +1294,7 @@ const styles = StyleSheet.create({
     },
     outerContainer: {
         flex: 1,
+
     },
     innerContainer: {
         marginTop: 0,
@@ -1081,26 +1309,26 @@ const styles = StyleSheet.create({
     },
     close: {
         position: 'absolute',
-        left: 365,
-        top: 10,
+        left: windowWidth - 55,
+        top: windowHeight / 92.6,
     },
     headerText: {
-        fontSize: 24,
+        fontSize: HR(24),
         fontWeight: 'bold',
-        marginTop: 10,
+        marginTop: windowHeight / 92.6,
         textAlign: 'center',
     },
     headerText2: {
-        fontSize: 24,
+        fontSize: windowHeight / 38.58,
         fontWeight: 'bold',
-        marginTop: 10,
+        marginTop: windowHeight / 92.6,
         marginLeft: '38%',
     },
     nextContainer: {
         backgroundColor: '#ffffff',
 
-        marginHorizontal: 50,
-        marginTop: 5,
+        marginHorizontal: WR(50),
+        marginTop: HR(5),
         width: '90%',
         alignItems: 'center',
         top: 0,
@@ -1112,13 +1340,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
-        borderRadius: 10,
+        borderRadius: HR(10),
     },
     backContainer: {
         backgroundColor: '#ffffff',
 
-        marginHorizontal: 50,
-        marginTop: 5,
+        marginHorizontal: WR(50),
+        marginTop: HR(5),
         width: '65%',
         alignItems: 'center',
         top: 0,
@@ -1130,13 +1358,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
-        borderRadius: 10,
+        borderRadius: HR(10),
     },
     backContainerInit: {
         backgroundColor: '#ffffff',
         opacity: 0.33,
-        marginHorizontal: 50,
-        marginTop: 5,
+        marginHorizontal: WR(50),
+        marginTop: HR(5),
         width: '65%',
         alignItems: 'center',
         top: 0,
@@ -1148,24 +1376,82 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
-        borderRadius: 10,
+        borderRadius: HR(10),
     },
     nextText: {
         fontWeight: 'bold',
-        fontSize: 18,
-        paddingVertical: 10,
+        fontSize: HR(18),
+        paddingVertical: HR(10),
         color: '#fab400',
     },
     backText: {
         fontWeight: 'bold',
-        fontSize: 18,
-        paddingVertical: 10,
+        fontSize: HR(18),
+        paddingVertical: HR(10),
         color: '#09189F',
     },
     errorMessage: {
         color: '#D8000C',
         paddingLeft: '5%'
 
+    },
+    map: {
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+        flex:1,
+    },
+    containerPreview: {
+        flex: 1,
+    },
+    topbar: {
+        position: 'absolute',
+        top: 0,
+        width: Dimensions.get('window').width,
+    },
+    header: {
+        backgroundColor: '#fff',
+        shadowColor: '#333333',
+        shadowOffset: {width: -1, height: -2},
+        shadowRadius: 2,
+        shadowOpacity: 0.4,
+        paddingTop: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+    panelHeader: {
+        alignItems: 'center'
+    },
+    panelHandle: {
+        width: 40,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#00000040',
+        marginBottom:10,
+    },
+    panel: {
+        padding: 20,
+        backgroundColor: '#fff',
+        paddingTop: 20,
+        //paddingBottom: Dimensions.get('window').height,
+    },
+    panelTitle: {
+      fontSize: 27,
+      height: 35,
+      marginRight: 10,
+      width: Dimensions.get('window').width - 100    
+    },
+    panelHost: {
+      flexDirection: 'row',
+      marginBottom: 10
+    },
+    panelDate: {
+      flexDirection: 'row',
+      marginBottom: 20
+    },
+    panelButtonTitle: {
+      fontSize: 17,
+      fontWeight: 'bold',
+      color: 'white',
     }
 
 })

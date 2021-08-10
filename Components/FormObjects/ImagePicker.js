@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Image, View, Platform, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import Globals from '../../../GlobalVariables';
 
 export default function ImagePickerExample({onChange, value}) {
   const [image, setImage] = useState(null);
@@ -58,14 +59,15 @@ export default function ImagePickerExample({onChange, value}) {
 
 const styles = StyleSheet.create({
   image: {
-    width: 200,
-    height: 200,
-    overflow: 'hidden'
+    width: Globals.WR(200),
+    height: Globals.HR(200),
+    overflow: 'hidden',
+    marginTop: Globals.HR(20)
   },
   selectContainer: {
     backgroundColor: '#ffffff',
-    marginHorizontal: 15,
-    marginTop: 50,
+    marginHorizontal: Globals.WR(15),
+    marginTop: Globals.HR(50),
     width: '40%',
     alignItems: 'center',
     top: 0,
@@ -77,13 +79,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
     elevation: 2,
-    borderRadius: 10,
+    borderRadius: Globals.HR(10),
 },
 selectText: {
     fontWeight: '500',
-    fontSize: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 15
+    fontSize: Globals.HR(20),
+    paddingVertical: Globals.HR(10),
+    paddingHorizontal: Globals.WR(15)
     
 }
 })

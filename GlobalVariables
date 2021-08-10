@@ -23,5 +23,19 @@ Other: require('./app/assets/other.png')};
 
 const categories = [];
 
+const HR = (pixelNumber) => {
+    const windowHeight = Dimensions.get('window').height;
+    const responsiveMultiplier = 926 / pixelNumber;
+    const responsiveNumber = windowHeight / responsiveMultiplier;
+    return responsiveNumber;
+}
 
-export default  {usersURL, eventsURL, apiKeysURL, categoriesURL, categoryAssets, categories}
+const WR = (pixelNumber) => {
+    const windowWidth = Dimensions.get('window').width;
+    const responsiveMultiplier = 428 / pixelNumber;
+    const responsiveNumber = windowWidth / responsiveMultiplier;
+    return responsiveNumber;
+}
+
+
+export default  {usersURL, eventsURL, apiKeysURL, categoriesURL, categoryAssets, categories, HR, WR}

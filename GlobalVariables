@@ -1,9 +1,17 @@
-const usersURL = 'https://retoolapi.dev/mR2CoY/users'
-//'http://47.252.19.227/EventHub/rest/users'
-const eventsURL = 'https://retoolapi.dev/lvF3hn/events'
-//'http://47.252.19.227/EventHub/rest/events'
+import React from 'react';
+import { Dimensions } from 'react-native';
+
+const baseURL = 'http://47.252.19.227/EventHub/rest';
+const usersURL = //'https://retoolapi.dev/mR2CoY/users'
+baseURL + '/users';
+const eventsURL = //'https://retoolapi.dev/lvF3hn/events'
+baseURL + '/events';
 //'https://retoolapi.dev/CNVOvx/collisionevents'
 //'https://retoolapi.dev/QYxrD6/bugtests'
+const followersURL = baseURL + '/followers';
+const inviteesURL = baseURL + '/invitees';
+const attendeesURL = baseURL + '/attendees';
+const updatesURL = baseURL + '/updates';
 
 const apiKeysURL = 'https://retoolapi.dev/kfQilA/apikeys'
 const categoriesURL = 'http://47.252.19.227/EventHub/rest/categories'
@@ -37,5 +45,5 @@ const WR = (pixelNumber) => {
     return responsiveNumber;
 }
 
-
-export default  {usersURL, eventsURL, apiKeysURL, categoriesURL, categoryAssets, categories, HR, WR}
+export default  {baseURL,usersURL, eventsURL, followersURL, inviteesURL, attendeesURL,
+    updatesURL, apiKeysURL, categoriesURL, categoryAssets, categories, HR, WR}

@@ -45,5 +45,22 @@ const WR = (pixelNumber) => {
     return responsiveNumber;
 }
 
+const formatDate = (dateFromApi) => { //convert date from api to readable form in the right time zone
+    console.log('initial date string: ' + dateFromApi);
+    //first convert the date from utc back to the local time zone (usually est but might not be)
+    let initialDate = dateFromApi.substr(0,10) + 'T' + dateFromApi.substr(11,8);
+    console.log(initialDate);
+    let dateobj = new Date(initialDate);
+    console.log('date object:' + dateobj);
+    //console.log(dateobj.toLocaleString());
+    //let formattedDate = dateobj.toLocaleDateString('en-US',{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    let formattedDate = dateobj.toString().substr(0,10);
+    console.log(formattedDate);
+    let formattedTime = dateobj.toLocaleTimeString('en-US');
+
+    return formattedDate + ' ' + 
+        formattedTime.substr(0,formattedTime.lastIndexOf(':')) + formattedTime.substr(formattedTime.length-2);
+}
+
 export default  {baseURL,usersURL, eventsURL, followersURL, inviteesURL, attendeesURL,
-    updatesURL, apiKeysURL, categoriesURL, categoryAssets, categories, HR, WR}
+    updatesURL, apiKeysURL, categoriesURL, categoryAssets, categories, HR, WR, formatDate}

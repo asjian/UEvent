@@ -49,16 +49,12 @@ const formatDate = (dateFromApi) => { //convert date from api to readable form i
     console.log('initial date string: ' + dateFromApi);
     //first convert the date from utc back to the local time zone (usually est but might not be)
     let initialDate = dateFromApi.substr(0,10) + 'T' + dateFromApi.substr(11,8);
-    console.log(initialDate);
     let dateobj = new Date(initialDate);
-    console.log('date object:' + dateobj);
-    //console.log(dateobj.toLocaleString());
-    //let formattedDate = dateobj.toLocaleDateString('en-US',{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    let formattedDate = dateobj.toString().substr(0,10);
+    let formattedDate = dateobj.toLocaleDateString('en-US',{ weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
     console.log(formattedDate);
     let formattedTime = dateobj.toLocaleTimeString('en-US');
 
-    return formattedDate + ' ' + 
+    return formattedDate.substr(0,formattedDate.lastIndexOf(',')) + ' ' + 
         formattedTime.substr(0,formattedTime.lastIndexOf(':')) + formattedTime.substr(formattedTime.length-2);
 }
 

@@ -1,5 +1,5 @@
 import React, {useRef,useEffect} from 'react';
-import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert, Dimensions } from 'react-native';
+import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, Dimensions, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useState, useContext } from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
@@ -11,7 +11,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AppContext from '../objects/AppContext';
 //import SearchableDropdown from 'react-native-searchable-dropdown';
-import EventTypeSelector from '../objects/FormObjects/EventTypeSelector';
+import {EventTypeSelector} from '../objects/FormObjects/EventTypeSelector';
 import PrivacySelector from '../objects/FormObjects/PrivacySelector';
 import {ContentTypeSelector} from '../objects/FormObjects/ContentTypeSelector';
 import InPersonSelector from '../objects/FormObjects/InPersonSelector';
@@ -30,18 +30,9 @@ import { EndTimeSelector } from '../objects/FormObjects/EndTimeSelector';
 import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
 import { NavigationActions } from 'react-navigation';
 
+const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get('window').width;
 
-const HR = (pixelNumber) => {
-    const responsiveMultiplier = 926 / pixelNumber;
-    const responsiveNumber = windowHeight / responsiveMultiplier;
-    return responsiveNumber;
-}
-
-const WR = (pixelNumber) => {
-    const responsiveMultiplier = 428 / pixelNumber;
-    const responsiveNumber = windowWidth / responsiveMultiplier;
-    return responsiveNumber;
-}
 
 // Header
 function Header({ navigation }) {
@@ -56,19 +47,17 @@ function Header({ navigation }) {
                 text: "Cancel",
                 style: "cancel"
               },
-              { text: "OK", onPress: () => {navigation.goBack(); myContext.toggleShowNavBar(true); console.log(styles.headerText.fontSize);}}
+              { text: "OK", onPress: () => {navigation.goBack(); myContext.toggleShowNavBar(true);}}
             ]
           );
         
-          
     }
-    
     return (
         <View style={styles.outerContainer}>
             <View style={styles.innerContainer}>
                 <Text style={styles.headerText}>Create A New Event</Text>
                 <View style={styles.close}>
-                    <AntDesign name='closecircleo' size={windowHeight / 30.87} onPress={closeHandler} />
+                    <AntDesign name='closecircleo' size={30} onPress={closeHandler} />
                 </View>
 
             </View>
@@ -97,7 +86,7 @@ function PreviewHeader({ navigation }) {
             <View style={styles.innerContainer}>
                 <Text style={styles.headerText2}>Preview</Text>
                 <View style={styles.close}>
-                    <AntDesign name='closecircleo' size={HR(30)} onPress={closeHandler} />
+                    <AntDesign name='closecircleo' size={30} onPress={closeHandler} />
                 </View>
 
             </View>
@@ -120,11 +109,11 @@ const Next = ({ navigation }) => {
 const pageOneValidSchema = yup.object({
     // first slide
     EventTitle: yup.string()
-        .max(50, 'Event Title Must Be Less Than 50 Characters')
+        .max(50, 'Event Title must 50 characters or less')
         .required()
         .label('Event Title'),
     OrganizerName: yup.string()
-        .max(50, 'Organizer Name Must Be Less Than 50 Characters')
+        .max(50, 'Organizer Name must be 50 characters or less')
         .required()
         .label('Organizer Name'),
     EventType: yup.string()
@@ -153,7 +142,8 @@ const pageTwoValidSchema = yup.object({
             is: (value) => value === 'In Person',
             then: yup.string().required()
         })
-        .label('Location Name'),
+        .label('Location Name')
+        .max(50, 'Location Name must be 50 characters or less'),
     EventLink: yup.string()
         .when('InPerson', {
             is: (value) => value === 'Virtual',
@@ -169,11 +159,11 @@ const pageTwoValidSchema = yup.object({
         })
         .when(['InPerson', 'locationSelected'], {
             is: (InPerson, locationSelected) => (InPerson === 'In Person') && (locationSelected === false),
-            then: yup.string().test('scheme', 'Must select a real address', (value, context) => value === '')
+            then: yup.string().test('scheme', 'Please choose an adress from the dropdown', (value, context) => value === '')
         }),
         
     LocationDetails: yup.string()
-    ,
+        .max(100, 'Location Details must be 100 characters or less'),
 
 })
 
@@ -193,7 +183,7 @@ const pageThreeValidSchema = yup.object({
         .min(yup.ref('RealStartDateTime'), 
         ({min}) => `End date and time needs to be after ${min.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} on ${min.toDateString()}` ),
     Registration: yup.string()
-    , 
+     .url('Must be a valid link'), 
 
 })
 
@@ -201,38 +191,34 @@ const pageFourValidSchema = yup.object({
     // fourth slide
     EventDescription: yup.string()
         .required()
-        .label('Event Description'),
+        .label('Event Description')
+        .max(500, 'Event Description must be 500 characters or less'),
     OrganizerEmail: yup.string()
-    ,
+    .email('Must be a valid email'),
     OrganizerWebsite: yup.string()
-    ,
+    .url('Must be a valid link'),
 
 })
-
-
 // First slide
 const EventInformation = (props) => {
     const navigation = useNavigation();
 
     const handleSubmit = (values) => {
         props.next(values);
+        console.log(values);
     };
 
     const [isFocused, setFocus] = useState(false);
     const [isFocused2, setFocus2] = useState(false);
     const [isFocused6, setFocus6] = useState(false);
 
-    
-
-    
     return (
         <SafeAreaView style={styles.containerBack}>
 
             <Formik
                 initialValues={props.data}
                 onSubmit={handleSubmit}
-                validationSchema={pageOneValidSchema}
-                
+                validationSchema={pageOneValidSchema}              
             >
                 {(formikprops) => (
                     <View>
@@ -241,60 +227,75 @@ const EventInformation = (props) => {
                                 <Header navigation={navigation} />
                             </View>
                             <View>
-                                <Text style={{color: '#09189F', fontSize: windowHeight / 42.09 , marginLeft: windowWidth / 21.4, marginTop: windowHeight / 42.09, fontWeight: '500'}}>Event Information</Text>
+                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 23, marginTop: 30, fontWeight: '500'}}>Event Information</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ margin: windowWidth / 21.4, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: windowWidth / 21.4, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
-                                <Image style={{ margin: windowWidth / 21.4, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
-                                <Image style={{ margin: windowWidth / 21.4, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ marginLeft:23, marginRight:20, marginVertical: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Event Title:
+                                    Event Title: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.EventTitle !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.EventTitle !== '' || isFocused ? '#7b7b7b' : '#c4c4c4'}]}
                                     placeholder='Eg: MProduct Interest Meeting'
+                                    placeholderTextColor = '#a3a3a3'
                                     onChangeText={formikprops.handleChange('EventTitle')}
                                     value={formikprops.values.EventTitle}
                                     onFocus={() => setFocus(true)}
                                     onBlur={() => setFocus(false)}
                                 />
+                                <Text style={styles.counterStyle}>{formikprops.values.EventTitle.length.toString()} / 50</Text>
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventTitle && formikprops.errors.EventTitle}</Text>
 
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Organizer Name:
+                                    Organizer Name: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerName !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerName !== '' || isFocused2 ? '#7b7b7b' : '#c4c4c4'}]}
                                     placeholder='Organization (eg. MProduct) or you (Eg. Alex Jian)'
+                                    placeholderTextColor = '#a3a3a3'
+                                    textAlign = 'left'
                                     onChangeText={formikprops.handleChange('OrganizerName')}
                                     value={formikprops.values.OrganizerName}
                                     onFocus={() => setFocus2(true)}
                                     onBlur={() => setFocus2(false)}
                                 />
+                                <Text style={styles.counterStyle}>{formikprops.values.OrganizerName.length.toString()} / 50</Text>
                                 <Text style={styles.errorMessage}>{formikprops.touched.OrganizerName && formikprops.errors.OrganizerName}</Text>
                             </View>
-                            <View style={styles.containerStyle}>
+                            <View style={[styles.containerStyle,{marginTop:2,}]}>
                                 <Text style={styles.TextStyle}>
-                                    Main Event Category:
+                                    Main Event Category: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
-                                    <EventTypeSelector 
-                                        onChange={formikprops.setFieldValue}
-                                        value={formikprops.values.EventType}
-
-                                    />
+                                <View style={{width: '88%', marginLeft: 23, marginTop: 10, }}>
+                                    <FieldArray name="EventType" component={EventTypeSelector} />
+                                </View>
                                
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
                             </View>
-                            <View style={styles.containerStyle}>
+                            <View style={[styles.containerStyle,{marginTop:8,}]}>
                                 <Text style={styles.TextStyle}>
                                     Other Categories:
                                 </Text>
-                                <View style={{width: '88%', marginLeft: HR(20), marginTop: HR(10),  }}>
+                                <View style={{width: '88%', marginLeft: 23, marginTop: 10, }}>
                                     <FieldArray name="ContentType" component={ContentTypeSelector} />
                                 </View>
                                 
@@ -304,9 +305,13 @@ const EventInformation = (props) => {
                                 />*/}
                                 <Text style={styles.errorMessage}>{formikprops.touched.ContentType && formikprops.errors.ContentType}</Text>
                             </View>
-                            <View style={styles.containerStyle}>
+                            <View style={[styles.containerStyle,{marginTop:5,}]}>
                                 <Text style={styles.TextStyle}>
-                                    Privacy:
+                                    Privacy: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <PrivacySelector
                                     onChange={formikprops.setFieldValue}
@@ -314,6 +319,7 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
+                            {/*
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
                                     Tags (10 max):
@@ -328,9 +334,7 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Tags && formikprops.errors.Tags}</Text>
                             </View>
-                            
-                            
-                            
+                            */}             
                         </KeyboardAwareScrollView>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
@@ -381,17 +385,21 @@ const MoreInformation = (props) => {
                         <KeyboardAwareScrollView style={styles.scrollContainer} keyboardShouldPersistTaps = "handled">
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: HR(22) , marginLeft: WR(20), marginTop: HR(20), fontWeight: '500'}}>Location Information</Text>
+                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 30, fontWeight: '500'}}>Location Information</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    In Person or Online?
+                                    In Person or Online? 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <InPersonSelector
                                     onChange={formikprops.setFieldValue}
@@ -400,16 +408,21 @@ const MoreInformation = (props) => {
                                 <Text style={styles.errorMessage}>{formikprops.touched.InPerson && formikprops.errors.InPerson}</Text>
                             </View>
                 
-                            <View style={styles.containerStyle}>
+                            <View style={[styles.containerStyle,{marginTop:5,}]}>
                             {formikprops.values.InPerson === 'In Person' &&
                                 (<Text style={styles.TextStyle}>
-                                    Location Name:
+                                    Location Name: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>)
                             }
                                 {formikprops.values.InPerson === 'In Person' &&
                                 (<TextInput
                                     style={[styles.InputBox, {borderColor: formikprops.values.LocationName !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder="Egs. Michigan Union, My House, etc. Can be TBA."
+                                    placeholderTextColor = '#a3a3a3'
                                     onChangeText={formikprops.handleChange('LocationName')}
                                     value={formikprops.values.LocationName}
                                     onFocus={() => setFocus2(true)}
@@ -417,13 +430,21 @@ const MoreInformation = (props) => {
                                 />)
                             }
                                 {formikprops.values.InPerson === 'In Person' &&
-                                (<Text style={styles.errorMessage}>{formikprops.touched.LocationName && formikprops.errors.LocationName}</Text>)
+                                    <Text style={styles.counterStyle}>{formikprops.values.LocationName.length.toString()} / 50</Text>
                                 }
+                                {formikprops.values.InPerson === 'In Person' &&
+                                    <Text style={styles.errorMessage}>{formikprops.touched.LocationName && formikprops.errors.LocationName}</Text>
+                                }
+                                
                             </View>
                             <View style={styles.containerStyle}>
                             {formikprops.values.InPerson === 'Virtual' &&
                                 (<Text style={styles.TextStyle}>
-                                    Event Link:
+                                    Event Link: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>)
                             }
                                 {formikprops.values.InPerson === 'Virtual' &&
@@ -436,6 +457,7 @@ const MoreInformation = (props) => {
                                     onBlur={() => setFocus2a(false)}
                                 />)
                             }
+                                
                                 {formikprops.values.InPerson === 'Virtual' &&
                                 (<Text style={styles.errorMessage}>{formikprops.touched.EventLink && formikprops.errors.EventLink}</Text>)
                                 }
@@ -443,7 +465,11 @@ const MoreInformation = (props) => {
                             <View style={styles.containerStyle}>
                             {formikprops.values.InPerson === 'In Person' &&
                                 (<Text style={styles.TextStyle}>
-                                    Address:
+                                    Address: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>)
                             }
                             {formikprops.values.InPerson === 'In Person' &&
@@ -464,11 +490,15 @@ const MoreInformation = (props) => {
                                 (<TextInput
                                     style={[styles.InputBox, {borderColor: formikprops.values.LocationDetails !== '' || isFocused4 ? '#7b7b7b' : '#C4C4C4'}]}
                                     placeholder='Eg: 2nd floor meeting room'
+                                    placeholderTextColor = '#a3a3a3'
                                     onChangeText={formikprops.handleChange('LocationDetails')}
                                     value={formikprops.values.LocationDetails}
                                     onFocus={() => setFocus4(true)}
                                     onBlur={() => setFocus4(false)}
                                 />)
+                            }
+                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
+                                (<Text style={styles.counterStyle}>{formikprops.values.LocationDetails.length.toString()} / 100</Text>)
                             }
                             {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
                                 (<Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>)
@@ -500,7 +530,6 @@ const MoreInformation = (props) => {
 
     );
 }
-
 // Third Slide 
 const EventSchedule = (props) => {
     const navigation = useNavigation();
@@ -524,17 +553,21 @@ const EventSchedule = (props) => {
                             
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: HR(22) , marginLeft: WR(20), marginTop: HR(20), fontWeight: '500'}}>Event Schedule</Text>
+                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Event Schedule</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Start Day:
+                                    Start Day: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <StartDateSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -545,7 +578,11 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Start Time:
+                                    Start Time: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <StartTimeSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -556,7 +593,11 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    End Day:
+                                    End Day: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <EndDateSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -566,8 +607,12 @@ const EventSchedule = (props) => {
                                 <Text style={styles.errorMessage}>{formikprops.touched.EndDay && formikprops.errors.EndDay}</Text>
                             </View>
                             <View style={styles.containerStyle}>
-                                <Text style={{fontSize: 20, color: '#09189F', marginLeft: 20, marginTop: 10, fontWeight: '500'}}>
-                                    End Time:
+                                <Text style={styles.TextStyle}>
+                                    End Time: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <EndTimeSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -646,17 +691,21 @@ const EventDetails = (props) => {
                         <KeyboardAwareScrollView style={styles.scrollContainer}>
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: HR(22) , marginLeft: WR(20), marginTop: HR(20), fontWeight: '500'}}>Event Details</Text>
+                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Event Details</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
-                                <Image style={{ margin: WR(20), flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Event Description:
+                                    Event Description: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <TextInput
                                     style={[styles.InputBox, {borderColor: formikprops.values.EventDescription !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
@@ -667,6 +716,7 @@ const EventDetails = (props) => {
                                     onFocus={() => setFocus(true)}
                                     onBlur={() => setFocus(false)}
                                 />
+                                <Text style={styles.counterStyle}>{formikprops.values.EventDescription.length.toString()} / 500</Text>
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventDescription && formikprops.errors.EventDescription}</Text>
                             </View>
                             <View style={styles.containerStyle}>
@@ -899,7 +949,6 @@ const Preview = ({ route, navigation }) => {
             })
         }); 
         */
-        console.log(myContext.user.id + 3);
 
         fetch(Globals.eventsURL + '/json/add', {
             method: 'post',
@@ -909,23 +958,27 @@ const Preview = ({ route, navigation }) => {
             },
             body: JSON.stringify({
                 name: values.EventTitle,
-                //hostId: myContext.user.id,
-                hostId: 1,
-                organizer: values.OrganizerName,
-                locationName: values.LocationName,
                 location: values.Address,
-                latitude: values.Latitude,
-                longitude: values.Longitude,
+                locationName: values.LocationName,
+                locationDetails: values.LocationDetails,
                 description: values.EventDescription,
-                startTime: "2021-08-01 19:00:00",
-                endTime: "2021-08-01 22:00:00",
                 privateEvent: values.Privacy!='Public',
                 virtualEvent: values.InPerson!='In Person',
+                coordinates: [{longitude:values.Longitude,latitude:values.Latitude}],
                 registrationLink: values.Registration,
-                mainCategoryId: 2,
+                organizer: values.OrganizerName,
+                organizerWebsite: values.OrganizerWebsite,
+                //startTime: "2021-08-09 20:00:00",
+                startTime: values.RealStartDateTime.toISOString().substr(0,10) + ' ' + values.RealStartDateTime.toISOString().substr(11,8),
+                endTime: values.RealEndDateTime.toISOString().substr(0,10) + ' ' + values.RealEndDateTime.toISOString().substr(11,8),
+                //endTime: "2021-08-09 22:00:00",
+                hostId: myContext.user.id,
+                mainCategoryId: values.EventType,
+                categoryIds: values.ContentType,
                 }
                 )
-        }); 
+        })
+        .catch((error) => console.error(error)); 
     }
     const postEventHandler = async () => {
         postToServer();
@@ -937,190 +990,173 @@ const Preview = ({ route, navigation }) => {
     }
 
     return (
-    <SafeAreaView style={{
-        flex: 1,
-        height: '100%',
-        backgroundColor: '#fff'
-        }} >
-        <View style={{flex: 1}}>
-            <PreviewHeader navigation={navigation} />
-        </View>
-    <ScrollView contentContainerStyle={{height: '78%'}}>
-        <View style={styles.panel}>
-        <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
-          <View>
-            <Text style={{
-              fontSize: 24,
-              width: Dimensions.get('window').width - 105,
-              marginRight: 10    
-              }} 
-              numberOfLines={2}>
-                {values.EventTitle}
-              </Text>
-          </View>
-          <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{color: 'black'}}>{values.Privacy}</Text>
-          </View>
-          
-        </View>
-        <View style={styles.panelHost}>
-          <Image
-            source={require('../assets/Vector.png')}
-            style={{width:18, height: 18}}>
-          </Image>
-          <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{values.OrganizerName}</Text>
-          {renderCategories()}
-        </View>
-        <View style={styles.panelDate}>
-          <Image
-            source={require('../assets/CalendarIcon.png')}
-            style={{width:18, height:18}}
-          ></Image>
-          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{renderTime()}</Text>
-        </View>
-        <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
-          <TouchableOpacity style={{backgroundColor: buttonColor1,
-            borderRadius: 8,
-            borderColor: borderColor(buttonColor1),
-            borderWidth: 1,
-            width: (Dimensions.get('window').width - 81.6) / 3,
-            height: 55,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginHorizontal: 15,
-            }}
-            onPress={toggle1}>
-            <View>
-              <Image
-                source={require('../assets/star.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor1)}}
-              ></Image>
-              <Text style={{
-                fontSize: 17,
-                fontWeight: 'bold',
-                color: borderColor(buttonColor1),
-              }}>Save</Text>
+        <SafeAreaView style={{
+            flex: 1,
+            height: '100%',
+            backgroundColor: '#fff'
+            }} >
+            <View style={{flex: 1}}>
+                <PreviewHeader navigation={navigation} />
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={{backgroundColor: buttonColor2,
-            borderRadius: 8,
-            borderColor: borderColor(buttonColor2),
-            borderWidth: 1,
-            width: (Dimensions.get('window').width - 81.6) / 3,
-            height: 55,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginHorizontal: 15,
-            }}
-            onPress={toggle2}>
-            <View>
-              <Image
-                source={require('../assets/check2.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
-              ></Image>
-              <Text style={{
-                fontSize: 17,
-                fontWeight: 'bold',
-                color: borderColor(buttonColor2),
-              }}>I'm Going</Text>
-            </View>   
-          </TouchableOpacity>
-          <TouchableOpacity style={{backgroundColor: buttonColor3,
-            borderRadius: 8,
-            borderColor: borderColor(buttonColor3),
-            borderWidth: 1,
-            width: (Dimensions.get('window').width - 81.6) / 3,
-            height: 55,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginHorizontal: 15,
-            }}
-            onPress={toggle3}>
-            <View>
-              <Image
-                source={require('../assets/share2.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
-              ></Image>
-              <Text style={{
-                fontSize: 17,
-                fontWeight: 'bold',
-                color: borderColor(buttonColor3),
-              }}>Share</Text>
+        <ScrollView contentContainerStyle={{height: '78%'}}>
+            <View style={styles.panel}>
+            <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
+              <View>
+                <Text style={{
+                  fontSize: 24,
+                  width: Dimensions.get('window').width - 105,
+                  marginRight: 10    
+                  }} 
+                  numberOfLines={2}>
+                    {values.EventTitle}
+                  </Text>
+              </View>
+              <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={{color: 'black'}}>{values.Privacy}</Text>
+              </View>
+              
             </View>
-          </TouchableOpacity>
-        </View>
-          <View>
-            <Image source={{uri: values.EventImage}}
-            resizeMode= 'cover'
-            style={{width: Dimensions.get('window').width - 40.8, height: 200, marginBottom: 20}}>
-            </Image>
-          </View>
-          <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Event Description</Text>
-          <View>
-            <Text style={{marginBottom: 5}}>{resultString.replace(/(\r\n|\n|\r)/gm, " ")}</Text>
-            {renderButton()}
-          </View>
-          <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Location</Text>
-          <Text>{values.locationName}</Text>
-          <Text style={{marginBottom: 10}}>{values.Address}</Text>
-          {registration()}
-          {moreDetails()}
-          
-            <TouchableOpacity style={{flexDirection: 'row'}}>
+            <View style={styles.panelHost}>
+              <Image
+                source={require('../assets/Vector.png')}
+                style={{width:18, height: 18}}>
+              </Image>
+              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{values.OrganizerName}</Text>
+              {renderCategories()}
+            </View>
+            <View style={styles.panelDate}>
               <Image
                 source={require('../assets/CalendarIcon.png')}
-                style={{width:18, height: 18, marginBottom: 5}}>
-              </Image>
-              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: '#03a9f4'}}>Add Event to Calendar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{flexDirection: 'row'}}>
-              <Image
-                source={require('../assets/report.png')}
-                style={{width:18, height: 18, tintColor: 'red', marginBottom: Dimensions.get('window').height}}>
-              </Image>
-              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: 'red'}}>Report</Text>
-            </TouchableOpacity>
-      </View>
-      </ScrollView>
-        
-            <View style={{ flexDirection: 'row', flex: 1}}>
-                <View style={{ flex: 1 }}>
-                    <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => navigation.navigate("Form")}>
-                        <View style={styles.backContainer}>
-                            <Text style={styles.backText}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-                <View style={{ flex: 1 }}>
-                    <TouchableOpacity style={{ alignItems: 'center' }} onPress={postEventHandler}>
-                        <View style={styles.nextContainer}>
-                            <Text style={styles.nextText}>Post Event!</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-
+                style={{width:18, height:18}}
+              ></Image>
+              <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{renderTime()}</Text>
             </View>
-
-        </SafeAreaView>
-    );
-}
-
-
-
-
-// const Stack = createStackNavigator()
-
-{/*export default function CreateNewEventScreen({navigation}) {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen name="EventInformation" component={EventInformation} options={{headerShown: false}}/>
-            <Stack.Screen name="MoreInformation" component={MoreInformation} options={{headerShown: false}} />
-            <Stack.Screen name="EventDetails" component={EventDetails} options={{headerShown: false}}/>
-            <Stack.Screen name="EventSchedule" component={EventSchedule} options={{headerShown: false}}/>
-            <Stack.Screen name="Preview" component={Preview} options={{headerShown: false}}/>
-        </Stack.Navigator>
-    )
-}*/}
+            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
+              <TouchableOpacity style={{backgroundColor: buttonColor1,
+                borderRadius: 8,
+                borderColor: borderColor(buttonColor1),
+                borderWidth: 1,
+                width: (Dimensions.get('window').width - 81.6) / 3,
+                height: 55,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                }}
+                onPress={toggle1}>
+                <View>
+                  <Image
+                    source={require('../assets/star.png')}
+                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor1)}}
+                  ></Image>
+                  <Text style={{
+                    fontSize: 17,
+                    fontWeight: 'bold',
+                    color: borderColor(buttonColor1),
+                  }}>Save</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={{backgroundColor: buttonColor2,
+                borderRadius: 8,
+                borderColor: borderColor(buttonColor2),
+                borderWidth: 1,
+                width: (Dimensions.get('window').width - 81.6) / 3,
+                height: 55,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                }}
+                onPress={toggle2}>
+                <View>
+                  <Image
+                    source={require('../assets/check2.png')}
+                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
+                  ></Image>
+                  <Text style={{
+                    fontSize: 17,
+                    fontWeight: 'bold',
+                    color: borderColor(buttonColor2),
+                  }}>I'm Going</Text>
+                </View>   
+              </TouchableOpacity>
+              <TouchableOpacity style={{backgroundColor: buttonColor3,
+                borderRadius: 8,
+                borderColor: borderColor(buttonColor3),
+                borderWidth: 1,
+                width: (Dimensions.get('window').width - 81.6) / 3,
+                height: 55,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                }}
+                onPress={toggle3}>
+                <View>
+                  <Image
+                    source={require('../assets/share2.png')}
+                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
+                  ></Image>
+                  <Text style={{
+                    fontSize: 17,
+                    fontWeight: 'bold',
+                    color: borderColor(buttonColor3),
+                  }}>Share</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+              <View>
+                <Image source={{uri: values.EventImage}}
+                resizeMode= 'cover'
+                style={{width: Dimensions.get('window').width - 40.8, height: 200, marginBottom: 20}}>
+                </Image>
+              </View>
+              <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Event Description</Text>
+              <View>
+                <Text style={{marginBottom: 5}}>{resultString.replace(/(\r\n|\n|\r)/gm, " ")}</Text>
+                {renderButton()}
+              </View>
+              <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Location</Text>
+              <Text>{values.locationName}</Text>
+              <Text style={{marginBottom: 10}}>{values.Address}</Text>
+              {registration()}
+              {moreDetails()}
+              
+                <TouchableOpacity style={{flexDirection: 'row'}}>
+                  <Image
+                    source={require('../assets/CalendarIcon.png')}
+                    style={{width:18, height: 18, marginBottom: 5}}>
+                  </Image>
+                  <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: '#03a9f4'}}>Add Event to Calendar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{flexDirection: 'row'}}>
+                  <Image
+                    source={require('../assets/report.png')}
+                    style={{width:18, height: 18, tintColor: 'red', marginBottom: Dimensions.get('window').height}}>
+                  </Image>
+                  <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: 'red'}}>Report</Text>
+                </TouchableOpacity>
+          </View>
+          </ScrollView>
+            
+                <View style={{ flexDirection: 'row', flex: 1}}>
+                    <View style={{ flex: 1 }}>
+                        <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => navigation.navigate("Form")}>
+                            <View style={styles.backContainer}>
+                                <Text style={styles.backText}>Back</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <TouchableOpacity style={{ alignItems: 'center' }} onPress={postEventHandler}>
+                            <View style={styles.nextContainer}>
+                                <Text style={styles.nextText}>Post Event!</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+    
+                </View>
+    
+            </SafeAreaView>
+        );
+    }
 const Stack = createStackNavigator()
 
 function UpdateEvent({ navigation }) {
@@ -1205,9 +1241,6 @@ export default function CreateNewEventScreen({ navigation }) {
             <Stack.Screen name="Preview" component={Preview} options={{headerShown: false}}/>
        </Stack.Navigator>*/}
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
-
 const styles = StyleSheet.create({
     containerBack: {
         backgroundColor: '#FFFBF3',
@@ -1215,13 +1248,12 @@ const styles = StyleSheet.create({
         
     },
     TextStyle: {
-        fontSize: windowHeight / 46.3,
+        fontSize: 19,
+        fontWeight: '500',
         color: '#09189F',
-        marginLeft: windowWidth / 21.4,
-        marginTop: windowHeight / 92.6,
-        fontWeight: '500'
+        marginLeft: 23,
+        marginTop: 10,
     },
-
     containerStyle: {
 
     },
@@ -1235,14 +1267,14 @@ const styles = StyleSheet.create({
     },
     InputBox: {
         borderWidth: 0,
-        borderBottomWidth: 1,
+        borderBottomWidth: 1.5,
         borderColor: '#C4C4C4',
-        padding: HR(8),
+        paddingVertical: 8,
         width: '88%',
-        marginLeft: HR(20),
-        marginTop: HR(10),
-        marginBottom: HR(10),
-        fontSize: HR(14)
+        marginLeft: 24,
+        marginTop: 5,
+        marginBottom: 12,
+        fontSize: 16,
     },
 
     imageStyle: {
@@ -1294,7 +1326,6 @@ const styles = StyleSheet.create({
     },
     outerContainer: {
         flex: 1,
-
     },
     innerContainer: {
         marginTop: 0,
@@ -1309,26 +1340,26 @@ const styles = StyleSheet.create({
     },
     close: {
         position: 'absolute',
-        left: windowWidth - 55,
-        top: windowHeight / 92.6,
+        left: 365,
+        top: 10,
     },
     headerText: {
-        fontSize: HR(24),
+        fontSize: 24,
         fontWeight: 'bold',
-        marginTop: windowHeight / 92.6,
+        marginTop: 10,
         textAlign: 'center',
     },
     headerText2: {
-        fontSize: windowHeight / 38.58,
+        fontSize: 24,
         fontWeight: 'bold',
-        marginTop: windowHeight / 92.6,
+        marginTop: 10,
         marginLeft: '38%',
     },
     nextContainer: {
         backgroundColor: '#ffffff',
 
-        marginHorizontal: WR(50),
-        marginTop: HR(5),
+        marginHorizontal: 50,
+        marginTop: 5,
         width: '90%',
         alignItems: 'center',
         top: 0,
@@ -1340,13 +1371,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
-        borderRadius: HR(10),
+        borderRadius: 10,
     },
     backContainer: {
         backgroundColor: '#ffffff',
 
-        marginHorizontal: WR(50),
-        marginTop: HR(5),
+        marginHorizontal: 50,
+        marginTop: 5,
         width: '65%',
         alignItems: 'center',
         top: 0,
@@ -1358,13 +1389,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
-        borderRadius: HR(10),
+        borderRadius: 10,
     },
     backContainerInit: {
         backgroundColor: '#ffffff',
         opacity: 0.33,
-        marginHorizontal: WR(50),
-        marginTop: HR(5),
+        marginHorizontal: 50,
+        marginTop: 5,
         width: '65%',
         alignItems: 'center',
         top: 0,
@@ -1376,24 +1407,24 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
-        borderRadius: HR(10),
+        borderRadius: 10,
     },
     nextText: {
         fontWeight: 'bold',
-        fontSize: HR(18),
-        paddingVertical: HR(10),
+        fontSize: 18,
+        paddingVertical: 10,
         color: '#fab400',
     },
     backText: {
         fontWeight: 'bold',
-        fontSize: HR(18),
-        paddingVertical: HR(10),
+        fontSize: 18,
+        paddingVertical: 10,
         color: '#09189F',
     },
     errorMessage: {
         color: '#D8000C',
-        paddingLeft: '5%'
-
+        paddingLeft: '5%',
+        fontSize: 14
     },
     map: {
         width: Dimensions.get('window').width,
@@ -1452,6 +1483,13 @@ const styles = StyleSheet.create({
       fontSize: 17,
       fontWeight: 'bold',
       color: 'white',
+    },
+    requiredField : {
+        color: '#D8000C',
+        fontSize: windowHeight / 46.3
+    },
+    counterStyle: {
+        marginLeft: 23,
+        fontSize: 14
     }
-
 })

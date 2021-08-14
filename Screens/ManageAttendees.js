@@ -14,7 +14,7 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
 	const [eventInfo, setEventInfo] = useState(apiData);
 	
 	const getEvents = () => {
-		let fetchurl = Globals.eventsURL + '/' + eventInfo.id.toString();
+		let fetchurl = 'https://retoolapi.dev/lvF3hn/events/1';
 		console.log(fetchurl);
 		fetch(fetchurl)
 			.then((response) => response.json())
@@ -90,10 +90,13 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
           // Update FilteredDataSource
           const newData = masterDataSource.filter(function (item) {
             const itemData = item.Name
-              ? item.Name.toUpperCase()
-              : ''.toUpperCase();
-            const textData = text.toUpperCase();
-            return itemData.indexOf(textData) > -1;
+              ? item.Name.toLowerCase()
+              : ''.toLowerCase();
+              const itemData1 = item.Email
+              ? item.Email.toLowerCase()
+              : ''.toLowerCase();
+            const textData = text.toLowerCase();
+            return (itemData.indexOf(textData) > -1) || (itemData1.indexOf(textData) > -1);
           });
           setAttendees(newData);
           setQuery(text);
@@ -141,9 +144,12 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
 
 	  }
 
-    const EmptyListMessage = () => {
+      const EmptyListMessage = () => {
 		return (
-			<Text >You have no attendees for your event right now</Text>
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={{fontSize: Globals.HR(24), textAlign: 'center', padding: Globals.HR(20), justifyContent: 'center', flex: 1, fontWeight: '500', color: 'rgba(0, 0, 0, 0.5)', width: '80%'}}>You have no attendees for your event right now</Text>
+            </View>
+			
 		);
 	}
 

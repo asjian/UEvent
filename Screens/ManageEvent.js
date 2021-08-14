@@ -15,11 +15,8 @@ import { useNavigation } from '@react-navigation/native';
         const { item } = route.params;
         const [modalVisible, setModalVisible] = useState(false);
         const [announcement, setAnnoucement] = useState('');
-        const [checked, onChange] = useState(false);
     
-        function onCheckmarkPress() {
-            onChange(!checked);
-        }
+        
 
         const SendUpdate = () => {
             
@@ -33,11 +30,8 @@ import { useNavigation } from '@react-navigation/native';
                 // text is in announcement variable
                 // checked boolean is in checked variable
                 console.log(announcement);
-                console.log(checked);
                 // clear announcement
                 setAnnoucement('');
-                // reset checked
-                onChange(false);
                 // exit
                 setModalVisible(false);
 
@@ -45,6 +39,15 @@ import { useNavigation } from '@react-navigation/native';
             
         }
         const windowWidth1 = Dimensions.get('window').width;
+
+        const cancelEvent = () => {
+            console.log(Globals.eventsURL + '/delete/' + item.id);
+            fetch(Globals.eventsURL + '/delete/' + item.id, {method: 'delete',})
+            .then(() => console.log('delete successful'))
+            .catch((error) => console.error(error));
+        
+            navigation.goBack();
+        }
 
 
     return (
@@ -77,7 +80,7 @@ import { useNavigation } from '@react-navigation/native';
                 <Text style={{fontWeight: '500', fontSize: Globals.HR(24), margin: '3%'}}>Manage Event</Text>
             </View>
             <View style={styles.NewEventButton}>
-                <TouchableOpacity onPress={() => navigation.navigate('Edit Event', { screen: 'Form', params: {item: item} })}>
+                <TouchableOpacity onPress={() => {console.log(item);navigation.navigate('Edit Event', { screen: 'Form', params: {item: item} })}}>
                     <View style={styles.selectContainer}>
                         <Text style={styles.selectText}>Edit Event</Text>
                     </View>
@@ -91,7 +94,7 @@ import { useNavigation } from '@react-navigation/native';
                 <SafeAreaView style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <View style={styles.modalClose}>
-                            <AntDesign name='closecircleo' size={30} onPress={() => {setModalVisible(false); setAnnoucement(''); onChange(false);console.log(announcement);}} />
+                            <AntDesign name='closecircleo' size={30} onPress={() => {setModalVisible(false); setAnnoucement('');}} />
                         </View>
                         <Text style={{textAlign: 'center', fontSize: 24, fontWeight: '500'}}>Send an Event Update</Text>
                         <Text style={{textAlign: 'auto', fontSize: 16, fontWeight: '500', marginTop: 10}}>Enter the update here:</Text>
@@ -102,14 +105,6 @@ import { useNavigation } from '@react-navigation/native';
                                 placeholder='All followers will be notified'
                                 onChangeText={(text) => setAnnoucement(text)}
                             />
-                        </View>
-                        <View style={styles.checkboxContainer}>
-                        <Pressable
-                            style={[styles.checkboxBase, checked && styles.checkboxChecked]}
-                            onPress={onCheckmarkPress}>
-                            {checked && <Ionicons name="checkmark" size={24} color="white" />}
-                        </Pressable>
-                            <Text style={styles.checkboxLabel}>Email all event followers</Text>
                         </View>
                         <TouchableOpacity onPress={SendUpdate}>
                             <View style={styles.UpdateContainer}>
@@ -143,7 +138,7 @@ import { useNavigation } from '@react-navigation/native';
                 </TouchableOpacity>
             </View>
             <View style={{alignItems: 'center'}}>
-                <TouchableOpacity >
+                <TouchableOpacity onPress={cancelEvent}>
                     <View style={styles.cancelContainer}>
                         <Text style={styles.cancelText}>Cancel Event</Text>
                     </View>

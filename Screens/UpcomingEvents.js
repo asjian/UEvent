@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, Button, StyleSheet, Image, ParentView, TouchableOpacity, ScrollView, FlatList, Dimensions } from 'react-native';
+import React, { useContext, useState, useEffect,useRef } from 'react';
+import { SafeAreaView, View, Text, Animated, StyleSheet, Image, TouchableHighlight, TouchableOpacity, ScrollView, FlatList, Dimensions } from 'react-native';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
 //import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -17,7 +17,7 @@ const EventBox = ({navigation, myContext, item}) => {
             </View>
             <View style={{ flex: 6 }}>
                 <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontWeight: '500', fontSize: windowHeight / 71.23, color: '#0085FF', flex: 6 }}>{item.startTime} - {item.endTime}</Text>
+                    <Text style={{ fontWeight: '500', fontSize: windowHeight / 71.23, color: '#0085FF', flex: 6 }}>{Globals.formatDate(item.startTime)} - {Globals.formatDate(item.endTime)}</Text>
                     <Image style={{ resizeMode: 'contain', flex: 1 }} source={require('../assets/NotificationBell.png')} />
                 </View>
                 <Text style={{ fontWeight: "500", fontSize: windowHeight / 57.88, marginBottom: '3%' }}>{item.name}</Text>
@@ -29,10 +29,6 @@ const EventBox = ({navigation, myContext, item}) => {
         
     );
 }
-
-
-
-
 function UpcomingEventsScreen({ navigation }) {
     const myContext = useContext(AppContext);
     // event handler function
@@ -45,84 +41,118 @@ function UpcomingEventsScreen({ navigation }) {
 
     const getEvents = () => {
         console.log('fetching upcoming events...');
-        let fetchurl = Globals.eventsURL;
+        let fetchurl = Globals.eventsURL + '/active/' + myContext.user.id;
         fetch(fetchurl)
           .then((response) => response.json())
-          .then((json) => {setUpcomingEvents(json)})
-          .catch((error) => console.error(error))
+          .then((json) => {setUpcomingEvents(json); setIsRefreshing(false);})
+          .catch((error) => {console.error(error); setIsRefreshing(false);})
     }
       const [fetched,setFetched] = useState(false);
 
         useEffect(() => {
+          if(!fetched) {
+            getEvents();
+            setFetched(true);
+          }
+        });
 
-                getEvents();
-                setFetched(true);
-            
-        },[]);
-        
     const renderItem = ({ item }) => (
         <EventBox item={item} navigation={navigation} myContext={myContext}  />
     );
 
+    const EmptyListMessage = () => {
+		return (
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={{fontSize: Globals.HR(24), textAlign: 'center', padding: Globals.HR(20), justifyContent: 'center', flex: 1, fontWeight: '500', color: 'rgba(0, 0, 0, 0.5)', width: '80%'}}>You don't have any upcoming events</Text>
+            </View>
+			
+		);
+	}
+
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const onRefreshEvents = () => {
+        setIsRefreshing(true);
+        getEvents();
+    }
+    /*
+    const [visible,setVisible] = useState(true);
+    const [offset,setOffset] = useState(0);
+    const [up,setUp] = useState(false);
+    const fadeAnim = useRef(new Animated.Value(1)).current;
+    
+    const fadeIn = () => {
+      // Will change fadeAnim value to 1 in 5 seconds
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    };
+    const fadeOut = () => {
+      // Will change fadeAnim value to 0 in 3 seconds
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true
+      }).start(({finished}) => {if(finished)setVisible(false)});
+    };
+    
+    const handleVisibility = (nativeEvent) => {
+        const currentOffset = nativeEvent.contentOffset.y;
+        console.log('currentOffset: ' + currentOffset);
+        //console.log('offset: ' + offset);
+        setUp(currentOffset<offset?true:false);
+        setOffset(currentOffset);
+    }
+    */
     return (
-
-
-
         <SafeAreaView style={{ backgroundColor: '#FFFBF3', height: '100%' }}>
-            <View style={{ height: '80%' }}>
-
-                
+            <View style={{ height: '92%' }}>
 
                     <FlatList 
                         data={UpcomingEvents}
                         renderItem={renderItem}
                         keyExtractor={item => item.id.toString()}
                         style={{height: '100%'}}
-                    />
-                
-                
+                        //onScroll = {({nativeEvent}) => handleVisibility(nativeEvent)}
+                        //onMomentumScrollBegin = {() => {console.log('momentum');if(up){setVisible(true);fadeIn()}}}
+                        //onEndReachedThreshold = {0.01}
+                        //onEndReached = {() => {console.log('maybe end');if(offset > 5){console.log('end');fadeOut()}}}
+                        contentContainerStyle = {{paddingTop:20,paddingBottom:80}}
+                        ListEmptyComponent={EmptyListMessage}
+                        refreshing={isRefreshing}
+                        onRefresh={onRefreshEvents}
+                    />   
+                    
+                    <TouchableHighlight activeOpacity = {0.7} onPress={createEventHandler}>
+                        <View style = {styles.selectContainer}>
+                            <Text style={[styles.selectText,{paddingHorizontal:50}]}>+ Create New Event</Text>
+                        </View>
+                    </TouchableHighlight>
+                    
             </View>
-            <View style={styles.NewEventButton}>
-                <TouchableOpacity onPress={createEventHandler}>
-                    <View style={styles.selectContainer}>
-                        <Text style={styles.selectText}>+ Create New Event</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-
         </SafeAreaView>
-
-
-
     );
 }
 
-UpcomingEventsScreen.navigationOptions = {
-    headerTitle: 'Trucks Screen',
-    headerLeft: () => {
-        return null;
-    },
-};
-
 export default UpcomingEventsScreen;
-
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
         height: '100%',
-        padding: windowHeight / 185.2,
+        padding: 5,
         flexDirection: 'column',
         flexWrap: 'wrap',
     },
     NewEventButton: {
-        backgroundColor: '#FFFBF3',
-        flex: 1
+        backgroundColor: '#FFFBF3'
     },
     box: {
         width: '95%',
-        padding: windowHeight / 92.6,
-        margin: windowHeight / 92.6,
+        padding: 10,
+        marginBottom: 20,
         flexDirection: 'row',
         shadowOffset: {
             width: 0,
@@ -152,26 +182,35 @@ const styles = StyleSheet.create({
     },
     selectContainer: {
         backgroundColor: '#ffffff',
+        
         position: 'absolute',
-        marginHorizontal: windowWidth / 8.52,
-        marginTop: windowHeight / 185.2,
+        left: 52,
+        bottom: 20,
+        
         width: '75%',
         alignItems: 'center',
-        top: 0,
+        shadowColor: "#000",
         shadowOffset: {
             width: 0,
-            height: windowHeight / 926,
+            height: 2,
         },
-        shadowColor: '#000000',
-        shadowOpacity: 0.2,
-        shadowRadius: windowHeight / 656.74,
-        elevation: windowHeight / 463,
-        borderRadius: windowHeight / 92.6,
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        borderRadius: 50,
+    },
+    selectInvisible: {
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        marginHorizontal: 50,
+        bottom: 20,
+        width: '0%',
+        alignItems: 'center',
     },
     selectText: {
-        fontWeight: '500',
-        fontSize: windowHeight / 42.09,
-        paddingVertical: windowHeight / 61.73,
+        fontWeight: '600',
+        fontSize: 22,
+        paddingVertical: 15,
         color: '#fab400',
     }
 

@@ -11,7 +11,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AppContext from '../objects/AppContext';
 //import SearchableDropdown from 'react-native-searchable-dropdown';
-import EventTypeSelector from '../objects/FormObjects/EventTypeSelector';
+import {EventTypeSelector} from '../objects/FormObjects/EventTypeSelector';
 import PrivacySelector from '../objects/FormObjects/PrivacySelector';
 import {ContentTypeSelector} from '../objects/FormObjects/ContentTypeSelector';
 import InPersonSelector from '../objects/FormObjects/InPersonSelector';
@@ -173,7 +173,7 @@ const pageTwoValidSchema = yup.object({
         }),
         
     LocationDetails: yup.string()
-    ,
+        .max(100, 'Location Details must be 100 characters or less'),
 
 })
 
@@ -193,7 +193,7 @@ const pageThreeValidSchema = yup.object({
         .min(yup.ref('RealStartDateTime'), 
         ({min}) => `End date and time needs to be after ${min.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} on ${min.toDateString()}` ),
     Registration: yup.string()
-    , 
+    .url('Must be a valid link'), 
 
 })
 
@@ -201,21 +201,24 @@ const pageFourValidSchema = yup.object({
     // fourth slide
     EventDescription: yup.string()
         .required()
-        .label('Event Description'),
+        .label('Event Description')
+        .max(500, 'Event Description must be 500 characters or less'),
     OrganizerEmail: yup.string()
-    ,
+        .email('Must be a valid email'),
     OrganizerWebsite: yup.string()
-    ,
+        .url('Must be a valid link'),
 
 })
 
 
 // First slide
 const EventInformation = (props) => {
+    console.log('got to event information');
     const navigation = useNavigation();
 
     const handleSubmit = (values) => {
         props.next(values);
+        console.log(values);
     };
 
     const [isFocused, setFocus] = useState(false);
@@ -251,7 +254,11 @@ const EventInformation = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Event Title:
+                                    Event Title: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <TextInput
                                     style={[styles.InputBox, {borderColor: formikprops.values.EventTitle !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
@@ -261,12 +268,17 @@ const EventInformation = (props) => {
                                     onFocus={() => setFocus(true)}
                                     onBlur={() => setFocus(false)}
                                 />
+                                <Text style={styles.counterStyle}>{formikprops.values.EventTitle.length.toString()} / 50</Text>
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventTitle && formikprops.errors.EventTitle}</Text>
 
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Organizer Name:
+                                    Organizer Name: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <TextInput
                                     style={[styles.InputBox, {borderColor: formikprops.values.OrganizerName !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
@@ -276,17 +288,20 @@ const EventInformation = (props) => {
                                     onFocus={() => setFocus2(true)}
                                     onBlur={() => setFocus2(false)}
                                 />
+                                <Text style={styles.counterStyle}>{formikprops.values.OrganizerName.length.toString()} / 50</Text>
                                 <Text style={styles.errorMessage}>{formikprops.touched.OrganizerName && formikprops.errors.OrganizerName}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Main Event Category:
+                                    Main Event Category: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
-                                    <EventTypeSelector 
-                                        onChange={formikprops.setFieldValue}
-                                        value={formikprops.values.EventType}
-
-                                    />
+                                <View style={{width: '88%', marginLeft: 23, marginTop: 10, }}>
+                                    <FieldArray name="EventType" component={EventTypeSelector} />
+                                </View>
                                
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
                             </View>
@@ -306,7 +321,11 @@ const EventInformation = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Privacy:
+                                    Privacy: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <PrivacySelector
                                     onChange={formikprops.setFieldValue}
@@ -314,7 +333,7 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
-                            <View style={styles.containerStyle}>
+                            {/*<View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
                                     Tags (10 max):
                                 </Text>
@@ -327,7 +346,7 @@ const EventInformation = (props) => {
                                     onBlur={() => setFocus6(false)}
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Tags && formikprops.errors.Tags}</Text>
-                            </View>
+                            </View>*/}
                             
                             
                             
@@ -391,7 +410,11 @@ const MoreInformation = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    In Person or Online?
+                                    In Person or Online? 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <InPersonSelector
                                     onChange={formikprops.setFieldValue}
@@ -403,7 +426,11 @@ const MoreInformation = (props) => {
                             <View style={styles.containerStyle}>
                             {formikprops.values.InPerson === 'In Person' &&
                                 (<Text style={styles.TextStyle}>
-                                    Location Name:
+                                    Location Name: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>)
                             }
                                 {formikprops.values.InPerson === 'In Person' &&
@@ -423,7 +450,11 @@ const MoreInformation = (props) => {
                             <View style={styles.containerStyle}>
                             {formikprops.values.InPerson === 'Virtual' &&
                                 (<Text style={styles.TextStyle}>
-                                    Event Link:
+                                    Event Link: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>)
                             }
                                 {formikprops.values.InPerson === 'Virtual' &&
@@ -443,7 +474,11 @@ const MoreInformation = (props) => {
                             <View style={styles.containerStyle}>
                             {formikprops.values.InPerson === 'In Person' &&
                                 (<Text style={styles.TextStyle}>
-                                    Address:
+                                    Address: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>)
                             }
                             {formikprops.values.InPerson === 'In Person' &&
@@ -469,6 +504,9 @@ const MoreInformation = (props) => {
                                     onFocus={() => setFocus4(true)}
                                     onBlur={() => setFocus4(false)}
                                 />)
+                            }
+                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
+                                (<Text style={styles.counterStyle}>{formikprops.values.LocationDetails.length.toString()} / 100</Text>)
                             }
                             {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
                                 (<Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>)
@@ -534,7 +572,11 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Start Day:
+                                    Start Day: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <StartDateSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -545,7 +587,11 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Start Time:
+                                    Start Time: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <StartTimeSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -556,7 +602,11 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    End Day:
+                                    End Day: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <EndDateSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -566,8 +616,12 @@ const EventSchedule = (props) => {
                                 <Text style={styles.errorMessage}>{formikprops.touched.EndDay && formikprops.errors.EndDay}</Text>
                             </View>
                             <View style={styles.containerStyle}>
-                                <Text style={{fontSize: 20, color: '#09189F', marginLeft: 20, marginTop: 10, fontWeight: '500'}}>
-                                    End Time:
+                                <Text style={styles.TextStyle}>
+                                    End Time: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <EndTimeSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -656,7 +710,11 @@ const EventDetails = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Event Description:
+                                    Event Description: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
                                 </Text>
                                 <TextInput
                                     style={[styles.InputBox, {borderColor: formikprops.values.EventDescription !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
@@ -667,6 +725,7 @@ const EventDetails = (props) => {
                                     onFocus={() => setFocus(true)}
                                     onBlur={() => setFocus(false)}
                                 />
+                                <Text style={styles.counterStyle}>{formikprops.values.EventDescription.length.toString()} / 500</Text>
                                 <Text style={styles.errorMessage}>{formikprops.touched.EventDescription && formikprops.errors.EventDescription}</Text>
                             </View>
                             <View style={styles.containerStyle}>
@@ -900,38 +959,43 @@ const Preview = ({ route, navigation }) => {
         }); 
         */
         console.log(myContext.user.id + 3);
+        console.log(values.RealStartDateTime);
+        console.log(values.RealStartDateTime.toISOString().substr(0,10) + ' ' + values.RealStartDateTime.toISOString().substr(11,8));
+        console.log(values.RealEndDateTime);
+        console.log(values.RealEndDateTime.toISOString().substr(0,10) + ' ' + values.RealEndDateTime.toISOString().substr(11,8));
 
-        fetch(Globals.eventsURL + '/json/add', {
-            method: 'post',
+        fetch(Globals.eventsURL + '/json/update', {
+            method: 'put',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+
+                id: values.EventId,
                 name: values.EventTitle,
                 //hostId: myContext.user.id,
-                hostId: 1,
                 organizer: values.OrganizerName,
                 locationName: values.LocationName,
                 location: values.Address,
                 latitude: values.Latitude,
                 longitude: values.Longitude,
                 description: values.EventDescription,
-                startTime: "2021-08-01 19:00:00",
-                endTime: "2021-08-01 22:00:00",
+                startTime: values.RealStartDateTime.toISOString().substr(0,10) + ' ' + values.RealStartDateTime.toISOString().substr(11,8),
+                endTime: values.RealEndDateTime.toISOString().substr(0,10) + ' ' + values.RealEndDateTime.toISOString().substr(11,8),
                 privateEvent: values.Privacy!='Public',
                 virtualEvent: values.InPerson!='In Person',
                 registrationLink: values.Registration,
-                mainCategoryId: 2,
+                mainCategoryId: values.EventType,
                 }
                 )
-        }); 
+        })
+        .catch((error) => console.error(error)); 
     }
     const postEventHandler = async () => {
-        // postToServer();
+        postToServer();
         // Navigate to map
         navigation.dangerouslyGetParent().goBack();
-        myContext.toggleShowNavBar(true);
     }
 
     return (
@@ -1092,7 +1156,7 @@ const Preview = ({ route, navigation }) => {
                 <View style={{ flex: 1 }}>
                     <TouchableOpacity style={{ alignItems: 'center' }} onPress={postEventHandler}>
                         <View style={styles.nextContainer}>
-                            <Text style={styles.nextText}>Post Event!</Text>
+                            <Text style={styles.nextText}>Save Changes!</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -1123,42 +1187,53 @@ const Stack = createStackNavigator()
 
 function UpdateEvent({ navigation, route }) {
     const { item } = route.params;
-    // date formatting
-    let dateString = new Date().toString();
-    let initialDateFormat = dateString.substring(0,3)+', '+dateString.substring(4,dateString.indexOf(':')-8);
-    let time = new Date();
-    let time1 = time.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    let endTime = new Date(new Date(time).setHours(time.getHours() + 1));
-    let endTime1 = endTime.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-
+    
     let locSelected = item.virtualEvent === 'In Person' ? true : false;
+    //
+    
+    let ApiStartDate = item.startTime.substr(0, 10) + 'T' + item.startTime.substr(11, 8);
+    let formattedApiStartDate = new Date(ApiStartDate);
+    formattedApiStartDate.setHours(formattedApiStartDate.getHours() - 4);
+    let time = formattedApiStartDate.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+    //
+    let ApiEndDate = item.endTime.substr(0, 10) + 'T' + item.endTime.substr(11, 8);
+    let formattedApiEndDate = new Date(ApiEndDate);
+    formattedApiEndDate.setHours(formattedApiEndDate.getHours() - 4); 
+    let endTime = formattedApiEndDate.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    // date formatting
+    let dateString = formattedApiStartDate.toString();
+    let initialDateFormat = dateString.substring(0,3)+', '+dateString.substring(4,dateString.indexOf(':')-8);
+    let dateString1 = formattedApiEndDate.toString();
+    let initialEndDateFormat = dateString1.substring(0,3)+', '+dateString1.substring(4,dateString1.indexOf(':')-8);
 
     const [data, setData] = useState({
         // first slide
+        EventId: item.id,
         EventTitle: item.name,
         OrganizerName: item.organizer,
         EventType: item.mainCategoryId,
         ContentType: [],
         Tags: item.Tags,
-        Privacy: item.privateEvent,
+        Privacy: item.privateEvent?"Private":"Public",
         // second slide
-        InPerson: item.virtualEvent,
+        InPerson: item.virtualEvent ? (item.EventLink == '' ? "Virtual" : 'TBA') :"In Person",
         LocationName: item.locationName,
-        EventLink: 'not in api',
+        EventLink: '',
         Address: item.location,
-        locationSelected: locSelected,
+        locationSelected: !(item.virtualEvent),
         LocationDetails: '',
         // third slide
         StartDay: initialDateFormat,
-        RealStartDateTime: new Date(),
-        StartTime: time1,
-        EndDay: initialDateFormat,
-        RealEndDateTime: new Date(),
-        EndTime: endTime1,
+        RealStartDateTime: formattedApiStartDate,
+        StartTime: time,
+        EndDay: initialEndDateFormat,
+        RealEndDateTime: formattedApiEndDate,
+        EndTime: endTime,
         Registration: item.registrationLink,
         // fourth slide
         EventDescription: item.description,
-        OrganizerEmail: item.Email,
+        OrganizerEmail: item.email,
         OrganizerWebsite: item.organizerWebsite,
         EventImage: ''
 
@@ -1217,13 +1292,12 @@ const styles = StyleSheet.create({
         
     },
     TextStyle: {
-        fontSize: windowHeight / 46.3,
+        fontSize: 19,
+        fontWeight: '500',
         color: '#09189F',
-        marginLeft: windowWidth / 21.4,
-        marginTop: windowHeight / 92.6,
-        fontWeight: '500'
+        marginLeft: 23,
+        marginTop: 10,
     },
-
     containerStyle: {
 
     },
@@ -1237,14 +1311,14 @@ const styles = StyleSheet.create({
     },
     InputBox: {
         borderWidth: 0,
-        borderBottomWidth: 1,
+        borderBottomWidth: 1.5,
         borderColor: '#C4C4C4',
-        padding: HR(8),
+        paddingVertical: 8,
         width: '88%',
-        marginLeft: HR(20),
-        marginTop: HR(10),
-        marginBottom: HR(10),
-        fontSize: HR(14)
+        marginLeft: 24,
+        marginTop: 5,
+        marginBottom: 12,
+        fontSize: 16,
     },
 
     imageStyle: {
@@ -1454,6 +1528,14 @@ const styles = StyleSheet.create({
       fontSize: 17,
       fontWeight: 'bold',
       color: 'white',
+    },
+    requiredField : {
+        color: '#D8000C',
+        fontSize: windowHeight / 46.3
+    },
+    counterStyle: {
+        marginLeft: 23,
+        fontSize: 14
     }
 
 })

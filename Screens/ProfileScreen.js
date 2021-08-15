@@ -12,6 +12,9 @@ import Globals from '../../GlobalVariables';
 import AppContext from '../objects/AppContext';
 import EventDetailsScreen from './EventDetailsScreen';
 import InviteScreen from './InviteScreen';
+import CreateInviteList from './CreateInviteList';
+import InviteListView from './InviteListView';
+import AddMoreScreen from './AddMoreScreen';
 
 const HORIZONTALMARGIN = 20.4;
 
@@ -26,15 +29,115 @@ function MainScreen({navigation}) {
     .then((json) => console.log(json))
     .catch((error) => console.error(error))
     */
-    
+    const [colEvents,setColEvents] = useState([]);
+
+    const getEvents = () => {
+        let fetchurl = Globals.eventsURL;
+        console.log('getting events');
+        fetch(fetchurl)
+          .then((response) => response.json())
+          .then((json) => {setColEvents(json)})
+          .catch((error) => console.error(error))
+    }
+    const collisionCheck = (lat,lng) => {
+        //console.log(colEvents);
+        const mindist = 0.0001414;
+        for(let i=0; i<colEvents.length;i++) {
+            if(Math.sqrt((lat - colEvents[i].Latitude)*(lat - colEvents[i].Latitude) + 
+            (lng - colEvents[i].Longitude)*(lng - colEvents[i].Longitude)) < mindist) {
+                console.log('true');
+                return true;
+            }
+        }
+        console.log('false');
+        return false;
+    }
+    const postEvent = () => {
+        //Assume these are the coordinates gotten from the address
+        let latitude = 42.27753;
+        let longitude = -83.74289;
+        const offsets = [{lat:0.000150,lng:0.000150},{lat:0.000225,lng:0.000225},{lat:0.000075,lng:0.000075},{lat:0.000300,lng:0.000300}];
+        //Check for collisions. While there are collisions, keep trying different spots on the grid
+        let collision = collisionCheck(latitude,longitude);
+        let newLatitude = latitude;
+        let newLongitude = longitude;
+        let offsetIndex = 0;
+
+        while(collision) {
+            //if not a special location:
+            const latOffset = offsets[offsetIndex].lat;
+            const lngOffset = offsets[offsetIndex].lng;
+            
+            newLatitude = latitude + latOffset;
+            newLongitude = longitude + lngOffset;
+            if(!collisionCheck(newLatitude,newLongitude)) 
+                break;
+            
+            newLatitude = latitude + latOffset;
+            newLongitude = longitude - lngOffset;
+            if(!collisionCheck(newLatitude,newLongitude)) 
+                break;    
+
+            newLatitude = latitude - latOffset;
+            newLongitude = longitude + lngOffset;
+            if(!collisionCheck(newLatitude,newLongitude)) 
+                break;     
+            
+            newLatitude = latitude - latOffset;
+            newLongitude = longitude - lngOffset;
+            if(!collisionCheck(newLatitude,newLongitude)) 
+                break;
+
+            newLatitude = latitude + 0;
+            newLongitude = longitude + lngOffset;
+            if(!collisionCheck(newLatitude,newLongitude)) 
+                break;
+
+            newLatitude = latitude + 0;
+            newLongitude = longitude - lngOffset;
+            if(!collisionCheck(newLatitude,newLongitude)) 
+                break;
+
+            newLatitude = latitude + latOffset;
+            newLongitude = longitude + 0;
+            if(!collisionCheck(newLatitude,newLongitude)) 
+                break;
+
+            newLatitude = latitude - latOffset;
+            newLongitude = longitude + 0;
+            collision = collisionCheck(newLatitude,newLongitude)
+            if(!collision) 
+                break;
+
+            offsetIndex++;
+        }
+        latitude = newLatitude;
+        longitude = newLongitude;
+        console.log(latitude + ', ' + longitude);
+        
+        fetch('https://retoolapi.dev/CNVOvx/collisionevents', {
+        method: 'post',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            Name: 'Z West Party 3',
+            Latitude: latitude,
+            Longitude: longitude,
+            }
+        )
+        }); 
+        
+    }  
     return (
     <View style = {styles.screenContainer}>
     <SafeAreaView>
         <ScrollView contentContainerStyle = {styles.scrollContainer}>
             <View style = {styles.profileContainer}>
                 <Image source = {user.avatarsource} style = {styles.image}/>
-                <Text style = {styles.nameText}>{user.Name}</Text>
-                <Text style = {styles.emailText}>{user.Email}</Text>
+                <Text style = {styles.nameText}>{user.displayName}</Text>
+                <Text style = {styles.emailText}>{user.email}</Text>
                 {/*interest icons go here, do later*/}
             </View>
             <View style={styles.buttonContainer}>
@@ -102,6 +205,24 @@ const screens = {
           headerShown: false
         },
     },
+    CreateInviteList: {
+        screen: CreateInviteList,
+        navigationOptions: {
+          headerShown: false
+        }
+    },
+    InviteListView: {
+        screen: InviteListView,
+        navigationOptions: {
+          headerShown: false
+        }
+    },
+    AddMoreScreen: {
+        screen: AddMoreScreen,
+        navigationOptions: {
+            headerShown: false
+        }
+    }
 }
 const ProfileNavigator = createStackNavigator(screens);
 

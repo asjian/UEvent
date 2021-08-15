@@ -4,95 +4,87 @@ import Animated from 'react-native-reanimated';
 import BackButton from '../objects/backButton';
 import Globals from '../../GlobalVariables';
 
-export default function EventDetailsScreen({navigation, eventId}) {
-    const [currentEvent,setCurrentEvent] = useState({
-        "id": 1,
-        "Name": "OSU Pregame Tailgate",
-        "Tags": "",
-        "Email": "",
-        "Avatar": "",
-        "Images": "",
-        "Address": "1520 S University Ave, Ann Arbor, MI 48104",
-        "Privacy": "Public",
-        "Website": "",
-        "Invitees": "",
-        "Latitude": "42.27475",
-        "Attendees": "",
-        "Longitude": "-83.72904",
-        "Organizer": "FIJI",
-        "EndDayTime": "7/8/2021 19:30",
-        "Description": "Come pregame with us before the game against Ohio State! \nThere will be food, drink, and plenty of chances to meet the \nbrothers of Phi Gamma Delta. We plan to have around 50\npeople at our tailgate, and you can find us by looking for the\npop-up tents labeled with our logo.",
-        "LocationName": "FIJI House",
-        "MainCategory": "Parties",
-        "Registration": "",
-        "StartDayTime": "7/8/2021",
-        "InPersonVirtual": "In Person",
-        "OtherCategories": "Greek Life Social Food/Drink "
+
+export default function EventDetailsScreen({navigation}) {
+      const user = navigation.getParam('user');
+      const eventId = navigation.getParam('eventId');
+
+      const [currentEvent,setCurrentEvent] = useState({
+        "name" : "{{$randomWord}}",
+    		"location":  "{{$randomStreetAddress}}",
+    		"locationName" : "{{$randomNoun}}",
+    		"locationDetails": "{{$randomStreetName}}",
+    		"description" : "{{$randomPhrase}}",
+    		"privateEvent" : "{{$randomBoolean}}",
+    		"virtualEvent" : "{{$randomBoolean}}",
+    		"coordinates" : [
+                        {
+                            "longitude" :  "26.2021",
+                            "latitude" :  "76.3496"
+                        },
+                        {                                                
+                            "longitude" :  "{{$randomLongitude}}",
+                            "latitude" :  "{{$randomLatitude}}"
+                        }
+                    ],
+    		"registrationLink": "{{$randomIP}}",
+    		"organizer" : "{{$randomCompanyName}}",
+    		"organizerWebsite" : "{{$randomDomainWord}}",
+    		"startTime": "2021-09-05 20:00:00",
+    		"endTime" : "2021-09-05 22:30:00",  
+    		"hostId" :  "5",
+    		"mainCategoryId": "12",
+    		"categoryIds" : [8, 20, 16]
       });
-  
-      const categories = [{name:'Extracurriculars', icon: require('../assets/extracurriculars.png'), key:0,},
-      {name:'Parties', icon: require('../assets/parties.png'),key:1,}, {name:'Social',icon: require('../assets/social.png'),key:2,},
-      {name:'Career',icon: require('../assets/career.png'),key:3,}, {name:'Networking',icon: require('../assets/networking.png'),key:4,},
-      {name:'Community',icon: require('../assets/test2.png'),key:5,}, {name:'Fair/Festival',icon: require('../assets/festival.png'),key:6,}, 
-      {name:'Greek Life',icon: require('../assets/greeklife.png'),key:7,}, {name:'Sports',icon: require('../assets/sports.png'),key:8,}, 
-      {name:'Games',icon: require('../assets/games.png'),key:9,}, {name:'Cultural',icon: require('../assets/cultural.png'),key:10,}, 
-      {name:'Activism',icon: require('../assets/activism.png'),key:11,}, {name:'Music',icon: require('../assets/music.png'),key:12,}, 
-      {name:'Art/Design', icon: require('../assets/artdesign.png'),key:13,}, {name:'Food + Drink', icon: require('../assets/fooddrink.png'),key:14,}, 
-      {name:'Performance', icon: require('../assets/performance.png'),key:15,}, {name:'Presentation', icon: require('../assets/presentation.png'),key:16,}, 
-      {name:'Exhibition', icon: require('../assets/exhibition.png'),key:17,}, {name:'Academic', icon: require('../assets/academic.png'),key:18,},
-      {name:'Science/Tech', icon: require('../assets/science.png'),key:19,}, {name:'Business/Professional', icon: require('../assets/business.png'),key:20,},
-      {name:'Other', icon: require('../assets/other.png'),key:23,}];
-
-      const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
-      {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
-
-      const windowHeight = Dimensions.get('window').height;
-      bs = React.createRef();
-      fall = new Animated.Value(1);
-
+      const inPerson = [{name:false, icon: require('../assets/person.png'), ket: 0,},
+      {name:true, icon: require('../assets/virtual.png'), key: 1}]
+      const [gotEvent, setGotEvent] = useState(false);
       const getCurrentEvent = () => {
-        console.log(eventId);
-        let fetchurl = Globals.eventsURL + '/' + eventId;
+        let fetchurl = Globals.eventsURL + '/get/' + eventId;
         fetch(fetchurl)
           .then((response) => response.json())
-          .then((json) => {setCurrentEvent(json)})
+          .then((json) => {setCurrentEvent(json); setGotEvent(true)})
           .catch((error) => console.error(error))
       }
-  
+
+      const renderPrivate = () => {
+        if (currentEvent.privateEvent == true) {
+          return 'Private'
+        } else {
+          return 'Public'
+        }
+      }
+
       const renderCategories = () => {
-        let pic = ""
+        let pic = "";
         for (let i = 0; i < inPerson.length; i++) {
-          if (inPerson[i].name == currentEvent.InPersonVirtual) {
+          if (inPerson[i].name == currentEvent.virtualEvent) {
             pic = inPerson[i].icon
           }
         }
+        console.log(currentEvent);
         return (
           <View style={{flexDirection: 'row'}}>
             <Image
               source={pic}
               style={{width:18, height: 18, tintColor: 'orange'}}>
             </Image>
-            <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.InPersonVirtual}</Text>
+            <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.virtualEvent?"Virtual":"In Person"}</Text>
           </View>
         )
       }
-      
       const registration = () => {
-        if(currentEvent.Registration != '') {
+        if(currentEvent.registrationLink != '') {
           return (
             <View>
               <Text style={{fontWeight: 'bold'}}>Registration</Text>
-              <Text>{currentEvent.Registration}</Text>
+              <Text>{currentEvent.registrationLink}</Text>
             </View>
           )
         }
-        else {
-          return
-        }
       }
-  
       const moreDetails = () => {
-        if(currentEvent.Email != '' && currentEvent.Website != '') {
+        if(currentEvent.Email != '' && currentEvent.organizerWebsite != '') {
           return (
             <View>
               <Text style={{fontWeight: 'bold'}}>More Details</Text>
@@ -102,7 +94,7 @@ export default function EventDetailsScreen({navigation, eventId}) {
               </View>
               <View style={{flexDirection: 'row'}}>
                 <Text>Website: </Text>
-                <Text>{currentEvent.Website}</Text>
+                <Text>{currentEvent.organizerWebsite}</Text>
               </View>
             </View>
           )
@@ -116,51 +108,56 @@ export default function EventDetailsScreen({navigation, eventId}) {
               </View>
             </View>
           )
-        } else if (currentEvent.Website != '') {
+        } else if (currentEvent.organizerWebsite != '') {
           return (
             <View>
               <Text style={{fontWeight: 'bold'}}>More Details</Text>
               <View style={{flexDirection: 'row'}}>
                 <Text>Website: </Text>
-                <Text>{currentEvent.Website}</Text>
+                <Text>{currentEvent.organizerWebsite}</Text>
               </View>
             </View>
           )
-        } else {
-          return
         }
       }
   
       const [buttonColor1, setButtonColor1] = useState('#FFF')
-  
-      const toggle1 = () => {
-        if (buttonColor1 == '#FFF') {
-          setButtonColor1('#FFCB05')
-        } else {
-          setButtonColor1('#FFF')
+    
+        const toggle1 = () => {
+          if (buttonColor1 == '#FFF') {
+            setButtonColor1('#FFCB05')
+          } else {
+            setButtonColor1('#FFF')
+          }
         }
-      }
-  
-      const [buttonColor2, setButtonColor2] = useState('#FFF')
-  
-      const toggle2 = () => {
-        if (buttonColor2 == '#FFF') {
-          setButtonColor2('#FFCB05')
-        } else {
-          setButtonColor2('#FFF')
+    
+        const [buttonColor2, setButtonColor2] = useState('#FFF')
+    
+        const toggle2 = () => {
+          if (buttonColor2 == '#FFF') {
+            setButtonColor2('#FFCB05')
+          } else {
+            setButtonColor2('#FFF')
+          }
         }
-      }
-  
-      const [buttonColor3, setButtonColor3] = useState('#FFF')
-  
-      const toggle3 = () => {
-        if (buttonColor3 == '#FFF') {
-          setButtonColor3('#FFCB05')
-        } else {
-          setButtonColor3('#FFF')
+        const share = async () => {
+          Share.share(
+            {
+              title: 'test title',
+              url: 'fakeurl',
+            },
+            {
+              excludedActivityTypes: [
+                // 'com.apple.UIKit.activity.PostToWeibo',
+              ],
+            }
+          );
+        };
+    
+        const [buttonColor3, setButtonColor3] = useState('#FFF')
+        const toggle3 = () => {
+          share();
         }
-      }
-
       const borderColor = (buttonColor) => {
         if (buttonColor == '#FFF') {
           return 'black'
@@ -170,57 +167,227 @@ export default function EventDetailsScreen({navigation, eventId}) {
       }
   
       const [isTruncated, setIsTruncated] = useState(true);
-      const resultString = isTruncated ? currentEvent.Description.slice(0, 133) + '...' : currentEvent.Description;
+      const resultString = isTruncated ? currentEvent.description.slice(0, 160) : currentEvent.description;
       const readMore = isTruncated ? 'Read More' : 'Read Less'
       const toggle = () => {
         setIsTruncated(!isTruncated);
       }
-  
       const renderButton = () => {
-        if (resultString.length > 130) {
+        if (resultString.length > 160) {
           return (
             <TouchableOpacity onPress={toggle}>
               <Text style={{color: '#FFCB05', marginBottom: 10}}>{readMore}</Text>
             </TouchableOpacity>
+          );
+        }
+      }
+  
+      const renderTime = () => {
+        if (currentEvent.startTime.split(' ')[0] == currentEvent.endTime.split(' ')[0]) {
+          return Globals.formatDate(currentEvent.startTime) + " - " + Globals.formatDate(currentEvent.endTime).split(" ")[2]
+        }
+        else {
+          return Globals.formatDate(currentEvent.startTime) + " - " + Globals.formatDate(currentEvent.endTime)
+        }
+      }
+
+      const renderButtons = () => {
+        let yes = true;
+        /* CHECK IF USER IS ORGANIZER
+        for (let i = 0; i < user.EventsHosting.split(" ").length; i++) {
+          if (eventId == user.EventsHosting.split(" ")[i]) {
+            yes = true;
+          }
+        }
+        */
+        if (yes) {
+          return (
+            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20}}>
+            <TouchableOpacity style={{backgroundColor: buttonColor1,
+              borderRadius: 8,
+              borderColor: borderColor(buttonColor1),
+              borderWidth: 1,
+              width: (Dimensions.get('window').width - 81.6) / 3,
+              height: 55,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginHorizontal: 15,
+              }}
+              onPress={toggle1}>
+              <View>
+                <Image
+                  source={require('../assets/attendees.png')}
+                  style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor1)}}
+                ></Image>
+                <Text style={{
+                  fontSize: 17,
+                  fontWeight: 'bold',
+                  color: borderColor(buttonColor1),
+                }}>Attendees</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={{backgroundColor: buttonColor2,
+              borderRadius: 8,
+              borderColor: borderColor(buttonColor2),
+              borderWidth: 1,
+              width: (Dimensions.get('window').width - 81.6) / 3,
+              height: 55,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginHorizontal: 15,
+              }}
+              onPress={toggle2}>
+              <View>
+                <Image
+                  source={require('../assets/edit.png')}
+                  style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
+                ></Image>
+                <Text style={{
+                  fontSize: 17,
+                  fontWeight: 'bold',
+                  color: borderColor(buttonColor2),
+                }}>Edit</Text>
+              </View>   
+            </TouchableOpacity>
+            <TouchableOpacity style={{backgroundColor: buttonColor3,
+              borderRadius: 8,
+              borderColor: borderColor(buttonColor3),
+              borderWidth: 1,
+              width: (Dimensions.get('window').width - 81.6) / 3,
+              height: 55,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginHorizontal: 15,
+              }}
+              onPress={() => navigation.navigate('InviteScreen')}>
+              <View>
+                <Image
+                  source={require('../assets/invitation.png')}
+                  style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
+                ></Image>
+                <Text style={{
+                  fontSize: 17,
+                  fontWeight: 'bold',
+                  color: borderColor(buttonColor3),
+                }}>Invite</Text>
+              </View>
+            </TouchableOpacity>
+            </View>
+          )
+        }
+        else {
+          return (
+            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
+              <TouchableOpacity style={{backgroundColor: buttonColor1,
+                borderRadius: 8,
+                borderColor: borderColor(buttonColor1),
+                borderWidth: 1,
+                width: (Dimensions.get('window').width - 81.6) / 3,
+                height: 55,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                }}
+                onPress={toggle1}>
+                <View>
+                  <Image
+                    source={require('../assets/star.png')}
+                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor1)}}
+                  ></Image>
+                  <Text style={{
+                    fontSize: 17,
+                    fontWeight: 'bold',
+                    color: borderColor(buttonColor1),
+                  }}>Save</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={{backgroundColor: buttonColor2,
+                borderRadius: 8,
+                borderColor: borderColor(buttonColor2),
+                borderWidth: 1,
+                width: (Dimensions.get('window').width - 81.6) / 3,
+                height: 55,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                }}
+                onPress={toggle2}>
+                <View>
+                  <Image
+                    source={require('../assets/check2.png')}
+                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
+                  ></Image>
+                  <Text style={{
+                    fontSize: 17,
+                    fontWeight: 'bold',
+                    color: borderColor(buttonColor2),
+                  }}>I'm Going</Text>
+                </View>   
+              </TouchableOpacity>
+              <TouchableOpacity style={{backgroundColor: buttonColor3,
+                borderRadius: 8,
+                borderColor: borderColor(buttonColor3),
+                borderWidth: 1,
+                width: (Dimensions.get('window').width - 81.6) / 3,
+                height: 55,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                }}
+                onPress={toggle3}>
+                <View>
+                  <Image
+                    source={require('../assets/share2.png')}
+                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
+                  ></Image>
+                  <Text style={{
+                    fontSize: 17,
+                    fontWeight: 'bold',
+                    color: borderColor(buttonColor3),
+                  }}>Share</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
           )
         }
       }
-      
-    return (
-      
-      <SafeAreaView style={{
-        flex: 1,
-        position: 'absolute',
-        backgroundColor: '#fff'
-        }}>
-        {getCurrentEvent()}
-        <View style={{width: '90%',
-        marginLeft: 20.4}}>
-          <BackButton onPress={() => navigation.goBack()} title = 'Event Details'/>
-        </View> 
-        <ScrollView style={styles.panel}>
+
+    if (!gotEvent) {
+      getCurrentEvent()
+    }
+
+  return (
+    <SafeAreaView style={{
+      flex: 1,
+      position: 'absolute',
+      backgroundColor: '#fff'
+      }}>
+      <View style={{width: '90%',
+      marginLeft: 20.4}}>
+        <BackButton onPress={() => navigation.goBack()} title = 'Event Details'/>
+      </View> 
+      <ScrollView style={styles.panel}>
         <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
           <View>
             <Text style={{
               fontSize: 24,
               width: Dimensions.get('window').width - 105,
-              marginRight: 10    
+              marginRight: 10
               }} 
               numberOfLines={2}>
-                {currentEvent.Name}
+                {currentEvent.name}
               </Text>
-          </View>
-          <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{color: 'black'}}>{currentEvent.Privacy}</Text>
-          </View>
-          
+            </View>
+          <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5}}>
+            <Text style={{color: 'black'}}>{renderPrivate()}</Text>
+          </View> 
         </View>
         <View style={styles.panelHost}>
           <Image
             source={require('../assets/Vector.png')}
             style={{width:18, height: 18}}>
           </Image>
-          <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.Organizer}</Text>
+          <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.organizer}</Text>
           {renderCategories()}
         </View>
         <View style={styles.panelDate}>
@@ -228,123 +395,35 @@ export default function EventDetailsScreen({navigation, eventId}) {
             source={require('../assets/CalendarIcon.png')}
             style={{width:18, height:18}}
           ></Image>
-          <Text style={{marginLeft: 5, fontSize: 16, color: '#03a9f4'}}>{currentEvent.StartDayTime}</Text>
+          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{renderTime()}</Text>
         </View>
-        <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 25 }}>
-          <TouchableOpacity style={{backgroundColor: buttonColor1,
-            borderRadius: 8,
-            borderColor: borderColor(buttonColor1),
-            borderWidth: 1,
-            width: (Dimensions.get('window').width - 81.6) / 3,
-            height: 55,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginHorizontal: 15,
-            }}
-            onPress={toggle1}>
-            <View>
-              <Image
-                source={require('../assets/star.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor1)}}
-              ></Image>
-              <Text style={{
-                fontSize: 17,
-                fontWeight: 'bold',
-                color: borderColor(buttonColor1),
-              }}>Attendees</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={{backgroundColor: buttonColor2,
-            borderRadius: 8,
-            borderColor: borderColor(buttonColor2),
-            borderWidth: 1,
-            width: (Dimensions.get('window').width - 81.6) / 3,
-            height: 55,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginHorizontal: 15,
-            }}
-            onPress={toggle2}>
-            <View>
-              <Image
-                source={require('../assets/check2.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
-              ></Image>
-              <Text style={{
-                fontSize: 17,
-                fontWeight: 'bold',
-                color: borderColor(buttonColor2),
-              }}>Edit</Text>
-            </View>   
-          </TouchableOpacity>
-          <TouchableOpacity style={{backgroundColor: buttonColor3,
-            borderRadius: 8,
-            borderColor: borderColor(buttonColor3),
-            borderWidth: 1,
-            width: (Dimensions.get('window').width - 81.6) / 3,
-            height: 55,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginHorizontal: 15,
-            }}
-            onPress={() => navigation.navigate('InviteScreen')}>
-            <View>
-              <Image
-                source={require('../assets/invitation.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
-              ></Image>
-              <Text style={{
-                fontSize: 17,
-                fontWeight: 'bold',
-                color: borderColor(buttonColor3),
-              }}>Invite</Text>
-            </View>
-          </TouchableOpacity>
+        {renderButtons()}
+        <View>
+          <Image source={require('../assets/avatar.jpeg')}
+          resizeMode= 'cover'
+          style={{width: Dimensions.get('window').width - 40.8, height: 200, marginBottom: 20}}>
+          </Image>
         </View>
-          <View>
-            <Image source={require('../assets/avatar.jpeg')}
-            resizeMode= 'cover'
-            style={{width: Dimensions.get('window').width - 40.8, height: 200, marginBottom: 20}}>
-            </Image>
-          </View>
-          <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Event Description</Text>
-          <View>
-            <Text>{resultString.replace(/(\r\n|\n|\r)/gm, " ")}</Text>
-            {renderButton()}
-          </View>
-          <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Location</Text>
-          <Text>{currentEvent.LocationName}</Text>
-          <Text style={{marginBottom: 10}}>{currentEvent.Address}</Text>
-          {registration()}
-          {moreDetails()}
-          
-            <TouchableOpacity style={{flexDirection: 'row'}}>
-              <Image
-                source={require('../assets/CalendarIcon.png')}
-                style={{width:18, height: 18, marginBottom: 5}}>
-              </Image>
-              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: '#03a9f4'}}>Add Event to Calendar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{flexDirection: 'row'}}>
-              <Image
-                source={require('../assets/share2.png')}
-                style={{width:18, height: 18, tintColor: '#FFCB05', marginBottom: 5}}>
-              </Image>
-              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: '#FFCB05'}}>Share</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{flexDirection: 'row'}}>
-              <Image
-                source={require('../assets/report.png')}
-                style={{width:18, height: 18, tintColor: 'red', marginBottom: 5}}>
-              </Image>
-              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: 'red', marginBottom: Dimensions.get('window').height}}>Report</Text>
-            </TouchableOpacity>
-          
-          
-          
+        <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Event Description</Text>
+        <View>
+          <Text style={{marginBottom: 5}}>{resultString.replace(/(\r\n|\n|\r)/gm, " ")}</Text>
+          {renderButton()}
+        </View>
+        <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Location</Text>
+        <Text>{currentEvent.locationName}</Text>
+        <Text style={{marginBottom: 10}}>{currentEvent.location}</Text>
+        {registration()}
+        {moreDetails()}
+        <TouchableOpacity style={{marginTop: 5, flexDirection: 'row'}}>
+          <Image
+            source={require('../assets/report.png')}
+            style={{width:18, height: 18, tintColor: 'red', marginBottom: Dimensions.get('window').height}}>
+          </Image>
+          <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: 'red'}}>Report</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
-    );
+  ); 
 }
 
 const styles = StyleSheet.create({
@@ -382,9 +461,8 @@ const styles = StyleSheet.create({
         marginBottom:10,
     },
     panel: {
-      padding: 20,
-      paddingTop: 0,
-        backgroundColor: '#fff',
+        padding: 20,
+        paddingTop: 20,
         //paddingBottom: Dimensions.get('window').height,
     },
     panelTitle: {
@@ -395,10 +473,15 @@ const styles = StyleSheet.create({
     },
     panelHost: {
       flexDirection: 'row',
-      marginBottom: 10,
+      marginBottom: 10
     },
     panelDate: {
       flexDirection: 'row',
       marginBottom: 20
+    },
+    panelButtonTitle: {
+      fontSize: 17,
+      fontWeight: 'bold',
+      color: 'white',
     },
 })

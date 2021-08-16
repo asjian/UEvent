@@ -27,14 +27,32 @@ import { useNavigation } from '@react-navigation/native';
             }
             else {
                 // post to api
+                fetch(Globals.updatesURL + '/json/add', {
+                    method: 'post',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        updates: announcement,
+                        eventId: item.id
+                        }
+                        )
+                })
+			    .then(() => { 
+                    setModalVisible(false); 
+                    setAnnoucement(''); 
+                    console.log(announcement); 
+                    console.log('posted'); 
+                    
+                })
+                .catch((error) => console.error(error));
                 // text is in announcement variable
-                // checked boolean is in checked variable
-                console.log(announcement);
                 // clear announcement
-                setAnnoucement('');
+                
                 // exit
-                setModalVisible(false);
-
+               
+                
             }
             
         }
@@ -47,6 +65,7 @@ import { useNavigation } from '@react-navigation/native';
             .catch((error) => console.error(error));
         
             navigation.goBack();
+
         }
 
 

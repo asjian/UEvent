@@ -13,12 +13,12 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
     const [attendees, setAttendees] = useState([]);
 	const [eventInfo, setEventInfo] = useState(apiData);
 	
-	const getEvents = () => {
-		let fetchurl = 'https://retoolapi.dev/lvF3hn/events/1';
+	const getEventAttendees = () => {
+		let fetchurl = Globals.attendeesURL + '/getEventAttendees/' + apiData.id;
 		console.log(fetchurl);
 		fetch(fetchurl)
 			.then((response) => response.json())
-			.then((json) => {setEventInfo(json);getUsers(json);})
+			.then((json) => {setAttendees(json); setMasterDataSource(json);})
 			.catch((error) => console.error(error))
 		
 	}
@@ -63,7 +63,7 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
 
         useEffect(() => {
           
-			getEvents();
+			getEventAttendees();
 			console.log(eventInfo);
             // getUsers();
             setFetched(true);
@@ -89,11 +89,11 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
           // Filter the masterDataSource
           // Update FilteredDataSource
           const newData = masterDataSource.filter(function (item) {
-            const itemData = item.Name
-              ? item.Name.toLowerCase()
+            const itemData = item.userName
+              ? item.userName.toLowerCase()
               : ''.toLowerCase();
-              const itemData1 = item.Email
-              ? item.Email.toLowerCase()
+              const itemData1 = item.userEmail
+              ? item.userEmail.toLowerCase()
               : ''.toLowerCase();
             const textData = text.toLowerCase();
             return (itemData.indexOf(textData) > -1) || (itemData1.indexOf(textData) > -1);
@@ -112,35 +112,42 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
 		// get removed attendee out of array
 		console.log(attendeeId);
 		console.log(attendees);
-		const filteredData = attendees.filter(item => item.id !== attendeeId);
+		const filteredData = attendees.filter(item => item.userId !== attendeeId);
 		setAttendees(filteredData);
 		setMasterDataSource(filteredData);
 		console.log(filteredData);
 
-		let attendeeString = '';
-		for (let i = 0; i < filteredData.length; i++) {
-			if (i === (filteredData.length - 1)) {
-				attendeeString = attendeeString + filteredData[i].id.toString();
-			}
-			else {
-				attendeeString = attendeeString + filteredData[i].id.toString() + ' ';
-			}
+		// let attendeeString = '';
+		// for (let i = 0; i < filteredData.length; i++) {
+		// 	if (i === (filteredData.length - 1)) {
+		// 		attendeeString = attendeeString + filteredData[i].id.toString();
+		// 	}
+		// 	else {
+		// 		attendeeString = attendeeString + filteredData[i].id.toString() + ' ';
+		// 	}
 			
-		}
+		// }
 	
-		console.log(attendeeString);
+		// console.log(attendeeString);
 	
-		const requestOptions = {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ Attendees: attendeeString })
-		};
-		fetch('https://retoolapi.dev/lvF3hn/events/' + eventInfo.id.toString(), requestOptions)
-			.then(response => response.json())
-			.then(json => console.log('Success:', json.Attendees))
-			.catch((error) => {
-				console.error('Error: ', error);
-			})
+		// const requestOptions = {
+		// 	method: 'PATCH',
+		// 	headers: { 'Content-Type': 'application/json' },
+		// 	body: JSON.stringify({ Attendees: attendeeString })
+		// };
+		// fetch('https://retoolapi.dev/lvF3hn/events/' + eventInfo.id.toString(), requestOptions)
+		// 	.then(response => response.json())
+		// 	.then(json => console.log('Success:', json.Attendees))
+		// 	.catch((error) => {
+		// 		console.error('Error: ', error);
+		// 	})
+
+        console.log(Globals.attendeesURL + '/delete/?eventId=' + apiData.id + '&userId=' + attendeeId);
+            fetch(Globals.attendeesURL + '/delete/?eventId=' + apiData.id + '&userId=' + attendeeId, {method: 'delete',})
+             .then(() => console.log('delete successful'))
+             .catch((error) => console.error(error));
+        
+            
 
 	  }
 
@@ -170,18 +177,18 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
             />
                 <FlatList
                     data={attendees}
-                    keyExtractor={item => item.id.toString()}
+                    keyExtractor={item => item.userId.toString()}
                     renderItem={({ item }) => (
                         <View style={styles.box}>
                             <View style={{ flex: 2 }}>
                                 <Image style={styles.realImageStyle} source={require('../assets/user_icon.png')} />
                             </View>
                             <View style={{ flex: 5 }}>
-                                <Text style={{ fontWeight: "500", fontSize: 16 }}>{item.Name}</Text>
-                                <Text style={{ fontWeight: '500', fontSize: 13}}>{item.Email}</Text>
+                                <Text style={{ fontWeight: "500", fontSize: 16 }}>{item.userName}</Text>
+                                <Text style={{ fontWeight: '500', fontSize: 13}}>{item.userEmail}</Text>
                             </View>
                             <View style={{ flex:1, justifyContent:'center' }}>
-                                <TouchableOpacity style={styles.delete} onPress={() => updateAttendees(item.id)}>
+                                <TouchableOpacity style={styles.delete} onPress={() => updateAttendees(item.userId)}>
                                     <View style={{flex: 2}}>
 
                                     </View>                             

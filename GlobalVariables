@@ -45,13 +45,15 @@ const WR = (pixelNumber) => {
     return responsiveNumber;
 }
 
+function createDateAsUTC(year,month,date,hours,minutes,seconds) {
+    return new Date(Date.UTC(parseInt(year), parseInt(month-1), parseInt(date), parseInt(hours), parseInt(minutes), parseInt(seconds)));
+}
+
 const formatDate = (dateFromApi) => { //convert date from api to readable form in the right time zone
-    console.log('initial date string: ' + dateFromApi);
-    //first convert the date from utc back to the local time zone (usually est but might not be)
-    let initialDate = dateFromApi.substr(0,10) + 'T' + dateFromApi.substr(11,8);
-    let dateobj = new Date(initialDate);
+    let dateobj = createDateAsUTC(dateFromApi.substr(0,4), dateFromApi.substr(5,2), dateFromApi.substr(8,2),
+        dateFromApi.substr(11,2), dateFromApi.substr(14,2), dateFromApi.substr(17,2));
+
     let formattedDate = dateobj.toLocaleDateString('en-US',{ weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-    console.log(formattedDate);
     let formattedTime = dateobj.toLocaleTimeString('en-US');
 
     return formattedDate.substr(0,formattedDate.lastIndexOf(',')) + ' ' + 

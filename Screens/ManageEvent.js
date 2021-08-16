@@ -61,11 +61,8 @@ import { useNavigation } from '@react-navigation/native';
         const cancelEvent = () => {
             console.log(Globals.eventsURL + '/delete/' + item.id);
             fetch(Globals.eventsURL + '/delete/' + item.id, {method: 'delete',})
-            .then(() => console.log('delete successful'))
+            .then(() => {console.log('delete successful');navigation.goBack();myContext.toggleShowNavBar(true)})
             .catch((error) => console.error(error));
-        
-            navigation.goBack();
-
         }
 
 

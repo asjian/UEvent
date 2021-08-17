@@ -1,10 +1,11 @@
-import React, {useState, useContext, useEffect} from 'react';
-import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image, Share} from 'react-native';
+import React, {useState, useContext, useEffect,useRef} from 'react';
+import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image, Share, Alert} from 'react-native';
 import { createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
+import { useFocusEffect } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
-import TopBar from '../objects/topBar';
 import MapSearchBar from '../objects/mapSearchBar';
 import Search from './Search';
 import CategoryList from './CategoryList';
@@ -17,7 +18,7 @@ import {Marker} from 'react-native-maps';
 import LocationPin from '../objects/locationPin';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
-import ProfileButton from '../objects/searchResults';
+import ProfileButton from '../objects/UpcomingEventButton';
 
 //custom bottom sheet
 function MainScreen({navigation}) {
@@ -31,6 +32,11 @@ function MainScreen({navigation}) {
 		})
 		.catch(error => console.warn(error));
     */  
+    const serverValidation = (response) => { //only use on messages, not jsons
+      if(response != 'Fail' && response != 'Validation Error')
+        return true;
+      return false;
+    }
     const [currentEvent,setCurrentEvent] = useState({
       "id": 1,
       "name": "OSU Pregame Tailgate",
@@ -49,35 +55,27 @@ function MainScreen({navigation}) {
       "endTime": "7/8/2021 19:30",
       "description": "Come pregame with us before the game against Ohio State! \nThere will be food, drink, and plenty of chances to meet the \nbrothers of Phi Gamma Delta. We plan to have around 50\npeople at our tailgate, and you can find us by looking for the\npop-up tents labeled with our logo.",
       "locationName": "FIJI House",
-      "mainCategoryIdId": "Parties",
+      "mainCategoryId": "Parties",
       "registrationLink": "",
       "startTime": "7/8/2021",
       "virtualEvent": "In Person",
       "categoryIds": "Greek Life Social Food/Drink "
     });
-    const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
-    {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
-
+    const[index,setIndex] = useState(-1);
     const windowHeight = Dimensions.get('window').height;
-    bs = React.createRef();
-    bs2 = React.createRef();
-    fall = new Animated.Value(1);
+    const bs = useRef();
+    const bs2 = useRef();
+    const fall = new Animated.Value(1);
     
-
     const renderCategories = () => {
-      let pic = ""
-      for (let i = 0; i < inPerson.length; i++) {
-        if (inPerson[i].name == currentEvent.virtualEvent) {
-          pic = inPerson[i].icon
-        }
-      }
+
       return (
         <View style={{flexDirection: 'row'}}>
           <Image
-            source={pic}
+            source={currentEvent.virtualEvent?require('../assets/virtual.png'):require('../assets/person.png')}
             style={{width:18, height: 18, tintColor: 'orange'}}>
           </Image>
-          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.virtualEvent}</Text>
+          <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.virtualEvent?"Virtual":"In Person"}</Text>
         </View>
       )
     }
@@ -128,43 +126,109 @@ function MainScreen({navigation}) {
         )
       }
     }
+    const buttonColor1 = currentEvent.isFollower?'#FFCB05':'#FFF';
 
-    const [buttonColor1, setButtonColor1] = useState('#FFF')
-  
+    const modifyApi = (follow,add) => {
+      const fetchurl = follow?Globals.followersURL:Globals.attendeesURL;
+
+      if(add) {
+        fetch(fetchurl + '/json/add', {
+            method: 'post',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              userId: myContext.user.id,
+              eventId: currentEvent.id,
+            })
+        }).then((response) => response.json())
+          .then((json) => {
+            if(index != -1) {
+              let temp = [...myContext.eventList];
+              if(follow)
+                temp[index] = JSON.parse(JSON.stringify({...currentEvent,...{isFollower:true}}));
+              else
+                temp[index] = JSON.parse(JSON.stringify({...currentEvent,...{isAttendee:true}}));
+              myContext.updateEventList(temp);
+            }
+            setCurrentEvent((prevCurrentEvent) => { //server validation is checked by converting to json and catching error
+            if(follow)
+              return({...prevCurrentEvent,...{isFollower:true}})
+            else 
+              return ({...prevCurrentEvent,...{isAttendee:true}})
+            })     
+          }
+          )
+          .catch((error) => Alert.alert('Server Error',"Sorry, we're unable to process your request. Please try again later :(")); 
+      }
+      else { //delete
+        fetch(fetchurl + '/delete?eventId=' + currentEvent.id + '&userId=' + myContext.user.id, {
+          method: 'delete',
+        }
+        ).then((response) => {
+          if(serverValidation(response)) {
+            if(index != -1) {
+              let temp = [...myContext.eventList];
+              if(follow)
+                temp[index] = JSON.parse(JSON.stringify({...currentEvent,...{isFollower:false}}));
+              else
+                temp[index] = JSON.parse(JSON.stringify({...currentEvent,...{isAttendee:false}}));
+              myContext.updateEventList(temp);
+            }
+            setCurrentEvent((prevCurrentEvent) => {
+              if(follow)
+                return({...prevCurrentEvent,...{isFollower:false}})
+              else
+                return ({...prevCurrentEvent,...{isAttendee:false}})
+            })  
+          }
+          })
+         .catch((error) => Alert.alert('Server Error',"Sorry, we're unable to process your request. Please try again later :("));
+      }
+    }
       const toggle1 = () => {
         if (buttonColor1 == '#FFF') {
-          setButtonColor1('#FFCB05')
-        } else {
-          setButtonColor1('#FFF')
+          modifyApi(true,true);
+        } 
+        else {
+          modifyApi(true,false);
         }
       }
-  
-      const [buttonColor2, setButtonColor2] = useState('#FFF')
+      const buttonColor2 = currentEvent.isAttendee?'#FFCB05':'#FFF';
   
       const toggle2 = () => {
         if (buttonColor2 == '#FFF') {
-          setButtonColor2('#FFCB05')
+          modifyApi(false,true);
         } else {
-          setButtonColor2('#FFF')
+          modifyApi(false,false);
         }
       }
-      const share = async () => {
-        Share.share(
-          {
-            title: 'test title',
-            url: 'fakeurl',
-          },
-          {
-            excludedActivityTypes: [
-              // 'com.apple.UIKit.activity.PostToWeibo',
-            ],
+      const onShare = async () => {
+        try {
+          const result = await Share.share({
+           title: 'Event Link',
+            message: 'Check out this event!', 
+            url: 'https://www.espn.com/'
+          });
+          if (result.action === Share.sharedAction) {
+            if (result.activityType) {
+              // shared with activity type of result.activityType
+            } else {
+              // shared
+            }
+          } else if (result.action === Share.dismissedAction) {
+            // dismissed
           }
-        );
-      };
+        } catch (error) {
+          alert(error.message);
+      }
+    }
+
   
       const [buttonColor3, setButtonColor3] = useState('#FFF')
       const toggle3 = () => {
-        share();
+        onShare();
       }
     const borderColor = (buttonColor) => {
       if (buttonColor == '#FFF') {
@@ -198,7 +262,7 @@ function MainScreen({navigation}) {
         return currentEvent.startTime + ' - ' + currentEvent.endTime
       }
     }
-    renderInner = () => (
+    const renderInner = () => (
       <View style={styles.panel}>
         <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
           <View>
@@ -212,7 +276,7 @@ function MainScreen({navigation}) {
               </Text>
           </View>
           <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{color: 'black'}}>{currentEvent.privateEvent}</Text>
+            <Text style={{color: 'black'}}>{currentEvent.privateEvent?"Private":"Public"}</Text>
           </View>
           
         </View>
@@ -336,7 +400,7 @@ function MainScreen({navigation}) {
       </View>
     );
     
-    renderHeader = () => (
+    const renderHeader = () => (
         <View style={styles.header}>
           <View style={styles.panelHeader}>
             <View style={styles.panelHandle}>
@@ -344,49 +408,59 @@ function MainScreen({navigation}) {
           </View>
         </View>
     );
-
-    renderInner2 = () => (
-      <View style={{backgroundColor: '#fff'}}>
-        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
-        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
-        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
-        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
-        <ProfileButton title = 'ALEX IS A NERD' location = ''/>
-        <View style={{backgroundColor: '#fff', marginBottom: windowHeight}}></View>
+    const renderInner2 = () => (
+      <View style={{backgroundColor: '#fff',height:'100%',zIndex:1,}}>
+        {myContext.eventList.map((item) => {
+            return (
+              <View key = {item.id}>
+                <Text>{item.name}</Text>
+              </View>
+            )
+          })}
+        {/*<View style={{backgroundColor: '#fff', marginBottom: windowHeight}}></View>*/}
       </View>
     )
     
-    renderHeader2 = () => (
+    const renderHeader2 = () => (
       <View style={{backgroundColor: '#fff',
         shadowColor: '#333333',
         shadowOffset: {width: -1, height: -2},
         shadowRadius: 2,
         shadowOpacity: 0.4,
-        paddingTop: 25,
+        paddingTop: 15,
         borderTopLeftRadius: 20,
-        borderTopRightRadius: 20}}>
+        borderTopRightRadius: 20,
+        zIndex:1,}}>
           <View style={{alignItems: 'flex-end'}}>
-            <TouchableOpacity style={{width: 80}}>
-              <Text style={{fontWeight: 'bold', color: 'red', fontSize: 16, marginRight: 25, marginBottom: 25}}>CLEAR</Text>
+            <TouchableOpacity style={{width: 80}} 
+              onPress = {() => {
+                searchParams.SearchType = 'none'; searchParams.SearchText = ''; myContext.changeMapSearchText('');
+                searchParams.Categories.length = 0; searchParams.TimeRange.startTime = ''; searchParams.TimeRange.endTime = ''; 
+                searchParams.TimeRange.value = 'Anytime'; bs2.current.snapTo(0);setSnapPosition2(0); myContext.toggleShowNavBar(true);
+                navigation.navigate('MainScreen',searchParams)}
+              }>
+
+              <Text style={{fontWeight: 'bold', color: 'red', fontSize: 16, marginRight: 25, marginBottom: 15}}>CLEAR</Text>
             </TouchableOpacity>
           </View>
             
       </View>
   );
-
     const [latDelta, setLatDelta] = useState(0.015);
     const [longDelta, setLongDelta] = useState(latDelta/2);
     
     const [snapPosition,setSnapPosition] = useState(0);
     
-    const openBottomSheet = (event) => {
+    const openBottomSheet = (event,index) => {
         if(snapPosition == 1) {
             setCurrentEvent(event);
+            setIndex(index);
         }
         else if(snapPosition == 0) {
             myContext.toggleShowNavBar(false);
             bs.current.snapTo(1);
             setCurrentEvent(event);
+            setIndex(index);
             setSnapPosition(1);
         }
     }
@@ -403,45 +477,95 @@ function MainScreen({navigation}) {
             setSnapPosition2(1);
         }
     }
-    const [eventList,setEventList] = useState([]);
-    //const [searchResults,setSearchResults] = useState([]);
-    //each time search is called change the searchResults list, not the main one, that way it's fast to revert back on clear
+    //const [eventList,setEventList] = useState([]);
     const searchParams = {
       SearchType: navigation.getParam('SearchType','none'),
       SearchText: navigation.getParam('SearchText',''),
       Categories: navigation.getParam('Categories',[]),
-      TimeRange: navigation.getParam('TimeRange',{startDate:'',endDate:'',startTime:'',endTime:'',value:'Anytime'}),
+      TimeRange: navigation.getParam('TimeRange',{startTime:'',endTime:'',value:'Anytime'}),
       OtherFilters: navigation.getParam('OtherFilters',[]),
       BotSheetInfo: navigation.getParam('BotSheetInfo',{snapPos:snapPosition}),
       CloseBotSheet: navigation.getParam('CloseBotSheet',false),
+      CloseBotSheet2: navigation.getParam('CloseBotSheet2',false),
     };
-    const getEvents = () => {
-      console.log('fetching...');
-      let fetchurl = Globals.eventsURL;
-      fetch(fetchurl)
-        .then((response) => response.json())
-        .then((json) => {console.log(json);setEventList(json)})
-        .catch((error) => console.error(error))
+    const getEvents = () => { //gets ONLY eventId, name, lat, lng, virtualEvent, and mainCategoryId,  
+
+      if(searchParams.SearchType == 'none') {
+        console.log('fetching all active events (no search)...');
+        let fetchurl = Globals.eventsURL + '/active/' + myContext.user.id;
+        //let fetchurl = Globals.eventsURL;
+        fetch(fetchurl)
+          .then((response) => response.json())
+          .then((json) => {myContext.updateEventList(json)})
+          .catch((error) => console.error(error));
+      }
+
+      else if(searchParams.SearchType == 'text') {
+        console.log('fetching events matching keyword search...');
+        let fetchurl = Globals.eventsURL + '/search/active?keyword=' + searchParams.SearchText 
+        +'&userId=' + myContext.user.id;
+
+        fetch(fetchurl)
+          .then((response) => response.json())
+          .then((json) => {myContext.updateEventList(json)})
+          .catch((error) => console.error(error));
+      }
+
+      else if(searchParams.SearchType == 'filter') {
+        console.log('fetching events matching filters...');
+        let fetchurl = Globals.eventsURL;
+
+        if(searchParams.Categories.length ==0 && searchParams.TimeRange.value == 'Anytime') //no search...
+            fetchurl +=  '/active/' + myContext.user.id;
+
+        else if(searchParams.Categories.length==0) { //date range only
+          fetchurl += '/search/timeRange?startTime=' + searchParams.TimeRange.startTime + 
+          '&endTime=' + searchParams.TimeRange.endTime + '&userId=' + myContext.user.id;
+        }
+        else if(searchParams.TimeRange.value == 'Anytime') { //categories only
+          let catString = '';
+          for(let i=0;i<searchParams.Categories.length;i++) {
+            catString += searchParams.Categories[i].id + ',';
+          }
+          catString = catString.slice(0,-1);
+          fetchurl += '/search/category?catIds=' + catString + '&userId=' + myContext.user.id;
+        }
+        else { //both - tricky
+          let catString = '';
+          for(let i=0;i<searchParams.Categories.length;i++) {
+            catString += searchParams.Categories[i].id + ',';
+          }
+          catString = catString.slice(0,-1);
+          fetchurl += '/search/categoryAndDate?catIds=' + catString + '&startTime=' + searchParams.TimeRange.startTime + 
+          '&endTime=' + searchParams.TimeRange.endTime + '&userId=' + myContext.user.id;
+        }
+        fetch(fetchurl)
+          .then((response) => response.json())
+          .then((json) => {myContext.updateEventList(json)})
+          .catch((error) => console.error(error));
+      }
     }
     const [fetched,setFetched] = useState(false);
-    useEffect(() => {
-        console.log(searchParams);
 
-        //if(!fetched) {
-          getEvents();
-          setFetched(true);
-        //}
+    useEffect(() => {
+      console.log(searchParams);
+      getEvents();
 
     if(searchParams.CloseBotSheet == true) {
       bs.current.snapTo(0);
     }    
-    
-    if(snapPosition == 0)
+    if(searchParams.CloseBotSheet2 == true) { //only true if no search
+      bs2.current.snapTo(0);
+      setSnapPosition2(0);
+    }
+    if(searchParams.SearchType != 'none') {
+      openBottomSheet2();
+    }
+    if(snapPosition == 0 && searchParams.SearchType == 'none')
       myContext.toggleShowNavBar(true);
     else
       myContext.toggleShowNavBar(false);
        
-
     }, [navigation]);
     
     const matchesCriteria = (event) => {
@@ -464,19 +588,27 @@ function MainScreen({navigation}) {
       return false;
     }
 
-    renderEvents = () => {
+    const renderEvents = () => {
         //if there is a search then return searchResults.map(...)
         return (
-          eventList.map((item) => {
-            if(matchesCriteria(item)) {
+          myContext.eventList.map((item,index) => {
+            //if(matchesCriteria(item)) {
+            if(!item.name || !item.id || !item.latitude || !item.longitude || !item.mainCategory) {
+              Alert.alert("UH OH!!! SOMETHING IS WRONG WITH THE EVENT BEING RENDERED");
+              console.log(item.name);
+              console.log(item.id);
+              console.log(item.latitude);
+              console.log(item.longitude);
+              console.log(item.mainCategory);
+            }
             return (
               <Marker key = {item.id}
               coordinate = {{latitude: parseFloat(item.latitude), longitude: parseFloat(item.longitude)}} 
-              onPress = {() => openBottomSheet(item)}>
-                <LocationPin title = {item.name}/>
+              onPress = {() => openBottomSheet(item,index)}>
+                <LocationPin title = {item.name} mainCategory = {item.mainCategory}/>
               </Marker>
             )
-            }
+            //}
           })
         )   
     }
@@ -496,55 +628,45 @@ function MainScreen({navigation}) {
             showsPointsOfInterest = {true}
             rotateEnabled = {false}  
             >
-            {renderEvents()}
-            <Marker
-            coordinate = {{latitude: 42.276200, longitude: -83.735474}}
-            onPress = {() => openBottomSheet2()}
-            >
-              <LocationPin title = "lmfao another bottomsheet"/>
-            </Marker>
-            <Marker key = '100'
-            coordinate = {{latitude: 42.275200, longitude: -83.735474}}
-            onPress = {() => {console.log('pressed');searchParams.Categories.length = 0;navigation.navigate('MainScreen',searchParams)}}>
-                <LocationPin title = "Clear Search From Outside"/>
-            </Marker>
-            
+            {renderEvents()}      
             </MapView>
 
         <View style={styles.topbar}>
                 <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>
         </View> 
-
         <View style={styles.pullup}>
             <BottomSheet
-                ref={this.bs}
-                snapPoints={[0, 260, windowHeight - 100]}
-                renderContent={this.renderInner}
-                renderHeader={this.renderHeader}
+                ref={bs2}
+                snapPoints={[searchParams.SearchType=='none'?0:60, 240, windowHeight - 50]}
+                renderContent={renderInner2}
+                renderHeader={renderHeader2}
                 initialSnap={0}
-                callbackNode={this.fall}
+                callbackNode={fall}
                 enabledGestureInteraction={true}
-                onCloseEnd={() => {setSnapPosition(0);myContext.toggleShowNavBar(true)}}
+                onCloseEnd={() => {setSnapPosition2(0)}} //this time, the navbar is taken care of in the clear button onPress
             />
             <Animated.View style={{margin: 20,
-                opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
+                opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)),
             }}>
             </Animated.View>   
-        
         </View>
         <View style={styles.pullup}>
             <BottomSheet
-                ref={this.bs2}
-                snapPoints={[0, windowHeight - 160, 70]}
-                renderContent={this.renderInner2}
-                renderHeader={this.renderHeader2}
+                ref={bs}
+                snapPoints={[0, 280, windowHeight - 50]}
+                renderContent={renderInner}
+                renderHeader={renderHeader}
                 initialSnap={0}
-                callbackNode={this.fall}
+                callbackNode={fall}
                 enabledGestureInteraction={true}
-                onCloseEnd={() => {setSnapPosition2(0);myContext.toggleShowNavBar(true)}}
+                onCloseEnd={() => {
+                  setSnapPosition(0);
+                  if(searchParams.SearchType == 'none')
+                    myContext.toggleShowNavBar(true);          
+                }}
             />
             <Animated.View style={{margin: 20,
-                opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
+                opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)),
             }}>
             </Animated.View>   
         
@@ -597,6 +719,36 @@ const FindNavigator = createStackNavigator(screens,{mode: 'modal'});
 const FindContainer = createAppContainer(FindNavigator);
 
 export default function FindScreen() {
+    const myContext = useContext(AppContext);
+    const [fetched, setFetched] = useState(false);
+    const isFocused = useIsFocused();
+
+    const refreshEvents = () => {
+
+    }
+
+    useFocusEffect(
+      React.useCallback(() => {
+
+        if(!fetched) {
+          console.log('refreshing event list');
+          let fetchurl = Globals.eventsURL + '/active/' + myContext.user.id;
+          setFetched(true);
+          fetch(fetchurl)
+            .then((response) => response.json())
+            .then((json) => {myContext.updateEventList(json)})
+            .catch((error) => {Alert.alert('Unable to fetch events',"Sorry, something isn't working with our server calls :(");
+              /*not sure what to do functionally, don't want to spam calls if not working with setFetched(false)*/});
+        }
+
+        const unsubscribe = () => {
+          if(!isFocused && fetched) {
+            setFetched(false);
+          }
+        }
+        return () => unsubscribe();
+    })        
+    ) 
     return (
         <FindContainer/>
     );

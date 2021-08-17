@@ -15,6 +15,9 @@ import InviteScreen from './InviteScreen';
 import CreateInviteList from './CreateInviteList';
 import InviteListView from './InviteListView';
 import AddMoreScreen from './AddMoreScreen';
+import InviteUser from './InviteUser';
+import EditEvent from './EditEvent';
+import InvitePeopleScreen from './InvitePeopleScreen';
 
 const HORIZONTALMARGIN = 20.4;
 
@@ -143,10 +146,10 @@ function MainScreen({navigation}) {
             <View style={styles.buttonContainer}>
                 <Text style = {styles.headerText}>My Event Info</Text>
                 <ProfileButton onPress = {() => navigation.navigate('MyUpcomingScreen', params)} title = 'My Upcoming Events' />
-                <ProfileButton onPress = {() => navigation.navigate('EventsFollowingScreen')} title = "Events I'm Following" />
+                <ProfileButton onPress = {() => navigation.navigate('EventsFollowingScreen',params)} title = "Events I'm Following" />
                 <ProfileButton onPress = {() => navigation.navigate('EventUpdatesScreen')} title = 'Event Updates' />
                 <Text style = {styles.headerText}>Invitations</Text>
-                <ProfileButton onPress = {() => navigation.navigate('IncomingInvScreen')} title = 'Incoming Invitations' />
+                <ProfileButton onPress = {() => navigation.navigate('IncomingInvScreen', params)} title = 'Incoming Invitations' />
                 <ProfileButton onPress = {() => navigation.navigate('OutgoingInvScreen')} title = 'Outgoing Invitations' />
                 <Text style = {styles.headerText}>Events I'm Hosting</Text>
                 <ProfileButton onPress = {() => {navigation.navigate('HostScreen',user)}} title = 'Manage My Events' />
@@ -221,6 +224,24 @@ const screens = {
         screen: AddMoreScreen,
         navigationOptions: {
             headerShown: false
+        }
+    },
+    InviteUser: {
+        screen: InviteUser,
+        navigationOptions: {
+            headerShown: false,
+        }
+    },
+    EditEvent: {
+        screen: EditEvent,
+        navigationOptions: {
+            headerShown: false,
+        }
+    },
+    InvitePeopleScreen: {
+        screen: InvitePeopleScreen,
+        navigationOptions: {
+            headerShown: false,
         }
     }
 }

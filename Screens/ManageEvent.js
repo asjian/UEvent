@@ -1,5 +1,5 @@
 import React , {useContext, useState} from 'react';
-import {StyleSheet, TouchableOpacity, Text, View, SafeAreaView, ScrollView, Modal, TextInput, Pressable, Alert, Dimensions} from 'react-native';
+import {StyleSheet, Image, TouchableOpacity, Text, View, SafeAreaView, ScrollView, Modal, TextInput, Pressable, Alert, Dimensions} from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
@@ -8,6 +8,8 @@ import { ManageAttendeesScreen } from './ManageAttendees';
 import { createStackNavigator } from '@react-navigation/stack';
 import EditEventScreen from './EditEvent';
 import { useNavigation } from '@react-navigation/native';
+import BackButton from '../objects/backButton';
+import ProfileButton from '../objects/profileButton';
 
 
     function ManageEventScreen({navigation, route}) {
@@ -61,107 +63,202 @@ import { useNavigation } from '@react-navigation/native';
         const cancelEvent = () => {
             console.log(Globals.eventsURL + '/delete/' + item.id);
             fetch(Globals.eventsURL + '/delete/' + item.id, {method: 'delete',})
-            .then(() => {console.log('delete successful');navigation.goBack();myContext.toggleShowNavBar(true)})
+            .then(() => console.log('delete successful'))
             .catch((error) => console.error(error));
+        
+            navigation.goBack();
+
         }
 
 
     return (
-            <SafeAreaView style={{backgroundColor: '#FFF9F9', height: '100%', width: '100%'}} >
-            <ScrollView contentContainerStyle={{height:'100%'}}>
-            <View style={{alignItems: 'center', flexDirection: 'row'}}>
-                <Text style={{fontWeight: '500',fontSize: Globals.HR(30), width: '50%', margin: '3%'}}>{item.name}</Text>
-                <View style={styles.close}>
-                    <AntDesign name='closecircleo' size={Globals.HR(30)} onPress={() => {navigation.goBack(); myContext.toggleShowNavBar(true);}} />
+            <View style={{backgroundColor: '#fff'}} >
+            <View style={{backgroundColor: '#FFF', marginBottom: 20,}}>
+                <View style={{alignItems: 'center', marginLeft: 20, marginTop: 50, flexDirection: 'row'}}>
+                    <BackButton onPress={() => {navigation.goBack(); myContext.toggleShowNavBar(true);}} title = {item.name}/>
                 </View>
-            </View>
-            <View style={{}}>
-                <Text style={{fontWeight: '500', fontSize: Globals.HR(24), margin: '3%'}}>Analytics</Text>
-            </View>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <View style={{flex: 1}}>
-                    <Text style={{textAlign: 'center', fontSize: Globals.HR(24), fontWeight: '500'}}>864</Text>
-                    <Text style={{textAlign: 'center', color: '#0085FF', fontSize: Globals.HR(14)}}>Views</Text>
+                <View style={{marginLeft: 35}}>
+                    <Text style={{fontSize: 22,
+                    color: '#434343',
+                    fontWeight: 'bold',
+                    marginTop: 28,
+                    marginBottom: 7,}}>Analytics -</Text>
                 </View>
-                <View style={{flex: 1}}>
-                    <Text style={{textAlign: 'center', fontSize: Globals.HR(24), fontWeight: '500'}}>276</Text>
-                    <Text style={{textAlign: 'center', color: '#0085FF', fontSize: Globals.HR(14)}}>Follows</Text>
-                </View>
-                <View style={{flex: 1}}>
-                    <Text style={{textAlign: 'center', fontSize: Globals.HR(24), fontWeight: '500'}}>89</Text>
-                    <Text style={{textAlign: 'center', color: '#0085FF', fontSize: Globals.HR(14)}}>Attendees</Text>
-                </View>
-            </View>
-            <View style={{}}>
-                <Text style={{fontWeight: '500', fontSize: Globals.HR(24), margin: '3%'}}>Manage Event</Text>
-            </View>
-            <View style={styles.NewEventButton}>
-                <TouchableOpacity onPress={() => {console.log(item);navigation.navigate('Edit Event', { screen: 'Form', params: {item: item} })}}>
-                    <View style={styles.selectContainer}>
-                        <Text style={styles.selectText}>Edit Event</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 5, marginTop: 20}}>
+                    <View style={{flex: 1}}>
+                        <Image source={require('../assets/star.png')} style={{alignSelf: 'center', height: 20, width: 20, tintColor: '#434343'}}/>
+                        <Text style={{textAlign: 'center', fontSize: Globals.HR(18), color: '#434343', fontWeight: 'bold'}}>864</Text>
                     </View>
-                </TouchableOpacity>
-            </View>
-            <Modal 
-                visible={modalVisible}
-                transparent={true}
-                animationType='fade'
-            >
-                <SafeAreaView style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <View style={styles.modalClose}>
-                            <AntDesign name='closecircleo' size={30} onPress={() => {setModalVisible(false); setAnnoucement('');}} />
-                        </View>
-                        <Text style={{textAlign: 'center', fontSize: 24, fontWeight: '500'}}>Send an Event Update</Text>
-                        <Text style={{textAlign: 'auto', fontSize: 16, fontWeight: '500', marginTop: 10}}>Enter the update here:</Text>
-                        <View style={styles.textAreaContainer}>
-                            <TextInput 
-                                multiline={true}
-                                style={{margin: 10}}
-                                placeholder='All followers will be notified'
-                                onChangeText={(text) => setAnnoucement(text)}
-                            />
-                        </View>
-                        <TouchableOpacity onPress={SendUpdate}>
-                            <View style={styles.UpdateContainer}>
-                                <Text style={styles.UpdateText}>Send Update</Text>
-                            </View>
-                        </TouchableOpacity>
-                            
+                    <View style={{flex: 1}}>
+                        <Image source={require('../assets/invitation.png')} style={{alignSelf: 'center', height: 20, width: 20, tintColor: '#434343'}}/>
+                        <Text style={{textAlign: 'center', fontSize: Globals.HR(18), color: '#434343', fontWeight: 'bold'}}>276</Text>
                     </View>
-                </SafeAreaView>
+                    <View style={{flex: 1}}>
+                        <Image source={require('../assets/attendees.png')} style={{alignSelf: 'center', height: 20, width: 20, tintColor: '#434343'}}/>
 
-            </Modal>
-            <View style={styles.NewEventButton}>
-                <TouchableOpacity onPress={() => setModalVisible(true)}>
-                    <View style={styles.selectContainer}>
-                        <Text style={styles.selectText}>Make Announcement</Text>
+                        <Text style={{textAlign: 'center', fontSize: Globals.HR(18), color: '#434343', fontWeight: 'bold'}}>89</Text>
                     </View>
-                </TouchableOpacity>
+                </View>
             </View>
-            <View style={styles.NewEventButton}>
-                <TouchableOpacity onPress={() => navigation.navigate('Invite People')}>
-                    <View style={styles.selectContainer}>
-                        <Text style={styles.selectText}>Invite People</Text>
+            <View style={{marginLeft: 35, marginBottom: 20}}>
+                    <Text style={{fontSize: 22,
+                    color: '#434343',
+                    fontWeight: 'bold',
+                    marginTop: 28,
+                    marginBottom: 7,}}>Manage Event -</Text>
+                </View>
+            <ScrollView style={{marginLeft: 20, marginRight: 20, height: '100%'}}>
+            <View style={{flex: 1,
+            }}>
+                
+            
+                <TouchableOpacity style={{backgroundColor: '#FFF',
+                borderRadius: 8,
+                borderColor: '#0085ff',
+                borderWidth: 1,
+                height: 55,
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                marginBottom: 20,
+                }}
+                onPress={() => {console.log(item);navigation.navigate('Edit Event', { screen: 'Form', params: {item: item} })}}>
+                    <View style={{flexDirection: 'row'}}>
+                        <Image
+                        source={require('../assets/attendees.png')}
+                        style={{height:18, width: 18, marginLeft: 20, marginRight: 10, tintColor: '#0085ff'}}
+                        ></Image>
+                        <Text style={{
+                        fontSize: 17,
+                        fontWeight: 'bold',
+                        color: '#0085ff',
+                        }}>Edit Event</Text>
                     </View>
                 </TouchableOpacity>
-            </View>
-            <View style={styles.NewEventButton}>
-                <TouchableOpacity onPress={() => navigation.navigate('Manage Attendees', { apiData: item})}>
-                    <View style={styles.selectContainer}>
-                        <Text style={styles.selectText}>Manage Attendees</Text>
+                <Modal 
+                    visible={modalVisible}
+                    transparent={true}
+                    animationType='fade'
+                >
+                    <SafeAreaView style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={styles.modalClose}>
+                                <AntDesign name='closecircleo' size={30} onPress={() => {setModalVisible(false); setAnnoucement('');}} />
+                            </View>
+                            <Text style={{textAlign: 'center', fontSize: 24, fontWeight: '500'}}>Send an Event Update</Text>
+                            <Text style={{textAlign: 'auto', fontSize: 16, fontWeight: '500', marginTop: 10}}>Enter the update here:</Text>
+                            <View style={styles.textAreaContainer}>
+                                <TextInput 
+                                    multiline={true}
+                                    style={{margin: 10}}
+                                    placeholder='All followers will be notified'
+                                    onChangeText={(text) => setAnnoucement(text)}
+                                />
+                            </View>
+                            <TouchableOpacity onPress={SendUpdate}>
+                                <View style={styles.UpdateContainer}>
+                                    <Text style={styles.UpdateText}>Send Update</Text>
+                                </View>
+                            </TouchableOpacity>
+                                
+                        </View>
+                    </SafeAreaView>
+                </Modal>
+                
+                <TouchableOpacity style={{backgroundColor: '#FFF',
+                borderRadius: 8,
+                borderColor: '#434343',
+                borderWidth: 1,
+                height: 55,
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                marginBottom: 20,
+                }}
+                onPress={() => navigation.navigate('Invite People')} title = 'Invite People'>
+                    <View style={{flexDirection: 'row'}}>
+                        <Image
+                        source={require('../assets/attendees.png')}
+                        style={{height:18, width: 18, marginLeft: 20, marginRight: 10, tintColor: '#434343'}}
+                        ></Image>
+                        <Text style={{
+                        fontSize: 17,
+                        fontWeight: 'bold',
+                        color: '#434343',
+                        }}>Invite People</Text>
                     </View>
                 </TouchableOpacity>
-            </View>
-            <View style={{alignItems: 'center'}}>
-                <TouchableOpacity onPress={cancelEvent}>
-                    <View style={styles.cancelContainer}>
-                        <Text style={styles.cancelText}>Cancel Event</Text>
+                
+                <TouchableOpacity style={{backgroundColor: '#FFF',
+                borderRadius: 8,
+                borderColor: '#434343',
+                borderWidth: 1,
+                height: 55,
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                marginBottom: 20,
+                }}
+                onPress={() => navigation.navigate('Manage Attendees', { apiData: item})}>
+                    <View style={{flexDirection: 'row'}}>
+                        <Image
+                        source={require('../assets/attendees.png')}
+                        style={{height:18, width: 18, marginLeft: 20, marginRight: 10, tintColor: '#434343'}}
+                        ></Image>
+                        <Text style={{
+                        fontSize: 17,
+                        fontWeight: 'bold',
+                        color: '#434343',
+                        }}>Manage Attendees</Text>
                     </View>
                 </TouchableOpacity>
+
+                <TouchableOpacity style={{backgroundColor: '#FFF',
+                borderRadius: 8,
+                borderColor: '#434343',
+                borderWidth: 1,
+                height: 55,
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                marginBottom: 20,
+                }}
+                onPress={() => setModalVisible(true)} title = 'Make Announcement'>
+                    <View style={{flexDirection: 'row'}}>
+                        <Image
+                        source={require('../assets/attendees.png')}
+                        style={{height:18, width: 18, marginLeft: 20, marginRight: 10, tintColor: '#434343'}}
+                        ></Image>
+                        <Text style={{
+                        fontSize: 17,
+                        fontWeight: 'bold',
+                        color: '#434343',
+                        }}>Make Announcement</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{backgroundColor: '#FFF',
+                borderRadius: 8,
+                borderColor: 'red',
+                borderWidth: 1,
+                height: 55,
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                marginBottom: 20,
+                }}
+                onPress={cancelEvent}>
+                    <View style={{flexDirection: 'row'}}>
+                        <Image
+                        source={require('../assets/attendees.png')}
+                        style={{height:18, width: 18, marginLeft: 20, marginRight: 10, tintColor: 'red'}}
+                        ></Image>
+                        <Text style={{
+                        fontSize: 17,
+                        fontWeight: 'bold',
+                        color: 'red',
+                        }}>Cancel Event</Text>
+                    </View>
+                </TouchableOpacity>
+
             </View>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 }
 

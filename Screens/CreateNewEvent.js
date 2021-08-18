@@ -252,8 +252,10 @@ const EventInformation = (props) => {
                                     onFocus={() => setFocus(true)}
                                     onBlur={() => setFocus(false)}
                                 />
-                                <Text style={styles.counterStyle}>{formikprops.values.EventTitle.length.toString()} / 50</Text>
-                                <Text style={styles.errorMessage}>{formikprops.touched.EventTitle && formikprops.errors.EventTitle}</Text>
+                                <View style={styles.messageContainer}>
+                                    <Text style={styles.errorMessage}>{formikprops.touched.EventTitle && formikprops.errors.EventTitle}</Text>
+                                    <Text style={styles.counterStyle}>{formikprops.values.EventTitle.length.toString()} / 50</Text>
+                                </View>
 
                             </View>
                             <View style={styles.containerStyle}>
@@ -673,6 +675,7 @@ const EventDetails = (props) => {
         props.next(values, true);
         // navigate to preview screen
         navigation.navigate('Preview', { values: values });
+        console.log(values);
     };
 
     const [isFocused, setFocus] = useState(false);
@@ -785,7 +788,7 @@ const EventDetails = (props) => {
 const Preview = ({ route, navigation }) => {
     const { values } = route.params;
     const myContext = useContext(AppContext);
-
+    console.log(values);
     // Helper functions
     const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
     {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
@@ -905,7 +908,6 @@ const Preview = ({ route, navigation }) => {
           );
         }
       }
-  
       const renderTime = () => {
         if (values.StartDay == values.EndDay) {
           return values.StartDay + ' - ' + values.EndTime
@@ -914,42 +916,13 @@ const Preview = ({ route, navigation }) => {
           return values.StartTime + ' - ' + values.EndTime
         }
       }
-
+      const handleNavigation = (postedEvent) => {
+          myContext.changePostedEvent({...postedEvent,...{inUse:true}});
+          navigation.popToTop();
+          navigation.dangerouslyGetParent().popToTop();                  
+          navigation.dangerouslyGetParent().dangerouslyGetParent().navigate('Find');
+      }
     const postToServer = () => { //post the event to the server
-        /*
-        fetch('https://retoolapi.dev/rJZk4j/events', {
-            method: 'post',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                Name: values.EventTitle,
-                Tags: values.Tags,
-                Email: values.OrganizerEmail,
-                Avatar: values.EventImage,
-                Images: 'placeholder',
-                Address: values.Address,
-                Privacy: values.Privacy,
-                Website: values.OrganizerWebsite,
-                Invitees: '',
-                Latitude: latlng.lat,
-                Attendees: '',
-                Longitude: latlng.lng,
-                Organizer: values.OrganizerName,
-                EndDayTime: values.EndTime,
-                Description: values.EventDescription,
-                LocationName: values.LocationName,
-                EventLink: values.EventLink,
-                MainCategory: values.EventType,
-                Registration: values.Registration,
-                StartDayTime: values.StartTime,
-                InPersonVirtual: values.InPerson,
-                OtherCategories: values.ContentType
-            })
-        }); 
-        */
-
         fetch(Globals.eventsURL + '/json/add', {
             method: 'post',
             headers: {
@@ -978,17 +951,17 @@ const Preview = ({ route, navigation }) => {
                 }
                 )
         })
-        .catch((error) => console.error(error)); 
+        .then((response) => response.json())
+        .then((json) => {
+            console.log('event posted: ')
+            console.log(json);
+            handleNavigation(json);
+        })
+        .catch((error) => Alert.alert('Failed to Post Event',"Sorry, we can't post your event right now. Please try again later.")); 
     }
-    const postEventHandler = async () => {
-        postToServer();
-        // Navigate to map
-        navigation.popToTop();
-        navigation.dangerouslyGetParent().popToTop();
-        navigation.dangerouslyGetParent().dangerouslyGetParent().navigate('Find');
-        myContext.toggleShowNavBar(true);
+    const postEventHandler = () => {
+        postToServer(); //handles all navigation stuff also
     }
-
     return (
         <SafeAreaView style={{
             flex: 1,
@@ -1423,7 +1396,7 @@ const styles = StyleSheet.create({
     },
     errorMessage: {
         color: '#D8000C',
-        paddingLeft: '5%',
+        flex: 6.2,
         fontSize: 14
     },
     map: {
@@ -1489,7 +1462,12 @@ const styles = StyleSheet.create({
         fontSize: windowHeight / 46.3
     },
     counterStyle: {
-        marginLeft: 23,
+        flex: 1,
         fontSize: 14
+    },
+    messageContainer: {
+        flexDirection: 'row', 
+        width: '88%', 
+        marginLeft: 24
     }
 })

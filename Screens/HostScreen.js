@@ -1,28 +1,30 @@
-import React, {useEffect} from 'react';
+import React, {useState,useEffect,useContext} from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useFocusEffect } from '@react-navigation/native';
 import { Dimensions } from 'react-native';
 import HostNavBar from '../routes/HostNavBar';
 import CreateNewEventScreen from './CreateNewEvent';
 //import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import ManageEventScreen from './ManageEvent';
 import ManageEventStack from './ManageEvent';
+import Globals from '../../GlobalVariables';
+import AppContext from '../objects/AppContext';
+import EventDetailsScreen from './EventDetailsScreen';
 
 const Stack = createStackNavigator()
-
-
-
 // 926
-
-
-
-
 function HostScreen(props) {
+    //const myContext = useContext(AppContext);
     const windowHeight = Dimensions.get('window').height;
-    // useEffect(() => {
+    /*
+    useFocusEffect(
+        React.useCallback(() => {
+            console.log('useFocusEffect hostscreen');
+            const unsubscribe = () => setFetched(false);
+            return () => unsubscribe();
+        })         
+    );
+    */
 
-    //     console.log(windowHeight);
-    
-    // },[]);
     return (
         <Stack.Navigator>
             <Stack.Screen
@@ -41,6 +43,7 @@ function HostScreen(props) {
                 }}
             />
             <Stack.Screen name="Create a New Event" component={CreateNewEventScreen} options={{ headerShown: false }} />
+            <Stack.Screen name='EventDetailsScreen' component={EventDetailsScreen} options={{ headerShown: false }}/>
             <Stack.Screen name='Manage Event' component={ManageEventStack} options={{ headerShown: false }}/>
         </Stack.Navigator>
     );

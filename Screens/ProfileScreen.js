@@ -1,7 +1,9 @@
 import React, {useState,useContext} from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, Image } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, Image, TouchableOpacity } from 'react-native';
 import {createAppContainer} from 'react-navigation';
-import {createStackNavigator} from 'react-navigation-stack';
+//import {createStackNavigator} from 'react-navigation-stack';
+import { createStackNavigator } from '@react-navigation/stack';
+
 import MyUpcomingScreen from './MyUpcomingScreen';
 import EventsFollowingScreen from './EventsFollowingScreen';
 import EventUpdatesScreen from './EventUpdatesScreen';
@@ -16,8 +18,9 @@ import CreateInviteList from './CreateInviteList';
 import InviteListView from './InviteListView';
 import AddMoreScreen from './AddMoreScreen';
 import InviteUser from './InviteUser';
-import EditEvent from './EditEvent';
 import InvitePeopleScreen from './InvitePeopleScreen';
+import { ManageAttendeesScreen } from './ManageAttendees';
+import ManageEventStack from './ManageEvent';
 
 const HORIZONTALMARGIN = 20.4;
 
@@ -149,111 +152,125 @@ function MainScreen({navigation}) {
                 <ProfileButton onPress = {() => navigation.navigate('EventsFollowingScreen',params)} title = "Events I'm Following" />
                 <ProfileButton onPress = {() => navigation.navigate('EventUpdatesScreen')} title = 'Event Updates' />
                 <Text style = {styles.headerText}>Invitations</Text>
-                <ProfileButton onPress = {() => navigation.navigate('IncomingInvScreen', params)} title = 'Incoming Invitations' />
+                <ProfileButton onPress = {() => navigation.navigate('IncomingInvScreen')} title = 'Incoming Invitations' />
                 <ProfileButton onPress = {() => navigation.navigate('OutgoingInvScreen')} title = 'Outgoing Invitations' />
                 <Text style = {styles.headerText}>Events I'm Hosting</Text>
-                <ProfileButton onPress = {() => {navigation.navigate('HostScreen',user)}} title = 'Manage My Events' />
+                <ProfileButton onPress = {() => {
+                    navigation.dangerouslyGetParent().dangerouslyGetParent().navigate('Host');
+                }} title = 'Manage My Events' />
             </View>
         </ScrollView>
     </SafeAreaView>
     </View>
     );
 }
-const screens = {
-    MainScreen: {
-        screen: MainScreen,
-        navigationOptions: {
-            headerShown: false
-        },
-    },
-    MyUpcomingScreen: {
-        screen: MyUpcomingScreen,
-        navigationOptions: {
-            headerShown: false
-        },
-    },
-    EventsFollowingScreen: {
-        screen: EventsFollowingScreen,
-        navigationOptions: {
-            headerShown: false,
-        },
-    },
-    EventUpdatesScreen: {
-        screen: EventUpdatesScreen,
-        navigationOptions: {
-            headerShown: false,
-        },
-    },
-    IncomingInvScreen: {
-        screen: IncomingInvScreen,
-        navigationOptions: {
-          headerShown: false
-        },
-    },
-    OutgoingInvScreen: {
-        screen: OutgoingInvScreen,
-        navigationOptions: {
-          headerShown: false
-        },
-    },
-    EventDetailsScreen: {
-        screen: EventDetailsScreen,
-        navigationOptions: {
-          headerShown: false
-        },
-    },
-    InviteScreen: {
-        screen: InviteScreen,
-        navigationOptions: {
-          headerShown: false
-        },
-    },
-    CreateInviteList: {
-        screen: CreateInviteList,
-        navigationOptions: {
-          headerShown: false
-        }
-    },
-    InviteListView: {
-        screen: InviteListView,
-        navigationOptions: {
-          headerShown: false
-        }
-    },
-    AddMoreScreen: {
-        screen: AddMoreScreen,
-        navigationOptions: {
-            headerShown: false
-        }
-    },
-    InviteUser: {
-        screen: InviteUser,
-        navigationOptions: {
-            headerShown: false,
-        }
-    },
-    EditEvent: {
-        screen: EditEvent,
-        navigationOptions: {
-            headerShown: false,
-        }
-    },
-    InvitePeopleScreen: {
-        screen: InvitePeopleScreen,
-        navigationOptions: {
-            headerShown: false,
-        }
-    }
-}
-const ProfileNavigator = createStackNavigator(screens);
+// const screens = {
+//     MainScreen: {
+//         screen: MainScreen,
+//         navigationOptions: {
+//             headerShown: false
+//         },
+//     },
+//     MyUpcomingScreen: {
+//         screen: MyUpcomingScreen,
+//         navigationOptions: {
+//             headerShown: false
+//         },
+//     },
+//     EventsFollowingScreen: {
+//         screen: EventsFollowingScreen,
+//         navigationOptions: {
+//             headerShown: false,
+//         },
+//     },
+//     EventUpdatesScreen: {
+//         screen: EventUpdatesScreen,
+//         navigationOptions: {
+//             headerShown: false,
+//         },
+//     },
+//     IncomingInvScreen: {
+//         screen: IncomingInvScreen,
+//         navigationOptions: {
+//           headerShown: false
+//         },
+//     },
+//     OutgoingInvScreen: {
+//         screen: OutgoingInvScreen,
+//         navigationOptions: {
+//           headerShown: false
+//         },
+//     },
+//     EventDetailsScreen: {
+//         screen: EventDetailsScreen,
+//         navigationOptions: {
+//           headerShown: false
+//         },
+//     },
+//     InviteScreen: {
+//         screen: InviteScreen,
+//         navigationOptions: {
+//           headerShown: false
+//         },
+//     },
+//     CreateInviteList: {
+//         screen: CreateInviteList,
+//         navigationOptions: {
+//           headerShown: false
+//         }
+//     },
+//     InviteListView: {
+//         screen: InviteListView,
+//         navigationOptions: {
+//           headerShown: false
+//         }
+//     },
+//     AddMoreScreen: {
+//         screen: AddMoreScreen,
+//         navigationOptions: {
+//             headerShown: false
+//         }
+//     },
+//     InviteUser: {
+//         screen: InviteUser,
+//         navigationOptions: {
+//             headerShown: false,
+//         }
+//     }
+// }
+// const ProfileNavigator = createStackNavigator(screens);
 
-const ProfileContainer = createAppContainer(ProfileNavigator);
+const ProfileNavigator = createStackNavigator();
 
-export default function FindScreen() {
+export default function ProfileNavigator1({ navigation }) {
+    
     return (
-        <ProfileContainer/>
-    );
+        <ProfileNavigator.Navigator>
+            <ProfileNavigator.Screen name="MainScreen" component={MainScreen} options={{ headerShown: false }} />
+            <ProfileNavigator.Screen name="MyUpcomingScreen" component={MyUpcomingScreen} options={{ headerShown: false }} />
+            <ProfileNavigator.Screen name="EventsFollowingScreen" component={EventsFollowingScreen} options={{ headerShown: false }} />
+            <ProfileNavigator.Screen name="EventUpdatesScreen" component={EventUpdatesScreen} options={{ headerShown: false }} />
+            <ProfileNavigator.Screen name="IncomingInvScreen" component={IncomingInvScreen} options={{ headerShown: false }} />
+            <ProfileNavigator.Screen name="OutgoingInvScreen" component={OutgoingInvScreen} options={{ headerShown: false }} />
+            <ProfileNavigator.Screen name="EventDetailsScreen" component={EventDetailsScreen} options={{ headerShown: false }} />
+            <ProfileNavigator.Screen name="InviteScreen" component={InviteScreen} options={{ headerShown: false }} />
+            <ProfileNavigator.Screen name="CreateInviteList" component={CreateInviteList} options={{ headerShown: false}}/>
+            <ProfileNavigator.Screen name="InviteListView" component={InviteListView} options={{ headerShown: false}}/>
+            <ProfileNavigator.Screen name="AddMoreScreen" component={AddMoreScreen} options={{ headerShown: false}}/>
+            <ProfileNavigator.Screen name="InviteUser" component={InviteUser} options={{ headerShown: false }} />
+            <ProfileNavigator.Screen name="InvitePeopleScreen" component={InvitePeopleScreen} options={{ headerShown: false }} />
+            <ProfileNavigator.Screen name="Manage Event" component={ManageEventStack} options={{ headerShown: false }} />
+        </ProfileNavigator.Navigator>
+    )
 }
+
+// const ProfileContainer = createAppContainer(ProfileNavigator1);
+
+// export default function FindScreen() {
+//     return (
+//         <ProfileContainer/>
+//     );
+// }
 const styles = StyleSheet.create({
     screenContainer: {
         flex:1,
@@ -294,5 +311,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginTop: 28,
         marginBottom: 7,
+    },
+    headerButtonStyle : {
+        fontSize: Globals.HR(18),
+        color: '#0085FF',
+        fontWeight: '700',
+        margin: Globals.HR(5)
     }
 })

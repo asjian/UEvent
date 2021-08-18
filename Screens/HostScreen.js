@@ -9,6 +9,7 @@ import ManageEventStack from './ManageEvent';
 import Globals from '../../GlobalVariables';
 import AppContext from '../objects/AppContext';
 import EventDetailsScreen from './EventDetailsScreen';
+import EventDetailsScreenPast from './EventDetailsPast';
 
 const Stack = createStackNavigator()
 // 926
@@ -44,7 +45,9 @@ function HostScreen(props) {
             />
             <Stack.Screen name="Create a New Event" component={CreateNewEventScreen} options={{ headerShown: false }} />
             <Stack.Screen name='EventDetailsScreen' component={EventDetailsScreen} options={{ headerShown: false }}/>
+            <Stack.Screen name='EventDetailsScreenPast' component={EventDetailsScreenPast} options={{ headerShown: false }}/>
             <Stack.Screen name='Manage Event' component={ManageEventStack} options={{ headerShown: false }}/>
+            
         </Stack.Navigator>
     );
 }

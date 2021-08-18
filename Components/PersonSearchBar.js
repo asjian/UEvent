@@ -1,25 +1,35 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {View, Text, TouchableWithoutFeedback, Modal, StyleSheet, Image, Keyboard, Dimensions} from 'react-native';
 import { SearchBar } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
 
 
-export default function PersonSearchBar() {
-    const [pressed,setPressed] = useState(false);
+export default function PersonSearchBar({navigation,parentScreen}) {
     const [iconColor,setIconColor] = useState('#adadad');
-
+    const [searchText, setSearchText] = useState('');
+    
+    const clear = () => {
+        setSearchText('');
+        // searchParams.SearchText = '';
+        // navigation.navigate(parentScreen,searchParams)
+    }
+    const submit = () => {
+        // searchParams.SearchText = searchText;
+        // navigation.navigate(parentScreen,searchParams);
+    }
     return (
         <SearchBar 
-        placeholder = 'Search Here' 
-        onSubmitEditing = {() => {setPressed(false)}}
+        //ref={search => this.search = search}
+        placeholder = 'Search names or emails' 
+        value = {searchText}
+        onChangeText = {(search) => setSearchText(search)}
+        onSubmitEditing = {submit}
         autoCorrect = {false}
-
         inputStyle = {styles.input}
-        inputContainerStyle = {pressed?styles.inputContainer1:styles.inputContainer2}
-        containerStyle = {pressed?styles.searchContainer2:styles.searchContainer1}
-        searchIcon = {pressed?<Ionicons name = 'chevron-back' size = {30} color = {iconColor} onPress = {() => setPressed(false)}/>:
-        <Image source = {require('../assets/search.png')} style = {{width:26,height:27,tintColor:iconColor,marginLeft: 2,}}/>}
-        clearIcon = {<Ionicons name = 'close-outline' size = {28} color = {iconColor} onPress = {() => {this.search.clear();clearHandler()}}/>}
+        inputContainerStyle = {styles.inputContainer2}
+        containerStyle = {styles.searchContainer1}
+        searchIcon = {<Image source = {require('../assets/search.png')} style = {{width:26,height:27,tintColor:iconColor,marginLeft: 2,}}/>}
+        clearIcon = {<Ionicons name = 'close-outline' size = {28} color = {iconColor} onPress = {clear}/>}
         />
     );
   

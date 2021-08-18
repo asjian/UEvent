@@ -1,25 +1,31 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, Button, StyleSheet, Image, ParentView, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { SafeAreaView, View, Text, Dimensions, StyleSheet, Image, ParentView, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
+import {useFocusEffect} from '@react-navigation/native';
+
 //import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import ManageEventScreen from './ManageEvent';
+import { useIsFocused } from '@react-navigation/native';
 
+
+const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get('window').width;
 
 const EventBox = ({navigation, myContext, item}) => {
     return (
         
-            <TouchableOpacity onPress={() => {myContext.toggleShowNavBar(false);navigation.navigate('Manage Event', { screen: 'Manage Event', params: {item: item} });}} style={styles.box}>
+            <TouchableOpacity onPress={() => {navigation.navigate('EventDetailsScreenPast', {user: myContext.user, currentEvent: item} );}} style={styles.box}>
             <View style={{ flex: 2 }}>
                 <Image style={styles.realImageStyle} source={require('../assets/user_icon.png')} />
             </View>
             <View style={{ flex: 6 }}>
                 <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontWeight: '500', fontSize: Globals.HR(13), color: '#0085FF', flex: 6 }}>{item.startTime} - {item.endTime}</Text>
+                    <Text style={{ fontWeight: '500', fontSize: windowHeight / 71.23, color: '#0085FF', flex: 6 }}>{Globals.formatDate(item.startTime)} - {Globals.formatDate(item.endTime)}</Text>
                     <Image style={{ resizeMode: 'contain', flex: 1 }} source={require('../assets/NotificationBell.png')} />
                 </View>
-                <Text style={{ fontWeight: "500", fontSize: Globals.HR(16), marginBottom: '3%' }}>{item.name}</Text>
-                <Text style={{ fontWeight: '500', fontSize: Globals.HR(13), color: '#09189F' }}>{item.locationName}</Text>
+                <Text style={{ fontWeight: "500", fontSize: windowHeight / 57.88, marginBottom: '3%' }}>{item.name}</Text>
+                <Text style={{ fontWeight: '500', fontSize: windowHeight / 71.23, color: '#09189F' }}>{item.locationName}</Text>
             </View>
             
             </TouchableOpacity>
@@ -27,12 +33,10 @@ const EventBox = ({navigation, myContext, item}) => {
         
     );
 }
-
-
-
-
 function PastEventsScreen({ navigation }) {
     const myContext = useContext(AppContext);
+    const isFocused = useIsFocused();
+
     // event handler function
     const createEventHandler = () => {
         myContext.toggleShowNavBar(false);
@@ -40,6 +44,35 @@ function PastEventsScreen({ navigation }) {
     }
 
     const [PastEvents, setPastEvents] = useState([]);
+
+    const getEvents = () => {
+        console.log('fetching upcoming events...');
+        let fetchurl = Globals.eventsURL + '/getHostedEvents/' + myContext.user.id;
+        fetch(fetchurl)
+          .then((response) => response.json())
+          .then((json) => {
+            const pastData = json.filter(function (events)  {
+                let dateobj = Globals.createDateAsUTC(events.endTime.substr(0,4), events.endTime.substr(5,2), events.endTime.substr(8,2),
+                events.endTime.substr(11,2), events.endTime.substr(14,2), events.endTime.substr(17,2));
+                
+                return new Date() > dateobj;
+            });
+            setPastEvents(pastData);
+            
+            })
+          .catch((error) => console.error(error))
+    }   
+      const [fetched,setFetched] = useState(false);
+      useFocusEffect(
+        React.useCallback(() => {
+            if(!fetched) { 
+                getEvents();
+                setFetched(true);
+            }
+            const unsubscribe = () => {if(fetched && !isFocused)setFetched(false);};
+            return () => unsubscribe();
+        })         
+      );
 
     // const getEvents = () => {
     //     console.log('fetching past events...');

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState,useRef} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 //import NavBar from './app/routes/navBar';
 import AppContext from './app/objects/AppContext';
@@ -11,11 +11,26 @@ const App = () => {
     setShowNavBar(value);
   }
 
-  const [user,setUser] = useState({id: -1,Name: '',Email: 'nan@umich.edu',Organization: "No",Admin: "No",UpcomingEvents: '',EventsHosting: '',});
+  const [user,setUser] = useState({id: -1,displayName: '',email: 'nan@umich.edu',});
   const initializeUser = (value) => {
     setUser(value);
   }
   
+  const [mapSearchText,setMapSearchText] = useState(''); //NOTHING SHOULD TOUCH THIS EXCEPT MAPSEARCHBAR AND THE CLEAR BUTTON
+  const changeMapSearchText = (value) => {
+    setMapSearchText(value);
+  }
+
+  const [eventList,setEventList] = useState([]);
+  const updateEventList = (value) => {
+    setEventList(value);
+  }
+
+  const [postedEvent,setPostedEvent] = useState({inUse:false});
+  const changePostedEvent = (value) => {
+    setPostedEvent(value);
+  }
+
   const globals = {
     navBarVisible: showNavBar,
     toggleShowNavBar,
@@ -23,14 +38,41 @@ const App = () => {
     user: user,
     initializeUser,
 
+    mapSearchText: mapSearchText,
+    changeMapSearchText,
+
+    eventList: eventList,
+    updateEventList,
+
+    postedEvent: postedEvent,
+    changePostedEvent,
   }
+  const [fetchedCategories,setFetchedCategories] = useState(false);
   //prepare things:
       //fetch categories
-      fetch(Globals.categoriesURL)
-      .then((response) => response.json())
-      .then((json) => {Globals.categories = json})
-      .catch((error) => console.error(error));
+      if(!fetchedCategories) {
+        console.log('fetching categories...')
+        fetch(Globals.categoriesURL)
+        .then((response) => response.json())
+        .then((json) => {Globals.categories = json;setFetchedCategories(true)})
+        .catch((error) => console.error(error));
+      }
   //mess with the database/api here
+  
+  /*
+  fetch('http://47.252.19.227/EventHub/rest/invitees/delete?eventId=10&userId=3', {
+    method: 'delete',
+  })
+  */
+  
+  /*
+  fetch('http://47.252.19.227/EventHub/rest/users/delete/8',{
+   method: 'delete',
+  });
+  */
+  
+  
+  
 /*
  fetch('https://retoolapi.dev/lvF3hn/events/4',{
    method: 'patch',

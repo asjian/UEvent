@@ -3,7 +3,6 @@ import {StyleSheet, Image, TouchableOpacity, Text, View, SafeAreaView, ScrollVie
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
-import InvitePeopleScreen from './InvitePeopleScreen';
 import { ManageAttendeesScreen } from './ManageAttendees';
 import { createStackNavigator } from '@react-navigation/stack';
 import EditEventScreen from './EditEvent';
@@ -13,7 +12,8 @@ import ProfileButton from '../objects/profileButton';
 import AddMoreScreen from './AddMoreScreen';
 import CreateInviteList from './CreateInviteList';
 import InviteListView from './InviteListView';
-
+import InvitePeopleScreen from './InvitePeopleScreen';
+import InviteScreen from './InviteScreen';
 
     function ManageEventScreen({navigation, route}) {
         const myContext = useContext(AppContext);
@@ -177,7 +177,7 @@ import InviteListView from './InviteListView';
                 marginHorizontal: 15,
                 marginBottom: 20,
                 }}
-                onPress={() => navigation.navigate('Invite People', {event: event})} title = 'Invite People'>
+                onPress={() => navigation.navigate('InviteScreen', {event: item})}>
                     <View style={{flexDirection: 'row'}}>
                         <Image
                         source={require('../assets/attendees.png')}
@@ -274,7 +274,8 @@ export default function ManageEventStack({ navigation }) {
         <Stack.Navigator>
             <Stack.Screen name="Manage Event" component={ManageEventScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Edit Event" component={EditEventScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Invite People" component={InvitePeopleScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="InviteScreen" component={InviteScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="InvitePeopleScreen" component={InvitePeopleScreen} options={{ headerShown: false }} />
             <Stack.Screen name="CreateInviteList" component={CreateInviteList} options={{ headerShown: false}}/>
             <Stack.Screen name="InviteListView" component={InviteListView} options={{ headerShown: false}}/>
             <Stack.Screen name="AddMoreScreen" component={AddMoreScreen} options={{ headerShown: false}}/>

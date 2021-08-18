@@ -8,9 +8,10 @@ import PersonSearchBar from '../objects/PersonSearchBar';
 import AddMoreButton from '../objects/addPeople';
 
 
-export default function InviteScreen({navigation}) {
+export default function InviteScreen({navigation, route}) {
 
-    const event = navigation.getParam('event');
+    // const event = navigation.getParam('event');
+    const { event } = route.params;
 
     return (
         <View style={{backgroundColor: '#fff', flex: 1}}>
@@ -48,16 +49,16 @@ export default function InviteScreen({navigation}) {
                     shadowOffset: { width: 0, height: 1 },
                     shadowOpacity: 0.2,
                     shadowRadius: 1,}}
-                    onPress={()=>navigation.navigate('InvitePeopleScreen')}>
+                    onPress={()=>navigation.navigate('InvitePeopleScreen', {event: event})}>
                         <View style={{padding: 7, flexDirection: 'row', alignItems: 'center'}}>
                             <Text style={{justifyContent: 'center', marginRight: 5, fontWeight: 'bold', color: '#ffcb05', fontSize: 14}}>ADD MORE</Text>
-                            <Image source={require('../assets/add.png')} style={{height: 12, width:12, tintColor: '#ffcb05'}}/>
+                            <Image source={require('../assets/arrow.png')} style={{height: 12, width:12, tintColor: '#ffcb05'}}/>
                         </View>  
                     </TouchableOpacity>
                 </View>
                 </View>
             </View>
-                <PersonSearchBar/>
+                <PersonSearchBar navigation={navigation} parentScreen='InviteScreen' />
                 
             </View>
         </View>

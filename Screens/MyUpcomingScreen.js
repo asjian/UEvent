@@ -8,26 +8,20 @@ import {createStackNavigator} from 'react-navigation-stack';
 import { render } from 'react-dom';
 
 
-export default function MainScreen({navigation}) {
-    const user = navigation.getParam('user');
-    console.log(user);
-    const eventIds = user.UpcomingEvents.split(" ");
+export default function MainScreen({navigation, route}) {
+    // const {user} = navigation.getParam('user');
+    const { user } = route.params;
+    //const eventIds = [6,7,10];
     const [eventList, setEventList] = useState([]);
     const [gotEvents,setGotEvents] = useState(false);
 
-    const getEvent = (eventId) => {
-      let fetchurl = Globals.eventsURL + '/' + eventId;
-
-      fetch (fetchurl)
-      .then((response) => response.json())
-      .then((json) => {setEventList((prevEventList)=>{return [json,...prevEventList]})})
-      .catch((error) => console.error(error))
-    }
     const getUserEvents = () => {
-      for(let i=0; i<eventIds.length;i++) {
-        getEvent(eventIds[i]);
-      }
-      setGotEvents(true);
+        let fetchurl = Globals.attendeesURL + '/attendingEvents/' + user.id; 
+
+        fetch (fetchurl)
+        .then((response) => response.json())
+        .then((json) => {setEventList(json)})
+        .catch((error) => console.error(error))
     }
     const renderEvents = () => {
       return (
@@ -36,16 +30,18 @@ export default function MainScreen({navigation}) {
               <View key = {event.id}>
               <ProfileButton title = {event.name} 
               location = {event.locationName} 
-              time = {event.startTime.split(' ')[0].split('/')[0] + '/' + event.startTime.split(' ')[0].split('/')[1] + ', ' + event.startTime.split(' ')[1] + ' - ' + event.endTime.split(' ')[1]} 
-              onPress={() => navigation.navigate('EventDetailsScreen', {eventId: event.id}, {eventsHosting: user.eventsHosting})}/>
+              time = {Globals.formatDate(event.startTime) + ' - ' + Globals.formatDate(event.endTime)}
+              onPress={() => navigation.navigate('EventDetailsScreen', {user: user, currentEvent: event})}/>
               </View>
             )
         }
       )
       )
     }
-    if(!gotEvents)
+    if(!gotEvents) {
       getUserEvents();
+      setGotEvents(true);
+    }
 
     return (
         <SafeAreaView style={styles.button}>

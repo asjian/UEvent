@@ -4,16 +4,17 @@ import {StyleSheet, Dimensions, Text, View, SafeAreaView, Image, Keyboard,Toucha
 import ListButton from '../objects/listButton';
 import BackButton from '../objects/backButton';
 import PlusButton from '../objects/plusButton';
-import CreateListButton from '../objects/sendInviteButton';
+import SendInviteButton from '../objects/sendInviteButton';
 import PersonSearchBar from '../objects/PersonSearchBar';
 import { SearchBar } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
 import Globals from '../../GlobalVariables';
 import InviteeButton from '../objects/InviteeButton';
 
-export default function InvitePeopleScreen({navigation}) {
+export default function InvitePeopleScreen({navigation, route}) {
 
-    const event = navigation.getParam('event');
+    // const event = navigation.getParam('event');
+    const { event } = route.params;
     //console.log(event);
     const [users,setUsers] = useState([]);
     const [selectedUsers,setSelectedUsers] = useState([]);
@@ -172,7 +173,7 @@ export default function InvitePeopleScreen({navigation}) {
                         </View>
                 </View>
                 <View style={{alignItems: 'flex-end', marginRight: 20, marginBottom: 20}}>
-                    <CreateListButton onPress = {inviteHandler}/>
+                    <SendInviteButton onPress = {inviteHandler}/>
                 </View>
             </View>
                 <SearchBar 

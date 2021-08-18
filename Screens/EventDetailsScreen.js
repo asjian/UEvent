@@ -5,68 +5,17 @@ import BackButton from '../objects/backButton';
 import Globals from '../../GlobalVariables';
 
 
-export default function EventDetailsScreen({navigation}) {
-      const user = navigation.getParam('user');
-      const eventId = navigation.getParam('eventId');
-
-      const [currentEvent,setCurrentEvent] = useState({
-        "name" : "{{$randomWord}}",
-    		"location":  "{{$randomStreetAddress}}",
-    		"locationName" : "{{$randomNoun}}",
-    		"locationDetails": "{{$randomStreetName}}",
-    		"description" : "{{$randomPhrase}}",
-    		"privateEvent" : "{{$randomBoolean}}",
-    		"virtualEvent" : "{{$randomBoolean}}",
-    		"coordinates" : [
-                        {
-                            "longitude" :  "26.2021",
-                            "latitude" :  "76.3496"
-                        },
-                        {                                                
-                            "longitude" :  "{{$randomLongitude}}",
-                            "latitude" :  "{{$randomLatitude}}"
-                        }
-                    ],
-    		"registrationLink": "{{$randomIP}}",
-    		"organizer" : "{{$randomCompanyName}}",
-    		"organizerWebsite" : "{{$randomDomainWord}}",
-    		"startTime": "2021-09-05 20:00:00",
-    		"endTime" : "2021-09-05 22:30:00",  
-    		"hostId" :  "5",
-    		"mainCategoryId": "12",
-    		"categoryIds" : [8, 20, 16]
-      });
-      const inPerson = [{name:false, icon: require('../assets/person.png'), ket: 0,},
-      {name:true, icon: require('../assets/virtual.png'), key: 1}]
-      const [gotEvent, setGotEvent] = useState(false);
-      const getCurrentEvent = () => {
-        let fetchurl = Globals.eventsURL + '/get/' + eventId;
-        fetch(fetchurl)
-          .then((response) => response.json())
-          .then((json) => {setCurrentEvent(json); setGotEvent(true)})
-          .catch((error) => console.error(error))
-      }
-
-      const renderPrivate = () => {
-        if (currentEvent.privateEvent == true) {
-          return 'Private'
-        } else {
-          return 'Public'
-        }
-      }
-
+export default function EventDetailsScreen({navigation, route}) {
+      // const user = navigation.getParam('user');
+      // const currentEvent = navigation.getParam('event');
+      const { user } = route.params;
+      const { currentEvent } = route.params;
       const renderCategories = () => {
         let pic = "";
-        for (let i = 0; i < inPerson.length; i++) {
-          if (inPerson[i].name == currentEvent.virtualEvent) {
-            pic = inPerson[i].icon
-          }
-        }
-        console.log(currentEvent);
         return (
           <View style={{flexDirection: 'row'}}>
             <Image
-              source={pic}
+              source={currentEvent.virtualEvent?require('../assets/virtual.png'):require('../assets/person.png')}
               style={{width:18, height: 18, tintColor: 'orange'}}>
             </Image>
             <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.virtualEvent?"Virtual":"In Person"}</Text>
@@ -167,13 +116,13 @@ export default function EventDetailsScreen({navigation}) {
       }
   
       const [isTruncated, setIsTruncated] = useState(true);
-      const resultString = isTruncated ? currentEvent.description.slice(0, 160) : currentEvent.description;
+      const resultString = isTruncated ? currentEvent.description.slice(0, 133) : currentEvent.description;
       const readMore = isTruncated ? 'Read More' : 'Read Less'
       const toggle = () => {
         setIsTruncated(!isTruncated);
       }
       const renderButton = () => {
-        if (resultString.length > 160) {
+        if (resultString.length > 130) {
           return (
             <TouchableOpacity onPress={toggle}>
               <Text style={{color: '#FFCB05', marginBottom: 10}}>{readMore}</Text>
@@ -184,10 +133,10 @@ export default function EventDetailsScreen({navigation}) {
   
       const renderTime = () => {
         if (currentEvent.startTime.split(' ')[0] == currentEvent.endTime.split(' ')[0]) {
-          return Globals.formatDate(currentEvent.startTime) + " - " + Globals.formatDate(currentEvent.endTime).split(" ")[2]
+          return currentEvent.startTime + ' - ' + currentEvent.endTime.split(' ')[1]
         }
         else {
-          return Globals.formatDate(currentEvent.startTime) + " - " + Globals.formatDate(currentEvent.endTime)
+          return currentEvent.startTime + ' - ' + currentEvent.endTime
         }
       }
 
@@ -200,7 +149,9 @@ export default function EventDetailsScreen({navigation}) {
           }
         }
         */
-        if (yes) {
+        console.log('current event: ')
+        console.log(currentEvent);
+        if (user.id == currentEvent.host.id) {
           return (
             <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20}}>
             <TouchableOpacity style={{backgroundColor: buttonColor1,
@@ -213,7 +164,7 @@ export default function EventDetailsScreen({navigation}) {
               justifyContent: 'center',
               marginHorizontal: 15,
               }}
-              onPress={toggle1}>
+              onPress={() => navigation.navigate('Manage Event', { screen: 'Manage Event', params: {item: currentEvent} })}>
               <View>
                 <Image
                   source={require('../assets/attendees.png')}
@@ -223,7 +174,7 @@ export default function EventDetailsScreen({navigation}) {
                   fontSize: 17,
                   fontWeight: 'bold',
                   color: borderColor(buttonColor1),
-                }}>Attendees</Text>
+                }}>Manage</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity style={{backgroundColor: buttonColor2,
@@ -259,7 +210,7 @@ export default function EventDetailsScreen({navigation}) {
               justifyContent: 'center',
               marginHorizontal: 15,
               }}
-              onPress={() => navigation.navigate('InviteScreen')}>
+              onPress={() => navigation.navigate('InviteScreen',{event:currentEvent})}>
               <View>
                 <Image
                   source={require('../assets/invitation.png')}
@@ -352,10 +303,6 @@ export default function EventDetailsScreen({navigation}) {
         }
       }
 
-    if (!gotEvent) {
-      getCurrentEvent()
-    }
-
   return (
     <SafeAreaView style={{
       flex: 1,
@@ -372,14 +319,14 @@ export default function EventDetailsScreen({navigation}) {
             <Text style={{
               fontSize: 24,
               width: Dimensions.get('window').width - 105,
-              marginRight: 10
+              marginRight: 10    
               }} 
               numberOfLines={2}>
                 {currentEvent.name}
               </Text>
             </View>
-          <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5}}>
-            <Text style={{color: 'black'}}>{renderPrivate()}</Text>
+          <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{color: 'black'}}>{currentEvent.privateEvent?"Private":"Public"}</Text>
           </View> 
         </View>
         <View style={styles.panelHost}>
@@ -414,7 +361,14 @@ export default function EventDetailsScreen({navigation}) {
         <Text style={{marginBottom: 10}}>{currentEvent.location}</Text>
         {registration()}
         {moreDetails()}
-        <TouchableOpacity style={{marginTop: 5, flexDirection: 'row'}}>
+        <TouchableOpacity style={{flexDirection: 'row'}}>
+          <Image
+            source={require('../assets/CalendarIcon.png')}
+            style={{width:18, height: 18, marginBottom: 5}}>
+          </Image>
+          <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: '#03a9f4'}}>Add Event to Calendar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{flexDirection: 'row'}}>
           <Image
             source={require('../assets/report.png')}
             style={{width:18, height: 18, tintColor: 'red', marginBottom: Dimensions.get('window').height}}>
@@ -462,6 +416,7 @@ const styles = StyleSheet.create({
     },
     panel: {
         padding: 20,
+        backgroundColor: '#fff',
         paddingTop: 20,
         //paddingBottom: Dimensions.get('window').height,
     },

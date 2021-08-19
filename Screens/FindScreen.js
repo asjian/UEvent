@@ -490,7 +490,7 @@ function MainScreen({navigation, route}) {
                 <SearchResult onPress = {() => {
                   bs2.current.snapTo(0);
                   setSnapPosition2(0);
-                  mapRef.current.animateToRegion({latitude: item.latitude, longitude: item.longitude, latDelta: 0.008, longDelta: 0.004},500);
+                  mapRef.current.animateToRegion({latitude: item.latitude, longitude: item.longitude, latitudeDelta: 0.005, longitudeDelta: 0.0025},500);
                   openBottomSheet(item,index);
                 }} 
                   title = {item.name} location = {item.locationName} 
@@ -593,7 +593,7 @@ function MainScreen({navigation, route}) {
           .then((response) => response.json())
           .then((json) => {myContext.updateEventList(json);
                 if(json.length == 1) {
-                  mapRef.current.animateToRegion({latitude:json[0].latitude,longitude:json[0].longitude,latitudeDelta:0.008,longitudeDelta:0.004})
+                  mapRef.current.animateToRegion({latitude:json[0].latitude,longitude:json[0].longitude,latitudeDelta:0.005,longitudeDelta:0.0025})
                 }
                 else if (json.length > 1) {
                   let coordarray = [];
@@ -666,8 +666,8 @@ function MainScreen({navigation, route}) {
           mapRef.current.animateToRegion({
           latitude: myContext.postedEvent.latitude, 
           longitude: myContext.postedEvent.longitude,
-          latitudeDelta: 0.008, 
-          longitudeDelta: 0.004,
+          latitudeDelta: 0.005, 
+          longitudeDelta: 0.0025,
         }, 1000);
 
         console.log('opening bottom sheet for posted event');

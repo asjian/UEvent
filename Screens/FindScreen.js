@@ -1,27 +1,26 @@
 import React, {useState, useContext, useEffect,useRef} from 'react';
 import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image, Share, Alert} from 'react-native';
-import { createAppContainer} from 'react-navigation';
-import {createStackNavigator} from 'react-navigation-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { useFocusEffect } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 import MapSearchBar from '../objects/mapSearchBar';
-import Search from './Search';
 import CategoryList from './CategoryList';
 import DateRange from './DateRange';
 import TimeRange from './TimeRange';
-import OtherFilters from './OtherFilters';
-//import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import MapView from 'react-native-map-clustering';
 import {Marker} from 'react-native-maps';
 import LocationPin from '../objects/locationPin';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
-import ProfileButton from '../objects/UpcomingEventButton';
+import SearchResult from '../objects/searchResult';
+import EventDetailsScreen from './EventDetailsScreen';
+import ManageEventStack from './ManageEvent';
+import InviteScreen from './InviteScreen';
 
 //custom bottom sheet
-function MainScreen({navigation}) {
+function MainScreen({navigation, route}) {
     const myContext = useContext(AppContext);
     /*
     Geocoder.init('AIzaSyCwpmhlqGnuN1m-MdKp0FOpVZwFR1QFqug');
@@ -59,13 +58,18 @@ function MainScreen({navigation}) {
       "registrationLink": "",
       "startTime": "7/8/2021",
       "virtualEvent": "In Person",
-      "categoryIds": "Greek Life Social Food/Drink "
+      "categoryIds": "Greek Life Social Food/Drink ",
+      "host": {
+        "id": -1,
+      }
     });
     const[index,setIndex] = useState(-1);
     const windowHeight = Dimensions.get('window').height;
     const bs = useRef();
     const bs2 = useRef();
+    const mapRef = useRef(null);
     const fall = new Animated.Value(1);
+    const fall2 = new Animated.Value(1);
     
     const renderCategories = () => {
 
@@ -255,14 +259,10 @@ function MainScreen({navigation}) {
     }
 
     const renderTime = () => {
-      if (currentEvent.startTime.split(' ')[0] == currentEvent.endTime.split(' ')[0]) {
-        return currentEvent.startTime + ' - ' + currentEvent.endTime.split(' ')[1]
-      }
-      else {
-        return currentEvent.startTime + ' - ' + currentEvent.endTime
-      }
+      return Globals.formatDate(currentEvent.startTime) + ' - ' + Globals.formatDate(currentEvent.endTime);
     }
     const renderInner = () => (
+
       <View style={styles.panel}>
         <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
           <View>
@@ -295,6 +295,8 @@ function MainScreen({navigation}) {
           ></Image>
           <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{renderTime()}</Text>
         </View>
+       
+        {myContext.user.id != currentEvent.host.id?
         <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
           <TouchableOpacity style={{backgroundColor: buttonColor1,
             borderRadius: 8,
@@ -333,7 +335,7 @@ function MainScreen({navigation}) {
             <View>
               <Image
                 source={require('../assets/check2.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
+                style={{height:19, width: 18.2, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
               ></Image>
               <Text style={{
                 fontSize: 17,
@@ -356,7 +358,7 @@ function MainScreen({navigation}) {
             <View>
               <Image
                 source={require('../assets/share2.png')}
-                style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
+                style={{height:21, width: 16, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
               ></Image>
               <Text style={{
                 fontSize: 17,
@@ -365,7 +367,79 @@ function MainScreen({navigation}) {
               }}>Share</Text>
             </View>
           </TouchableOpacity>
-        </View>
+        </View>:
+            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20}}>
+            <TouchableOpacity style={{backgroundColor: buttonColor1,
+              borderRadius: 8,
+              borderColor: borderColor(buttonColor1),
+              borderWidth: 1,
+              width: (Dimensions.get('window').width - 81.6) / 3,
+              height: 55,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginHorizontal: 15,
+              }}
+              onPress={() => {navigation.navigate('Manage Event', { screen: 'Manage Event', params: {item: currentEvent} })}}>
+              <View>
+                <Image
+                  source={require('../assets/manage.png')}
+                  style={{height:18, width: 21.5, alignSelf: 'center', tintColor: borderColor(buttonColor1)}}
+                ></Image>
+                <Text style={{
+                  fontSize: 17,
+                  fontWeight: 'bold',
+                  color: borderColor(buttonColor1),
+                }}>Manage</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={{backgroundColor: buttonColor2,
+              borderRadius: 8,
+              borderColor: borderColor(buttonColor2),
+              borderWidth: 1,
+              width: (Dimensions.get('window').width - 81.6) / 3,
+              height: 55,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginHorizontal: 15,
+              }}
+              onPress={toggle2}>
+              <View>
+                <Image
+                  source={require('../assets/edit.png')}
+                  style={{height:18, width: 14.4, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
+                ></Image>
+                <Text style={{
+                  fontSize: 17,
+                  fontWeight: 'bold',
+                  color: borderColor(buttonColor2),
+                }}>Edit</Text>
+              </View>   
+            </TouchableOpacity>
+            <TouchableOpacity style={{backgroundColor: buttonColor3,
+              borderRadius: 8,
+              borderColor: borderColor(buttonColor3),
+              borderWidth: 1,
+              width: (Dimensions.get('window').width - 81.6) / 3,
+              height: 55,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginHorizontal: 15,
+              }}
+              onPress={() => navigation.navigate('InviteScreen',{event:currentEvent})}>
+              <View>
+                <Image
+                  source={require('../assets/invitation.png')}
+                  style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
+                ></Image>
+                <Text style={{
+                  fontSize: 17,
+                  fontWeight: 'bold',
+                  color: borderColor(buttonColor3),
+                }}>Invite</Text>
+              </View>
+            </TouchableOpacity>
+            </View>
+        }
           <View>
             <Image source={require('../assets/avatar.jpeg')}
             resizeMode= 'cover'
@@ -409,15 +483,22 @@ function MainScreen({navigation}) {
         </View>
     );
     const renderInner2 = () => (
-      <View style={{backgroundColor: '#fff',height:'100%',zIndex:1,}}>
-        {myContext.eventList.map((item) => {
+      <View style={{backgroundColor: 'white'}}>
+        {myContext.eventList.map((item,index) => {
             return (
-              <View key = {item.id}>
-                <Text>{item.name}</Text>
+              <View key = {item.id} style = {{marginTop: 10,}}>
+                <SearchResult onPress = {() => {
+                  bs2.current.snapTo(0);
+                  setSnapPosition2(0);
+                  mapRef.current.animateToRegion({latitude: item.latitude, longitude: item.longitude, latDelta: 0.008, longDelta: 0.004},500);
+                  openBottomSheet(item,index);
+                }} 
+                  title = {item.name} location = {item.locationName} 
+                  time = {Globals.formatDate(item.startTime) + ' - ' + Globals.formatDate(item.endTime)}/>
               </View>
             )
           })}
-        {/*<View style={{backgroundColor: '#fff', marginBottom: windowHeight}}></View>*/}
+        <Text style = {{marginBottom: Dimensions.get('window').height,}}></Text>
       </View>
     )
     
@@ -431,16 +512,16 @@ function MainScreen({navigation}) {
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         zIndex:1,}}>
-          <View style={{alignItems: 'flex-end'}}>
-            <TouchableOpacity style={{width: 80}} 
+          <View style={{flexDirection: 'row'}}>
+            <Text style = {{fontWeight: 'bold', color: 'black', fontSize: 16, marginLeft: 10, marginBottom: 15,}}>Search Results</Text>
+            <TouchableOpacity style={{width: 80, marginLeft: 210,}} 
               onPress = {() => {
                 searchParams.SearchType = 'none'; searchParams.SearchText = ''; myContext.changeMapSearchText('');
                 searchParams.Categories.length = 0; searchParams.TimeRange.startTime = ''; searchParams.TimeRange.endTime = ''; 
                 searchParams.TimeRange.value = 'Anytime'; bs2.current.snapTo(0);setSnapPosition2(0); myContext.toggleShowNavBar(true);
                 navigation.navigate('MainScreen',searchParams)}
               }>
-
-              <Text style={{fontWeight: 'bold', color: 'red', fontSize: 16, marginRight: 25, marginBottom: 15}}>CLEAR</Text>
+              <Text style={{fontWeight: 'bold', color: 'red', fontSize: 16, marginBottom: 15,}}>CLEAR</Text>
             </TouchableOpacity>
           </View>
             
@@ -452,6 +533,7 @@ function MainScreen({navigation}) {
     const [snapPosition,setSnapPosition] = useState(0);
     
     const openBottomSheet = (event,index) => {
+        console.log(event);
         if(snapPosition == 1) {
             setCurrentEvent(event);
             setIndex(index);
@@ -478,7 +560,7 @@ function MainScreen({navigation}) {
         }
     }
     //const [eventList,setEventList] = useState([]);
-    const searchParams = {
+    /*const searchParams = {
       SearchType: navigation.getParam('SearchType','none'),
       SearchText: navigation.getParam('SearchText',''),
       Categories: navigation.getParam('Categories',[]),
@@ -487,7 +569,9 @@ function MainScreen({navigation}) {
       BotSheetInfo: navigation.getParam('BotSheetInfo',{snapPos:snapPosition}),
       CloseBotSheet: navigation.getParam('CloseBotSheet',false),
       CloseBotSheet2: navigation.getParam('CloseBotSheet2',false),
-    };
+    };*/
+    const searchParams = route.params;
+
     const getEvents = () => { //gets ONLY eventId, name, lat, lng, virtualEvent, and mainCategoryId,  
 
       if(searchParams.SearchType == 'none') {
@@ -507,7 +591,18 @@ function MainScreen({navigation}) {
 
         fetch(fetchurl)
           .then((response) => response.json())
-          .then((json) => {myContext.updateEventList(json)})
+          .then((json) => {myContext.updateEventList(json);
+                if(json.length == 1) {
+                  mapRef.current.animateToRegion({latitude:json[0].latitude,longitude:json[0].longitude,latitudeDelta:0.008,longitudeDelta:0.004})
+                }
+                else if (json.length > 1) {
+                  let coordarray = [];
+                  for(let i=0;i<json.length;i++) {
+                    coordarray.push({latitude:json[i].latitude, longitude:json[i].longitude})
+                  }
+                  mapRef.current.fitToCoordinates(coordarray,{animted:true})
+                }
+          })
           .catch((error) => console.error(error));
       }
 
@@ -545,28 +640,63 @@ function MainScreen({navigation}) {
           .catch((error) => console.error(error));
       }
     }
-    const [fetched,setFetched] = useState(false);
+    /*
+    const putBackEvent = (postedEvent) => { //for animation purposes
+      console.log('event to be adjusted: ')
+      console.log(postedEvent);
+      const adjustedEvent = {...postedEvent,...
+         {
+             mainCategory: (Globals.categories.find((cat) => {return cat.id == postedEvent.mainCategoryId})).name,
+             isFollower: false, 
+             isAttendee: true,
+             isInvitee: false,
+         }
+      }
+      myContext.updateEventList([adjustedEvent,...myContext.eventList])
+    }
+    */
+   const findIsFocused = useIsFocused();
 
     useEffect(() => {
-      console.log(searchParams);
-      getEvents();
+      if(findIsFocused) {
+        console.log(searchParams);
+        getEvents();
+      }  
+      if(findIsFocused && myContext.postedEvent.inUse) {
+          mapRef.current.animateToRegion({
+          latitude: myContext.postedEvent.latitude, 
+          longitude: myContext.postedEvent.longitude,
+          latitudeDelta: 0.008, 
+          longitudeDelta: 0.004,
+        }, 1000);
 
-    if(searchParams.CloseBotSheet == true) {
-      bs.current.snapTo(0);
-    }    
-    if(searchParams.CloseBotSheet2 == true) { //only true if no search
-      bs2.current.snapTo(0);
-      setSnapPosition2(0);
-    }
-    if(searchParams.SearchType != 'none') {
-      openBottomSheet2();
-    }
-    if(snapPosition == 0 && searchParams.SearchType == 'none')
-      myContext.toggleShowNavBar(true);
-    else
-      myContext.toggleShowNavBar(false);
+        console.log('opening bottom sheet for posted event');
+        openBottomSheet(myContext.postedEvent,-1) //this index is bullshit but I think i can get away with it because index is only needed for saving/going to events
+        myContext.changePostedEvent({inUse:false})
+      }
+    
+      else {
+        if(findIsFocused) {
+        if(searchParams.CloseBotSheet == true) {
+          bs.current.snapTo(0);
+          searchParams.CloseBotSheet = false;
+        }    
+        if(searchParams.CloseBotSheet2 == true) { //only true if no search
+          bs2.current.snapTo(0);
+          setSnapPosition2(0);
+          searchParams.CloseBotSheet2 = false;
+        }
+        if(searchParams.SearchType != 'none') {
+          openBottomSheet2();
+        }
+        if(snapPosition == 0 && searchParams.SearchType == 'none')
+          myContext.toggleShowNavBar(true);
+        else
+          myContext.toggleShowNavBar(false);
+      }
+      }
        
-    }, [navigation]);
+    }, [navigation,route,findIsFocused]);
     
     const matchesCriteria = (event) => {
       if(event.virtualEvent == 'In Person') { //first line of basic checks
@@ -617,13 +747,13 @@ function MainScreen({navigation}) {
             <MapView style={styles.map}
             //provider = {PROVIDER_GOOGLE}
             //customMapStyle = {mapStyle}
+            ref = {mapRef}
             initialRegion = {{
             latitude: 42.278,
             longitude: -83.738,
             latitudeDelta: latDelta,
             longitudeDelta: longDelta,
-            }
-            }
+            }}
             showCompass = {false}     
             showsPointsOfInterest = {true}
             rotateEnabled = {false}  
@@ -632,21 +762,21 @@ function MainScreen({navigation}) {
             </MapView>
 
         <View style={styles.topbar}>
-                <MapSearchBar navigation = {navigation} searchDefaultParams = {searchParams}/>
+                <MapSearchBar navigation = {navigation} route = {route} searchDefaultParams = {searchParams}/>
         </View> 
         <View style={styles.pullup}>
             <BottomSheet
                 ref={bs2}
-                snapPoints={[searchParams.SearchType=='none'?0:60, 240, windowHeight - 50]}
+                snapPoints={[searchParams.SearchType=='none'?0:50, 240, windowHeight - 75]}
                 renderContent={renderInner2}
                 renderHeader={renderHeader2}
                 initialSnap={0}
-                callbackNode={fall}
+                callbackNode={fall2}
                 enabledGestureInteraction={true}
                 onCloseEnd={() => {setSnapPosition2(0)}} //this time, the navbar is taken care of in the clear button onPress
             />
             <Animated.View style={{margin: 20,
-                opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)),
+                opacity: Animated.add(0.1, Animated.multiply(fall2, 1.0)),
             }}>
             </Animated.View>   
         </View>
@@ -682,13 +812,6 @@ const screens = {
             headerShown: false
         },
     },
-    Search: {
-        screen: Search,
-        navigationOptions: {
-            headerShown: false,
-        },
-        mode: 'modal'
-    },
     CategoryList: {
         screen: CategoryList,
         navigationOptions: {
@@ -707,29 +830,37 @@ const screens = {
             headerShown: false,
         },
     },
-    OtherFilters: {
-      screen: OtherFilters,
-      navigationOptions: {
-        headerShown: false
-      },
-    }
 }
-const FindNavigator = createStackNavigator(screens,{mode: 'modal'});
-
-const FindContainer = createAppContainer(FindNavigator);
+//const FindNavigator = createStackNavigator(screens,{mode: 'modal'});
+//const FindContainer = createAppContainer(FindNavigator);
+const FindNavigator = createStackNavigator();
 
 export default function FindScreen() {
+    return (
+        <FindNavigator.Navigator>
+            <FindNavigator.Screen name="MainScreen" component={MainScreen} options={{ headerShown: false }} initialParams = {{
+                    SearchType: 'none',
+                    SearchText: '',
+                    Categories: [],
+                    TimeRange: {startTime:'',endTime:'',value:'Anytime'},
+                    OtherFilters: [],
+                    CloseBotSheet: false,
+                    CloseBotSheet2: false,
+            }}/>
+            <FindNavigator.Screen name="CategoryList" component={CategoryList} options={{ headerShown: false }} />
+            <FindNavigator.Screen name="DateRange" component={DateRange} options={{ headerShown: false }} />
+            <FindNavigator.Screen name="TimeRange" component={TimeRange} options={{ headerShown: false }} />
+            <FindNavigator.Screen name="EventDetailsScreen" component={EventDetailsScreen} options={{ headerShown: false }} />
+            <FindNavigator.Screen name="Manage Event" component={ManageEventStack} options={{ headerShown: false }} />
+            <FindNavigator.Screen name="InviteScreen" component={InviteScreen} options={{ headerShown: false }} />
+        </FindNavigator.Navigator>
+    );
+        /*
     const myContext = useContext(AppContext);
     const [fetched, setFetched] = useState(false);
     const isFocused = useIsFocused();
-
-    const refreshEvents = () => {
-
-    }
-
     useFocusEffect(
       React.useCallback(() => {
-
         if(!fetched) {
           console.log('refreshing event list');
           let fetchurl = Globals.eventsURL + '/active/' + myContext.user.id;
@@ -738,7 +869,7 @@ export default function FindScreen() {
             .then((response) => response.json())
             .then((json) => {myContext.updateEventList(json)})
             .catch((error) => {Alert.alert('Unable to fetch events',"Sorry, something isn't working with our server calls :(");
-              /*not sure what to do functionally, don't want to spam calls if not working with setFetched(false)*/});
+              });
         }
 
         const unsubscribe = () => {
@@ -748,10 +879,8 @@ export default function FindScreen() {
         }
         return () => unsubscribe();
     })        
-    ) 
-    return (
-        <FindContainer/>
-    );
+    )
+    */
 }
 
 const styles = StyleSheet.create({

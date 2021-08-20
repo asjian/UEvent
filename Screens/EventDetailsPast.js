@@ -3,11 +3,13 @@ import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView
 import Animated from 'react-native-reanimated';
 import BackButton from '../objects/backButton';
 import Globals from '../../GlobalVariables';
+import AppContext from '../objects/AppContext';
 
 
 export default function EventDetailsScreenPast({navigation, route}) {
       // const user = navigation.getParam('user');
       // const currentEvent = navigation.getParam('event');
+      const myContext = useContext(AppContext);
       const { user } = route.params;
       const { currentEvent } = route.params;
       const renderCategories = () => {
@@ -164,7 +166,7 @@ export default function EventDetailsScreenPast({navigation, route}) {
               justifyContent: 'center',
               marginHorizontal: 15,
               }}
-              //onPress={() => navigation.navigate('Manage Event', { screen: 'Manage Event', params: {item: currentEvent} })}
+              // onPress={() => navigation.navigate('Manage Event', { screen: 'Manage Event', params: {item: currentEvent} })}
               >
               <View>
                 <Image
@@ -177,30 +179,6 @@ export default function EventDetailsScreenPast({navigation, route}) {
                   color: borderColor(buttonColor1),
                 }}>Manage</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={{backgroundColor: buttonColor2,
-              borderRadius: 8,
-              borderColor: borderColor(buttonColor2),
-              borderWidth: 1,
-              width: (Dimensions.get('window').width - 81.6) / 3,
-              height: 55,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginHorizontal: 15,
-              }}
-              // onPress={toggle2}
-              >
-              <View>
-                <Image
-                  source={require('../assets/edit.png')}
-                  style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
-                ></Image>
-                <Text style={{
-                  fontSize: 17,
-                  fontWeight: 'bold',
-                  color: borderColor(buttonColor2),
-                }}>Edit</Text>
-              </View>   
             </TouchableOpacity>
             <TouchableOpacity style={{backgroundColor: buttonColor3,
               borderRadius: 8,
@@ -226,6 +204,30 @@ export default function EventDetailsScreenPast({navigation, route}) {
                 }}>Invite</Text>
               </View>
             </TouchableOpacity>
+            <TouchableOpacity style={{backgroundColor: buttonColor3,
+                borderRadius: 8,
+                borderColor: borderColor(buttonColor3),
+                borderWidth: 1,
+                width: (Dimensions.get('window').width - 81.6) / 3,
+                height: 55,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                }}
+                // onPress={toggle3}
+                >
+                <View>
+                  <Image
+                    source={require('../assets/share2.png')}
+                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
+                  ></Image>
+                  <Text style={{
+                    fontSize: 17,
+                    fontWeight: 'bold',
+                    color: borderColor(buttonColor3),
+                  }}>Share</Text>
+                </View>
+              </TouchableOpacity>
             </View>
           )
         }
@@ -314,7 +316,7 @@ export default function EventDetailsScreenPast({navigation, route}) {
       }}>
       <View style={{width: '90%',
       marginLeft: 20.4}}>
-        <BackButton onPress={() => navigation.goBack()} title = 'Event Details'/>
+        <BackButton onPress={() => {navigation.goBack();myContext.toggleShowNavBar(true)}} title = 'Event Details'/>
       </View> 
       <ScrollView style={styles.panel}>
         <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>

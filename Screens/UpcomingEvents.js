@@ -18,12 +18,16 @@ const EventBox = ({navigation, myContext, item}) => {
                 <Image style={styles.realImageStyle} source={require('../assets/user_icon.png')} />
             </View>
             <View style={{ flex: 6 }}>
-                <View style={{ flexDirection: 'row' }}>
-                <Text style={{ fontWeight: '500', fontSize: windowHeight / 71.23, color: '#0085FF', flex: 6 }}>{Globals.formatDate(item.startTime)} - {Globals.formatDate(item.endTime)}</Text>
-                    <Image style={{ resizeMode: 'contain', flex: 1 }} source={require('../assets/NotificationBell.png')} />
+                <View style={{ flexDirection: 'row', flex: 1 }}>
+                    <Text style={{ fontWeight: '500', fontSize: windowHeight / 71.23, color: '#0085FF', marginBottom: '3%' }}>{Globals.formatDate(item.startTime)} - {Globals.formatDate(item.endTime)}</Text>
+                    {/* <Image style={{ resizeMode: 'contain', flex: 1 }} source={require('../assets/NotificationBell.png')} /> */}
                 </View>
-                <Text style={{ fontWeight: "500", fontSize: windowHeight / 57.88, marginBottom: '3%' }}>{item.name}</Text>
-                <Text style={{ fontWeight: '500', fontSize: windowHeight / 71.23, color: '#09189F' }}>{item.locationName}</Text>
+                <View style={{ flex: 1 }}>
+                    <Text style={{ fontWeight: "500", fontSize: windowHeight / 57.88, marginBottom: '3%' }}>{item.name}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                    <Text style={{ fontWeight: '500', fontSize: windowHeight / 71.23, color: '#09189F' }}>{item.locationName}</Text>
+                </View>
             </View>
             
             </TouchableOpacity>
@@ -33,7 +37,7 @@ const EventBox = ({navigation, myContext, item}) => {
 }
 function UpcomingEventsScreen({ navigation }) {
     const myContext = useContext(AppContext);
-    const isFocused = useIsFocused();
+    const UpcomingIsFocused = useIsFocused();
     // event handler function
     const createEventHandler = () => {
         myContext.toggleShowNavBar(false);
@@ -62,16 +66,22 @@ function UpcomingEventsScreen({ navigation }) {
           .catch((error) => console.error(error))
     }   
       const [fetched,setFetched] = useState(false);
-      useFocusEffect(
-        React.useCallback(() => {
-            if(!fetched) { 
-                getEvents();
-                setFetched(true);
-            }
-            const unsubscribe = () => {if(fetched && !isFocused)setFetched(false);};
-            return () => unsubscribe();
-        })         
-      );
+    //   useFocusEffect(
+    //     React.useCallback(() => {
+    //         if(!fetched) { 
+    //             getEvents();
+    //             setFetched(true);
+    //         }
+    //         const unsubscribe = () => {if(fetched && !isFocused)setFetched(false);};
+    //         return () => unsubscribe();
+    //     })         
+    //   );
+    useEffect(() => {
+        if(UpcomingIsFocused) {
+          getEvents();
+        }  
+         
+      }, [navigation,UpcomingIsFocused]);
 
     const renderItem = ({ item }) => {
         console.log('Start time:' + item.startTime);

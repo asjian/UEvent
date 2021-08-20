@@ -800,11 +800,35 @@ const Preview = ({ route, navigation }) => {
     const { values } = route.params;
     const myContext = useContext(AppContext);
     console.log(values);
+
+    const buildCoordinateList = () => {
+        const specials = [];
+        const offsets = [{lat:0.000150,lng:0.000150},{lat:0.000225,lng:0.000225},{lat:0.000075,lng:0.000075},{lat:0.000300,lng:0.000300}];
+        //if not in specials:
+        const initLng = values.Longitude;
+        const initLat = values.Latitude;
+        const coordList = [{longitude:initLng,latitude:initLat}];
+
+        for(let i=0; i<offsets.length;i++) {
+            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat + offsets[i].lat});
+            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat + offsets[i].lat});
+            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat - offsets[i].lat});
+            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat - offsets[i].lat});
+            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat + 0});
+            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat + 0});
+            coordList.push({longitude: initLng + 0, latitude: initLat + offsets[i].lat});
+            coordList.push({longitude: initLng + 0, latitude: initLat - offsets[i].lat});
+        }
+        console.log(coordList);
+        return coordList;
+    }
+    const [latlngArray,setLatLngArray] = useState([]);
+    if(latlngArray.length == 0) {
+        setLatLngArray(buildCoordinateList());
+    }
     // Helper functions
     const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
     {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
-
-   
 
     const renderCategories = () => {
         let pic = ""
@@ -933,6 +957,31 @@ const Preview = ({ route, navigation }) => {
           navigation.dangerouslyGetParent().popToTop();                  
           navigation.dangerouslyGetParent().dangerouslyGetParent().navigate('Find');
       }
+      const imageUpload = (postedEvent) => {
+        let localUri = values.EventImage;
+        let filename = localUri.split('/').pop();
+  
+        let match = /\.(\w+)$/.exec(filename);
+        let type = match ? `image/${match[1]}` : `image`;
+
+        let formData = new FormData();
+        formData.append('file', { uri: localUri, name: filename, type });
+        formData.append('eventId',postedEvent.id);
+        console.log('Image FormData:')
+        console.log(formData);
+
+        fetch('http://47.252.19.227/EventHub/fileuploader', {
+            method: 'post',
+            body: formData,
+            headers: {
+                'content-type': 'multipart/form-data',
+            },          
+        }).then((response) => {response.json()})
+          .then((json) => {
+              handleNavigation(postedEvent);
+          })
+          .catch((error) => {console.log('IMAGE UPLOAD ERROR');console.error(error);});
+    }
     const postToServer = () => { //post the event to the server
         fetch(Globals.eventsURL + '/json/add', {
             method: 'post',
@@ -948,7 +997,7 @@ const Preview = ({ route, navigation }) => {
                 description: values.EventDescription,
                 privateEvent: values.Privacy!='Public',
                 virtualEvent: values.InPerson!='In Person',
-                coordinates: [{longitude:values.Longitude,latitude:values.Latitude}],
+                coordinates: latlngArray,
                 registrationLink: values.Registration,
                 organizer: values.OrganizerName,
                 organizerWebsite: values.OrganizerWebsite,
@@ -966,7 +1015,8 @@ const Preview = ({ route, navigation }) => {
         .then((json) => {
             console.log('event posted: ')
             console.log(json);
-            handleNavigation(json);
+            imageUpload(json)
+            //handleNavigation(json);
         })
         .catch((error) => Alert.alert('Failed to Post Event',"Sorry, we can't post your event right now. Please try again later.")); 
     }

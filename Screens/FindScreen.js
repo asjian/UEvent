@@ -287,7 +287,7 @@ function MainScreen({navigation, route}) {
         <View style={styles.panelHost}>
           <Image
             source={require('../assets/Vector.png')}
-            style={{width:18, height: 18}}>
+            style={{width:19, height: 19, tintColor: 'orange'}}>
           </Image>
           <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{currentEvent.organizer}</Text>
           {renderCategories()}
@@ -295,7 +295,7 @@ function MainScreen({navigation, route}) {
         <View style={styles.panelDate}>
           <Image
             source={require('../assets/CalendarIcon.png')}
-            style={{width:18, height:18}}
+            style={{width:18, height:18,tintColor:'#0085ff'}}
           ></Image>
           <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{renderTime()}</Text>
         </View>
@@ -442,8 +442,7 @@ function MainScreen({navigation, route}) {
               }}>Share</Text>
             </View>
           </TouchableOpacity>
-            
-            </View>
+        </View>
         }
           <View>
             <Image source={require('../assets/avatar.jpeg')}
@@ -493,12 +492,12 @@ function MainScreen({navigation, route}) {
             return (
               <View key = {item.id} style = {{marginTop: 10,}}>
                 <SearchResult onPress = {() => {
-                  bs2.current.snapTo(0);
-                  setSnapPosition2(0);
+                  bs2.current.snapTo(1);
+                  setSnapPosition2(1);
                   mapRef.current.animateToRegion({latitude: item.latitude, longitude: item.longitude, latitudeDelta: 0.005, longitudeDelta: 0.0025},500);
                   openBottomSheet(item,index);
                 }} 
-                  title = {item.name} location = {item.locationName} 
+                  title = {item.name} organizer = {item.organizer} 
                   time = {Globals.formatDate(item.startTime) + ' - ' + Globals.formatDate(item.endTime)}/>
               </View>
             )
@@ -669,10 +668,10 @@ function MainScreen({navigation, route}) {
       }  
       if(findIsFocused && myContext.postedEvent.inUse) {
           mapRef.current.animateToRegion({
-          latitude: myContext.postedEvent.latitude, 
+          latitude: myContext.postedEvent.latitude - 0.0002, 
           longitude: myContext.postedEvent.longitude,
-          latitudeDelta: 0.005, 
-          longitudeDelta: 0.0025,
+          latitudeDelta: 0.0028, 
+          longitudeDelta: 0.0014,
         }, 1000);
 
         console.log('opening bottom sheet for posted event');

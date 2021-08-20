@@ -141,12 +141,12 @@ export default function EventDetailsScreen({navigation, route}) {
       }
   
       const renderTime = () => {
-        if (currentEvent.startTime.split(' ')[0] == currentEvent.endTime.split(' ')[0]) {
-          return currentEvent.startTime + ' - ' + currentEvent.endTime.split(' ')[1]
-        }
-        else {
-          return currentEvent.startTime + ' - ' + currentEvent.endTime
-        }
+        // if (currentEvent.startTime.split(' ')[0] == currentEvent.endTime.split(' ')[0]) {
+          // return Globals.formatDate(currentEvent.startTime) + ' - ' + currentEvent.endTime.split(' ')[1]
+        // }
+        // else {
+          return Globals.formatDate(currentEvent.startTime) + ' - ' + Globals.formatDate(currentEvent.endTime);
+        // }
       }
 
       const renderButtons = () => {
@@ -165,7 +165,7 @@ export default function EventDetailsScreen({navigation, route}) {
               justifyContent: 'center',
               marginHorizontal: 15,
               }}
-              onPress={() => navigation.navigate('Manage Event', { screen: 'Manage Event', params: {item: currentEvent} })}>
+              onPress={() => navigation.navigate('Manage Event', { screen: 'Manage Event', params: {item: currentEvent, user: user} })}>
               <View>
                 <Image
                   source={require('../assets/attendees.png')}

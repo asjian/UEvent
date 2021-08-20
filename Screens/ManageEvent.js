@@ -93,6 +93,7 @@ import InviteScreen from './InviteScreen';
                     <View style={{flex: 1}}>
                         <Image source={require('../assets/star.png')} style={{alignSelf: 'center', height: 20, width: 20, tintColor: '#434343'}}/>
                         <Text style={{textAlign: 'center', fontSize: Globals.HR(18), color: '#434343', fontWeight: 'bold'}}>864</Text>
+                        
                     </View>
                     <View style={{flex: 1}}>
                         <Image source={require('../assets/invitation.png')} style={{alignSelf: 'center', height: 20, width: 20, tintColor: '#434343'}}/>

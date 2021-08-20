@@ -295,7 +295,7 @@ const EventInformation = (props) => {
                                     <FieldArray name="EventType" component={EventTypeSelector} />
                                 </View>
                                
-                                <Text style={styles.errorMessage}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
                             </View>
                             <View style={[styles.containerStyle,{marginTop:8,}]}>
                                 <Text style={styles.TextStyle}>
@@ -309,7 +309,7 @@ const EventInformation = (props) => {
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.ContentType}
                                 />*/}
-                                <Text style={styles.errorMessage}>{formikprops.touched.ContentType && formikprops.errors.ContentType}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.ContentType && formikprops.errors.ContentType}</Text>
                             </View>
                             <View style={[styles.containerStyle,{marginTop:5,}]}>
                                 <Text style={styles.TextStyle}>
@@ -323,7 +323,7 @@ const EventInformation = (props) => {
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.Privacy}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
                             {/*
                             <View style={styles.containerStyle}>
@@ -411,7 +411,7 @@ const MoreInformation = (props) => {
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.InPerson}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.InPerson && formikprops.errors.InPerson}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.InPerson && formikprops.errors.InPerson}</Text>
                             </View>
                 
                             <View style={[styles.containerStyle,{marginTop:5,}]}>
@@ -467,7 +467,7 @@ const MoreInformation = (props) => {
                             }
                                 
                                 {formikprops.values.InPerson === 'Virtual' &&
-                                (<Text style={styles.errorMessage}>{formikprops.touched.EventLink && formikprops.errors.EventLink}</Text>)
+                                (<Text style={styles.errorMessagePickers}>{formikprops.touched.EventLink && formikprops.errors.EventLink}</Text>)
                                 }
                             </View>
                             <View style={styles.containerStyle}>
@@ -484,7 +484,7 @@ const MoreInformation = (props) => {
                                 (<LocationAutocomplete address = {formikprops.values.Address} setFormikValue = {formikprops.setFieldValue} />)
                             }
                             {formikprops.values.InPerson === 'In Person' &&
-                                <Text style={styles.errorMessage}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
                             }
                             </View>
 
@@ -629,7 +629,7 @@ const EventSchedule = (props) => {
                                     realStartDate={formikprops.values.RealStartDateTime}
                                     realEndDate={formikprops.values.RealEndDateTime}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.RealEndDateTime && formikprops.errors.RealEndDateTime}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.RealEndDateTime && formikprops.errors.RealEndDateTime}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -644,7 +644,7 @@ const EventSchedule = (props) => {
                                     onBlur={() => setFocus(false)}
                                     
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.Registration && formikprops.errors.Registration}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.Registration && formikprops.errors.Registration}</Text>
                             </View>
                         </KeyboardAwareScrollView>
 
@@ -745,7 +745,7 @@ const EventDetails = (props) => {
                                     onFocus={() => setFocus2(true)}
                                     onBlur={() => setFocus2(false)}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.OrganizerEmail && formikprops.errors.OrganizerEmail}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.OrganizerEmail && formikprops.errors.OrganizerEmail}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -759,7 +759,7 @@ const EventDetails = (props) => {
                                     onFocus={() => setFocus3(true)}
                                     onBlur={() => setFocus3(false)}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.OrganizerWebsite && formikprops.errors.OrganizerWebsite}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.OrganizerWebsite && formikprops.errors.OrganizerWebsite}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -800,35 +800,11 @@ const Preview = ({ route, navigation }) => {
     const { values } = route.params;
     const myContext = useContext(AppContext);
     console.log(values);
-
-    const buildCoordinateList = () => {
-        const specials = [];
-        const offsets = [{lat:0.000150,lng:0.000150},{lat:0.000225,lng:0.000225},{lat:0.000075,lng:0.000075},{lat:0.000300,lng:0.000300}];
-        //if not in specials:
-        const initLng = values.Longitude;
-        const initLat = values.Latitude;
-        const coordList = [{longitude:initLng,latitude:initLat}];
-
-        for(let i=0; i<offsets.length;i++) {
-            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat + offsets[i].lat});
-            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat + offsets[i].lat});
-            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat - offsets[i].lat});
-            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat - offsets[i].lat});
-            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat + 0});
-            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat + 0});
-            coordList.push({longitude: initLng + 0, latitude: initLat + offsets[i].lat});
-            coordList.push({longitude: initLng + 0, latitude: initLat - offsets[i].lat});
-        }
-        console.log(coordList);
-        return coordList;
-    }
-    const [latlngArray,setLatLngArray] = useState([]);
-    if(latlngArray.length == 0) {
-        setLatLngArray(buildCoordinateList());
-    }
     // Helper functions
     const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
     {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
+
+   
 
     const renderCategories = () => {
         let pic = ""
@@ -957,31 +933,6 @@ const Preview = ({ route, navigation }) => {
           navigation.dangerouslyGetParent().popToTop();                  
           navigation.dangerouslyGetParent().dangerouslyGetParent().navigate('Find');
       }
-      const imageUpload = (postedEvent) => {
-        let localUri = values.EventImage;
-        let filename = localUri.split('/').pop();
-  
-        let match = /\.(\w+)$/.exec(filename);
-        let type = match ? `image/${match[1]}` : `image`;
-
-        let formData = new FormData();
-        formData.append('file', { uri: localUri, name: filename, type });
-        formData.append('eventId',postedEvent.id);
-        console.log('Image FormData:')
-        console.log(formData);
-
-        fetch('http://47.252.19.227/EventHub/fileuploader', {
-            method: 'post',
-            body: formData,
-            headers: {
-                'content-type': 'multipart/form-data',
-            },          
-        }).then((response) => {response.json()})
-          .then((json) => {
-              handleNavigation(postedEvent);
-          })
-          .catch((error) => {console.log('IMAGE UPLOAD ERROR');console.error(error);});
-    }
     const postToServer = () => { //post the event to the server
         fetch(Globals.eventsURL + '/json/add', {
             method: 'post',
@@ -997,7 +948,7 @@ const Preview = ({ route, navigation }) => {
                 description: values.EventDescription,
                 privateEvent: values.Privacy!='Public',
                 virtualEvent: values.InPerson!='In Person',
-                coordinates: latlngArray,
+                coordinates: [{longitude:values.Longitude,latitude:values.Latitude}],
                 registrationLink: values.Registration,
                 organizer: values.OrganizerName,
                 organizerWebsite: values.OrganizerWebsite,
@@ -1015,8 +966,7 @@ const Preview = ({ route, navigation }) => {
         .then((json) => {
             console.log('event posted: ')
             console.log(json);
-            imageUpload(json)
-            //handleNavigation(json);
+            handleNavigation(json);
         })
         .catch((error) => Alert.alert('Failed to Post Event',"Sorry, we can't post your event right now. Please try again later.")); 
     }
@@ -1459,6 +1409,11 @@ const styles = StyleSheet.create({
         color: '#D8000C',
         flex: 5,
         fontSize: 14
+    },
+    errorMessagePickers: {
+        color: '#D8000C',
+        fontSize: 14,
+        marginLeft: 24
     },
     map: {
         width: Dimensions.get('window').width,

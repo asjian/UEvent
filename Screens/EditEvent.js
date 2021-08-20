@@ -267,9 +267,12 @@ const EventInformation = (props) => {
                                     value={formikprops.values.EventTitle}
                                     onFocus={() => setFocus(true)}
                                     onBlur={() => setFocus(false)}
+                                    maxLength={50}
                                 />
-                                <Text style={styles.counterStyle}>{formikprops.values.EventTitle.length.toString()} / 50</Text>
-                                <Text style={styles.errorMessage}>{formikprops.touched.EventTitle && formikprops.errors.EventTitle}</Text>
+                                <View style={styles.messageContainer}>
+                                    <Text style={styles.errorMessage}>{formikprops.touched.EventTitle && formikprops.errors.EventTitle}</Text>
+                                    <Text style={styles.counterStyle}>{formikprops.values.EventTitle.length.toString()} / 50</Text>
+                                </View>
 
                             </View>
                             <View style={styles.containerStyle}>
@@ -287,9 +290,12 @@ const EventInformation = (props) => {
                                     value={formikprops.values.OrganizerName}
                                     onFocus={() => setFocus2(true)}
                                     onBlur={() => setFocus2(false)}
+                                    maxLength={50}
                                 />
-                                <Text style={styles.counterStyle}>{formikprops.values.OrganizerName.length.toString()} / 50</Text>
-                                <Text style={styles.errorMessage}>{formikprops.touched.OrganizerName && formikprops.errors.OrganizerName}</Text>
+                                <View style={styles.messageContainer}>
+                                    <Text style={styles.errorMessage}>{formikprops.touched.OrganizerName && formikprops.errors.OrganizerName}</Text>
+                                    <Text style={styles.counterStyle}>{formikprops.values.OrganizerName.length.toString()} / 50</Text>
+                                </View>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -441,10 +447,14 @@ const MoreInformation = (props) => {
                                     value={formikprops.values.LocationName}
                                     onFocus={() => setFocus2(true)}
                                     onBlur={() => setFocus2(false)}
+                                    maxLength={50}
                                 />)
                             }
                                 {formikprops.values.InPerson === 'In Person' &&
-                                (<Text style={styles.errorMessage}>{formikprops.touched.LocationName && formikprops.errors.LocationName}</Text>)
+                                    <View style={styles.messageContainer}>
+                                        <Text style={styles.errorMessage}>{formikprops.touched.LocationName && formikprops.errors.LocationName}</Text>
+                                        <Text style={styles.counterStyle}>{formikprops.values.LocationName.length.toString()} / 50</Text>
+                                    </View>
                                 }
                             </View>
                             <View style={styles.containerStyle}>
@@ -503,13 +513,14 @@ const MoreInformation = (props) => {
                                     value={formikprops.values.LocationDetails}
                                     onFocus={() => setFocus4(true)}
                                     onBlur={() => setFocus4(false)}
+                                    maxLength={100}
                                 />)
                             }
                             {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
-                                (<Text style={styles.counterStyle}>{formikprops.values.LocationDetails.length.toString()} / 100</Text>)
-                            }
-                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
-                                (<Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>)
+                                (<View style={styles.messageContainer}>
+                                    <Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>
+                                    <Text style={styles.counterStyle}>{formikprops.values.LocationDetails.length.toString()} / 100</Text>
+                                </View>)
                             }
                             </View>
                         </KeyboardAwareScrollView>
@@ -724,9 +735,12 @@ const EventDetails = (props) => {
                                     value={formikprops.values.EventDescription}
                                     onFocus={() => setFocus(true)}
                                     onBlur={() => setFocus(false)}
+                                    maxLength={500}
                                 />
-                                <Text style={styles.counterStyle}>{formikprops.values.EventDescription.length.toString()} / 500</Text>
-                                <Text style={styles.errorMessage}>{formikprops.touched.EventDescription && formikprops.errors.EventDescription}</Text>
+                                <View style={styles.messageContainer}>
+                                    <Text style={styles.errorMessage}>{formikprops.touched.EventDescription && formikprops.errors.EventDescription}</Text>
+                                    <Text style={styles.counterStyle}>{formikprops.values.EventDescription.length.toString()} / 500</Text>
+                                </View>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -794,7 +808,7 @@ const EventDetails = (props) => {
 const Preview = ({ route, navigation }) => {
     const { values } = route.params;
     const myContext = useContext(AppContext);
-
+    console.log(values);
     // Helper functions
     const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
     {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
@@ -958,12 +972,6 @@ const Preview = ({ route, navigation }) => {
             })
         }); 
         */
-        console.log(myContext.user.id + 3);
-        console.log(values.RealStartDateTime);
-        console.log(values.RealStartDateTime.toISOString().substr(0,10) + ' ' + values.RealStartDateTime.toISOString().substr(11,8));
-        console.log(values.RealEndDateTime);
-        console.log(values.RealEndDateTime.toISOString().substr(0,10) + ' ' + values.RealEndDateTime.toISOString().substr(11,8));
-
         fetch(Globals.eventsURL + '/json/update', {
             method: 'put',
             headers: {
@@ -971,22 +979,26 @@ const Preview = ({ route, navigation }) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-
                 id: values.EventId,
                 name: values.EventTitle,
-                //hostId: myContext.user.id,
-                organizer: values.OrganizerName,
-                locationName: values.LocationName,
                 location: values.Address,
-                latitude: values.Latitude,
-                longitude: values.Longitude,
+                locationName: values.LocationName,
+                locationDetails: values.LocationDetails,
                 description: values.EventDescription,
-                startTime: values.RealStartDateTime.toISOString().substr(0,10) + ' ' + values.RealStartDateTime.toISOString().substr(11,8),
-                endTime: values.RealEndDateTime.toISOString().substr(0,10) + ' ' + values.RealEndDateTime.toISOString().substr(11,8),
                 privateEvent: values.Privacy!='Public',
                 virtualEvent: values.InPerson!='In Person',
+                latitude: values.Latitude,
+                longitude: values.Longitude,
                 registrationLink: values.Registration,
+                organizer: values.OrganizerName,
+                organizerWebsite: values.OrganizerWebsite,
+                //startTime: "2021-08-09 20:00:00",
+                startTime: values.RealStartDateTime.toISOString().substr(0,10) + ' ' + values.RealStartDateTime.toISOString().substr(11,8),
+                endTime: values.RealEndDateTime.toISOString().substr(0,10) + ' ' + values.RealEndDateTime.toISOString().substr(11,8),
+                //endTime: "2021-08-09 22:00:00",
+                hostId: myContext.user.id,
                 mainCategoryId: values.EventType,
+                categoryIds: values.ContentType,
                 }
                 )
         })
@@ -1187,24 +1199,28 @@ const Stack = createStackNavigator()
 
 function UpdateEvent({ navigation, route }) {
     const { item } = route.params;
-    
+    console.log(item);
     let locSelected = item.virtualEvent === 'In Person' ? true : false;
     //
     
     let ApiStartDate = item.startTime.substr(0, 10) + 'T' + item.startTime.substr(11, 8);
     let formattedApiStartDate = new Date(ApiStartDate);
-    formattedApiStartDate.setHours(formattedApiStartDate.getHours() - 4);
-    let time = formattedApiStartDate.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    let startDateobj = Globals.createDateAsUTC(item.startTime.substr(0,4), item.startTime.substr(5,2), item.startTime.substr(8,2),
+                item.startTime.substr(11,2), item.startTime.substr(14,2), item.startTime.substr(17,2));
+    //formattedApiStartDate.setHours(formattedApiStartDate.getHours() - 4);
+    let time = startDateobj.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
     //
     let ApiEndDate = item.endTime.substr(0, 10) + 'T' + item.endTime.substr(11, 8);
     let formattedApiEndDate = new Date(ApiEndDate);
-    formattedApiEndDate.setHours(formattedApiEndDate.getHours() - 4); 
-    let endTime = formattedApiEndDate.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    let endDateobj = Globals.createDateAsUTC(item.endTime.substr(0,4), item.endTime.substr(5,2), item.endTime.substr(8,2),
+                item.endTime.substr(11,2), item.endTime.substr(14,2), item.endTime.substr(17,2));
+    //formattedApiEndDate.setHours(formattedApiEndDate.getHours() - 4); 
+    let endTime = endDateobj.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     // date formatting
-    let dateString = formattedApiStartDate.toString();
+    let dateString = startDateobj.toString();
     let initialDateFormat = dateString.substring(0,3)+', '+dateString.substring(4,dateString.indexOf(':')-8);
-    let dateString1 = formattedApiEndDate.toString();
+    let dateString1 = endDateobj.toString();
     let initialEndDateFormat = dateString1.substring(0,3)+', '+dateString1.substring(4,dateString1.indexOf(':')-8);
 
     const [data, setData] = useState({
@@ -1223,12 +1239,14 @@ function UpdateEvent({ navigation, route }) {
         Address: item.location,
         locationSelected: !(item.virtualEvent),
         LocationDetails: '',
+        Latitude: item.latitude,
+        Longitude: item.longitude,
         // third slide
         StartDay: initialDateFormat,
-        RealStartDateTime: formattedApiStartDate,
+        RealStartDateTime: startDateobj,
         StartTime: time,
         EndDay: initialEndDateFormat,
-        RealEndDateTime: formattedApiEndDate,
+        RealEndDateTime: endDateobj,
         EndTime: endTime,
         Registration: item.registrationLink,
         // fourth slide
@@ -1468,8 +1486,8 @@ const styles = StyleSheet.create({
     },
     errorMessage: {
         color: '#D8000C',
-        paddingLeft: '5%'
-
+        flex: 5,
+        fontSize: 14
     },
     map: {
         width: Dimensions.get('window').width,
@@ -1534,8 +1552,13 @@ const styles = StyleSheet.create({
         fontSize: windowHeight / 46.3
     },
     counterStyle: {
-        marginLeft: 23,
+        flex: 1,
         fontSize: 14
+    },
+    messageContainer: {
+        flexDirection: 'row', 
+        width: '88%', 
+        marginLeft: 24
     }
 
 })

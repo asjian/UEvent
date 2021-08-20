@@ -2,11 +2,35 @@ const Preview = ({ route, navigation }) => {
     const { values } = route.params;
     const myContext = useContext(AppContext);
     console.log(values);
+
+    const buildCoordinateList = () => {
+        const specials = [];
+        const offsets = [{lat:0.000150,lng:0.000150},{lat:0.000225,lng:0.000225},{lat:0.000075,lng:0.000075},{lat:0.000300,lng:0.000300}];
+        //if not in specials:
+        const initLng = values.Longitude;
+        const initLat = values.Latitude;
+        const coordList = [{longitude:initLng,latitude:initLat}];
+
+        for(let i=0; i<offsets.length;i++) {
+            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat + offsets[i].lat});
+            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat + offsets[i].lat});
+            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat - offsets[i].lat});
+            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat - offsets[i].lat});
+            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat + 0});
+            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat + 0});
+            coordList.push({longitude: initLng + 0, latitude: initLat + offsets[i].lat});
+            coordList.push({longitude: initLng + 0, latitude: initLat - offsets[i].lat});
+        }
+        console.log(coordList);
+        return coordList;
+    }
+    const [latlngArray,setLatLngArray] = useState([]);
+    if(latlngArray.length == 0) {
+        setLatLngArray(buildCoordinateList());
+    }
     // Helper functions
     const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
     {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
-
-   
 
     const renderCategories = () => {
         let pic = ""
@@ -150,7 +174,7 @@ const Preview = ({ route, navigation }) => {
                 description: values.EventDescription,
                 privateEvent: values.Privacy!='Public',
                 virtualEvent: values.InPerson!='In Person',
-                coordinates: [{longitude:values.Longitude,latitude:values.Latitude}],
+                coordinates: latlngArray,
                 registrationLink: values.Registration,
                 organizer: values.OrganizerName,
                 organizerWebsite: values.OrganizerWebsite,

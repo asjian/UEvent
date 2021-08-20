@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, Dimensions, StyleSheet, Image, ParentView, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { SafeAreaView, View, Text, Dimensions, StyleSheet, Image, ParentView, TouchableOpacity, ScrollView, FlatList, TouchableHighlight } from 'react-native';
 import AppContext from '../objects/AppContext';
 import Globals from '../../GlobalVariables';
 import {useFocusEffect} from '@react-navigation/native';
@@ -15,7 +15,7 @@ const windowWidth = Dimensions.get('window').width;
 const EventBox = ({navigation, myContext, item}) => {
     return (
         
-            <TouchableOpacity onPress={() => {navigation.navigate('EventDetailsScreenPast', {user: myContext.user, currentEvent: item} );}} style={styles.box}>
+            <TouchableOpacity onPress={() => {myContext.toggleShowNavBar(false);navigation.navigate('EventDetailsScreenPast', {user: myContext.user, currentEvent: item} );}} style={styles.box}>
             <View style={{ flex: 2 }}>
                 <Image style={styles.realImageStyle} source={require('../assets/user_icon.png')} />
             </View>
@@ -109,7 +109,7 @@ function PastEventsScreen({ navigation }) {
 
 
         <SafeAreaView style={{ backgroundColor: '#FFFBF3', height: '100%' }}>
-            <View style={{ height: '60%' }}>
+            <View style={{ height: '92%' }}>
 
                 
 
@@ -121,16 +121,13 @@ function PastEventsScreen({ navigation }) {
                         ListEmptyComponent={EmptyListMessage}
                     />
                 
-                
+                    <TouchableHighlight activeOpacity = {0.7} onPress={createEventHandler}>
+                        <View style = {styles.selectContainer}>
+                            <Text style={[styles.selectText,{paddingHorizontal:50}]}>+ Create New Event</Text>
+                        </View>
+                    </TouchableHighlight>
+           
             </View>
-            <View style={styles.NewEventButton}>
-                <TouchableOpacity onPress={createEventHandler}>
-                    <View style={styles.selectContainer}>
-                        <Text style={styles.selectText}>+ Create New Event</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-
         </SafeAreaView>
 
 
@@ -167,7 +164,8 @@ const styles = StyleSheet.create({
         shadowRadius: 1.41,
         elevation: 2,
         backgroundColor: '#F8F8F8',
-        flex: 1
+        flex: 1,
+        
 
     },
     inner1: {
@@ -186,26 +184,35 @@ const styles = StyleSheet.create({
     },
     selectContainer: {
         backgroundColor: '#ffffff',
+        
         position: 'absolute',
-        marginHorizontal: Globals.WR(50),
-        marginTop: Globals.HR(5),
+        left: 52,
+        bottom: 20,
+        
         width: '75%',
         alignItems: 'center',
-        top: 0,
+        shadowColor: "#000",
         shadowOffset: {
             width: 0,
-            height: 1,
+            height: 2,
         },
-        shadowColor: '#000000',
-        shadowOpacity: 0.2,
-        shadowRadius: 1.41,
-        elevation: 2,
-        borderRadius: Globals.HR(10),
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        borderRadius: 50,
+    },
+    selectInvisible: {
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        marginHorizontal: 50,
+        bottom: 20,
+        width: '0%',
+        alignItems: 'center',
     },
     selectText: {
-        fontWeight: '500',
-        fontSize: Globals.HR(22),
-        paddingVertical: Globals.HR(15),
+        fontWeight: '600',
+        fontSize: 22,
+        paddingVertical: 15,
         color: '#fab400',
     }
 

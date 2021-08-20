@@ -251,6 +251,7 @@ const EventInformation = (props) => {
                                     value={formikprops.values.EventTitle}
                                     onFocus={() => setFocus(true)}
                                     onBlur={() => setFocus(false)}
+                                    maxLength={50}
                                 />
                                 <View style={styles.messageContainer}>
                                     <Text style={styles.errorMessage}>{formikprops.touched.EventTitle && formikprops.errors.EventTitle}</Text>
@@ -275,9 +276,12 @@ const EventInformation = (props) => {
                                     value={formikprops.values.OrganizerName}
                                     onFocus={() => setFocus2(true)}
                                     onBlur={() => setFocus2(false)}
+                                    maxLength={50}
                                 />
-                                <Text style={styles.counterStyle}>{formikprops.values.OrganizerName.length.toString()} / 50</Text>
-                                <Text style={styles.errorMessage}>{formikprops.touched.OrganizerName && formikprops.errors.OrganizerName}</Text>
+                                <View style={styles.messageContainer}>
+                                    <Text style={styles.errorMessage}>{formikprops.touched.OrganizerName && formikprops.errors.OrganizerName}</Text>
+                                    <Text style={styles.counterStyle}>{formikprops.values.OrganizerName.length.toString()} / 50</Text>
+                                </View>
                             </View>
                             <View style={[styles.containerStyle,{marginTop:2,}]}>
                                 <Text style={styles.TextStyle}>
@@ -418,7 +422,8 @@ const MoreInformation = (props) => {
                                     {' '}* 
                                     </Text>
                                     
-                                </Text>)
+                                </Text>
+                                )
                             }
                                 {formikprops.values.InPerson === 'In Person' &&
                                 (<TextInput
@@ -429,13 +434,14 @@ const MoreInformation = (props) => {
                                     value={formikprops.values.LocationName}
                                     onFocus={() => setFocus2(true)}
                                     onBlur={() => setFocus2(false)}
+                                    maxLength={50}
                                 />)
                             }
                                 {formikprops.values.InPerson === 'In Person' &&
-                                    <Text style={styles.counterStyle}>{formikprops.values.LocationName.length.toString()} / 50</Text>
-                                }
-                                {formikprops.values.InPerson === 'In Person' &&
-                                    <Text style={styles.errorMessage}>{formikprops.touched.LocationName && formikprops.errors.LocationName}</Text>
+                                    <View style={styles.messageContainer}>
+                                        <Text style={styles.errorMessage}>{formikprops.touched.LocationName && formikprops.errors.LocationName}</Text>
+                                        <Text style={styles.counterStyle}>{formikprops.values.LocationName.length.toString()} / 50</Text>
+                                    </View>
                                 }
                                 
                             </View>
@@ -497,13 +503,15 @@ const MoreInformation = (props) => {
                                     value={formikprops.values.LocationDetails}
                                     onFocus={() => setFocus4(true)}
                                     onBlur={() => setFocus4(false)}
+                                    maxLength={100}
+                                    multiline={true}
                                 />)
                             }
                             {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
-                                (<Text style={styles.counterStyle}>{formikprops.values.LocationDetails.length.toString()} / 100</Text>)
-                            }
-                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
-                                (<Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>)
+                                (<View style={styles.messageContainer}>
+                                    <Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>
+                                    <Text style={styles.counterStyle}>{formikprops.values.LocationDetails.length.toString()} / 100</Text>
+                                </View>)
                             }
                             </View>
                         </KeyboardAwareScrollView>
@@ -718,9 +726,12 @@ const EventDetails = (props) => {
                                     value={formikprops.values.EventDescription}
                                     onFocus={() => setFocus(true)}
                                     onBlur={() => setFocus(false)}
+                                    maxLength={500}
                                 />
-                                <Text style={styles.counterStyle}>{formikprops.values.EventDescription.length.toString()} / 500</Text>
-                                <Text style={styles.errorMessage}>{formikprops.touched.EventDescription && formikprops.errors.EventDescription}</Text>
+                                <View style={styles.messageContainer}>
+                                    <Text style={styles.errorMessage}>{formikprops.touched.EventDescription && formikprops.errors.EventDescription}</Text>
+                                    <Text style={styles.counterStyle}>{formikprops.values.EventDescription.length.toString()} / 500</Text>
+                                </View>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -1396,7 +1407,7 @@ const styles = StyleSheet.create({
     },
     errorMessage: {
         color: '#D8000C',
-        flex: 6.2,
+        flex: 5,
         fontSize: 14
     },
     map: {

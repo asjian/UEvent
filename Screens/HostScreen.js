@@ -10,6 +10,11 @@ import Globals from '../../GlobalVariables';
 import AppContext from '../objects/AppContext';
 import EventDetailsScreen from './EventDetailsScreen';
 import EventDetailsScreenPast from './EventDetailsPast';
+import InviteScreen from './InviteScreen';
+import InvitePeopleScreen from './InvitePeopleScreen';
+import InviteListView from './InviteListView';
+import CreateInviteList from './CreateInviteList';
+import AddMoreScreen from './AddMoreScreen';
 
 const Stack = createStackNavigator()
 // 926
@@ -47,7 +52,12 @@ function HostScreen(props) {
             <Stack.Screen name='EventDetailsScreen' component={EventDetailsScreen} options={{ headerShown: false }}/>
             <Stack.Screen name='EventDetailsScreenPast' component={EventDetailsScreenPast} options={{ headerShown: false }}/>
             <Stack.Screen name='Manage Event' component={ManageEventStack} options={{ headerShown: false }}/>
-            
+            <Stack.Screen name='InviteScreen' component={InviteScreen} options={{ headerShown: false }}/>
+            <Stack.Screen name='InvitePeopleScreen' component={InvitePeopleScreen} options={{ headerShown: false }}/>
+            <Stack.Screen name='InviteListView' component={InviteListView} options={{ headerShown: false }}/>
+            <Stack.Screen name='CreateInviteList' component={CreateInviteList} options={{ headerShown: false }}/>
+            <Stack.Screen name='AddMoreScreen' component={AddMoreScreen} options={{ headerShown: false }}/>
+
         </Stack.Navigator>
     );
 }

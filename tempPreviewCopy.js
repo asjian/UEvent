@@ -159,6 +159,32 @@ const Preview = ({ route, navigation }) => {
           navigation.dangerouslyGetParent().popToTop();                  
           navigation.dangerouslyGetParent().dangerouslyGetParent().navigate('Find');
       }
+      const imageUpload = (postedEvent) => {
+        let localUri = values.EventImage;
+        let filename = localUri.split('/').pop();
+  
+        let match = /\.(\w+)$/.exec(filename);
+        let type = match ? `image/${match[1]}` : `image`;
+
+        let formData = new FormData();
+        formData.append('file', { uri: localUri, name: filename, type });
+        formData.append('eventId',postedEvent.id);
+        console.log('Image FormData:');
+        console.log(formData);
+
+        fetch('http://47.252.19.227/EventHub/fileuploader', {
+            method: 'post',
+            body: formData,
+            headers: {
+                'content-type': 'multipart/form-data',
+            },          
+        }).then((response) => response.text())
+          .then((json) => {
+              console.log(json);
+              handleNavigation(postedEvent);
+          })
+          .catch((error) => {console.log('IMAGE UPLOAD ERROR');console.error(error);});
+    }
     const postToServer = () => { //post the event to the server
         fetch(Globals.eventsURL + '/json/add', {
             method: 'post',
@@ -192,7 +218,8 @@ const Preview = ({ route, navigation }) => {
         .then((json) => {
             console.log('event posted: ')
             console.log(json);
-            handleNavigation(json);
+            imageUpload(json)
+            //handleNavigation(json);
         })
         .catch((error) => Alert.alert('Failed to Post Event',"Sorry, we can't post your event right now. Please try again later.")); 
     }

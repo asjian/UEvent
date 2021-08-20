@@ -18,6 +18,7 @@ import InviteScreen from './InviteScreen';
     function ManageEventScreen({navigation, route}) {
         const myContext = useContext(AppContext);
         const { item } = route.params;
+        const { user } = route.params;
         const event = item;
         const [modalVisible, setModalVisible] = useState(false);
         const [announcement, setAnnoucement] = useState('');
@@ -67,10 +68,10 @@ import InviteScreen from './InviteScreen';
         const cancelEvent = () => {
             console.log(Globals.eventsURL + '/delete/' + item.id);
             fetch(Globals.eventsURL + '/delete/' + item.id, {method: 'delete',})
-            .then(() => console.log('delete successful'))
+            .then(() => {console.log('delete successful'); navigation.pop(2);myContext.toggleShowNavBar(true);})
             .catch((error) => console.error(error));
         
-            navigation.goBack();
+           
 
         }
 
@@ -79,7 +80,7 @@ import InviteScreen from './InviteScreen';
             <View style={{backgroundColor: '#fff'}} >
             <View style={{backgroundColor: '#FFF', marginBottom: 20,}}>
                 <View style={{alignItems: 'center', marginLeft: 20, marginTop: 50, flexDirection: 'row'}}>
-                    <BackButton onPress={() => {navigation.goBack(); myContext.toggleShowNavBar(true);}} title = {item.name}/>
+                    <BackButton onPress={() => {navigation.goBack();}} title = {item.name}/>
                 </View>
                 <View style={{marginLeft: 35}}>
                     <Text style={{fontSize: 22,
@@ -279,25 +280,26 @@ export default function ManageEventStack({ navigation }) {
             <Stack.Screen name="CreateInviteList" component={CreateInviteList} options={{ headerShown: false}}/>
             <Stack.Screen name="InviteListView" component={InviteListView} options={{ headerShown: false}}/>
             <Stack.Screen name="AddMoreScreen" component={AddMoreScreen} options={{ headerShown: false}}/>
-            <Stack.Screen name="Manage Attendees" component={ManageAttendeesScreen} 
-                options= {({route, navigation}) => ({ 
-                    headerTitle: 'Attendees',
-                    headerTitleStyle: {fontSize:Globals.HR(24), fontWeight:'700'},
-                    headerStyle: {
-                        backgroundColor: '#FFF9F9'
-                    },
-                    headerBackTitleStyle: styles.headerButtonStyle,
-                    headerBackImage: null,
-                    headerLeft: () => (
-                        <TouchableOpacity style={{marginLeft: Globals.WR(15)}} onPress={() => navigation.goBack()} >
-                            <Text style={styles.headerButtonStyle}>Back</Text>
-                        </TouchableOpacity> ),
-                    headerRight: () => ( 
-                    <TouchableOpacity style={{marginRight: Globals.WR(15)}} onPress={() => navigation.goBack()} > 
-                        <Text style={styles.headerButtonStyle}>Done</Text> 
-                    </TouchableOpacity> ) ,
+            <Stack.Screen name="Manage Attendees" component={ManageAttendeesScreen} options={{ headerShown: false}}
+                // options= {({route, navigation}) => ({ 
+                //     headerTitle: 'Attendees',
+                //     headerTitleStyle: {fontSize:Globals.HR(24), fontWeight:'700'},
+                //     headerStyle: {
+                //         backgroundColor: '#FFF9F9'
+                //     },
+                //     headerBackTitleStyle: styles.headerButtonStyle,
+                //     headerBackImage: null,
+                //     headerLeft: () => (
+                //         <TouchableOpacity style={{marginLeft: Globals.WR(15)}} onPress={() => navigation.goBack()} >
+                //             <Text style={styles.headerButtonStyle}>Back</Text>
+                //         </TouchableOpacity> ),
+                //     headerRight: () => ( 
+                //     <TouchableOpacity style={{marginRight: Globals.WR(15)}} onPress={() => navigation.goBack()} > 
+                //         <Text style={styles.headerButtonStyle}>Done</Text> 
+                //     </TouchableOpacity> ) ,
                 
-                })}
+                // })}
+
                      />
         </Stack.Navigator>
     )

@@ -1,11 +1,25 @@
 import React, {useState,Component, useEffect} from 'react';
-import {StyleSheet, Text, View,TouchableOpacity,ScrollView,Alert, SafeAreaView, FlatList, Image, TextInput} from 'react-native';
+import {StyleSheet, Text, View,TouchableOpacity,ScrollView,Alert, SafeAreaView, FlatList, Image, TextInput, Dimensions} from 'react-native';
 import { SearchBar } from 'react-native-elements';
 import Globals from '../../GlobalVariables';
+import {AntDesign} from '@expo/vector-icons';
 
 
 
     
+function BackButton({onPress, title}) {
+    return (
+        <View style={styles.button}>
+            <View style={styles.icon}>
+                <TouchableOpacity onPress = {onPress}>
+                    <AntDesign name = 'left' size = {24} color = '#000000'/> 
+                </TouchableOpacity>
+            </View>
+           
+            <Text style = {styles.buttonText}> {title} </Text>
+        </View>
+    );
+}
 
 export const ManageAttendeesScreen = ({navigation, route}) => {
     const { apiData } = route.params;
@@ -159,12 +173,43 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
 			
 		);
 	}
-
+    // #FFF9F9
     return (
-        <SafeAreaView style={{backgroundColor: '#FFF9F9', height: '100%', width: '100%'}}>
-            <View style={{height: '80%'}}>
+        <SafeAreaView style={{backgroundColor: '#ffcb05', height: '100%', width: '100%'}}>
+           
+            <View>
+                <BackButton onPress={() => navigation.goBack()} title = 'Attendees'/>
+                
+                <View style={{marginLeft: 20, marginRight: 20, marginBottom: 20}}>
+                
+                        
+                <View style={{alignItems: 'flex-end'}}>
+                    <TouchableOpacity style={{
+                    
+                    flexDirection: 'row',
+                    backgroundColor: '#fff',
+                    alignItems: 'center',
+                    shadowColor: '#000',
+                    width: 120,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    shadowOffset: { width: 0, height: 1 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 1,}}
+                    onPress={()=>navigation.navigate('InvitePeopleScreen', {event: apiData})}>
+                        <View style={{padding: 7, flexDirection: 'row', alignItems: 'center'}}>
+                            <Text style={{justifyContent: 'center', marginRight: 5, fontWeight: 'bold', color: '#ffcb05', fontSize: 14}}>INVITE MORE</Text>
+                            <Image source={require('../assets/add.png')} style={{height: 12, width:12, tintColor: '#ffcb05'}}/>
+                        </View>  
+                    </TouchableOpacity>
+                </View>
+            </View>
+                
+            </View>
+            
+            <View style={{height: '100%', backgroundColor: '#fff'}}>
             <SearchBar 
-                containerStyle={{backgroundColor: '#FFF9F9'}}
+                containerStyle={{backgroundColor: '#fff'}}
                 inputContainerStyle={{backgroundColor:'white'}}
                 placeholder='Names or Emails'
                 onChangeText={(text) => searchFilterFunction(text)}
@@ -175,6 +220,7 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
                 value={query}
 
             />
+           
                 <FlatList
                     data={attendees}
                     keyExtractor={item => item.userId.toString()}
@@ -207,13 +253,13 @@ export const ManageAttendeesScreen = ({navigation, route}) => {
                     
                 />
             </View>
-            <View style={{alignItems:'center'}}>
+            {/* <View style={{alignItems:'center', backgroundColor: '#fff'}}>
                 <TouchableOpacity >
                     <View style={styles.InviteContainer}>
                         <Text style={styles.InviteText}>+ Invite More</Text>
                     </View>
                 </TouchableOpacity>
-            </View>
+            </View> */}
 
         </SafeAreaView>
 
@@ -273,5 +319,19 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
         alignSelf: 'center',
         
+    },
+    button: {
+        paddingBottom: 20.4,
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%'
+    },
+    icon: {
+         
+    },
+    buttonText: {
+        marginLeft: 20.4,
+        fontSize: 24,
+        fontWeight: 'bold'
     }
 })

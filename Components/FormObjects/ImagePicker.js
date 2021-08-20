@@ -32,7 +32,7 @@ export default function ImagePickerExample({onChange, value}) {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1],
+      aspect: [2, 1],
       quality: 0.5,
       base64: true
     });
@@ -43,32 +43,62 @@ export default function ImagePickerExample({onChange, value}) {
     }
   };
 
+  const deleteImage = () => {
+    setImage(null);
+    onChange('EventImage', '');
+  }
+
   return (
-    <View style={{alignItems: 'center', flex: 1  }}>
-      <TouchableOpacity onPress={pickImage}>
-        <View style={styles.selectContainer}>
-            <Text style={styles.selectText}>Upload Photo</Text>
-        </View>
-      </TouchableOpacity>
-      {value == '' ? (null) 
-      : (value)  && 
-      <Image source={{ uri: value }} style={styles.image} />}
+    <View style={{margin: 30}}>
+      {value == '' && 
+
+      (<View style={{alignItems: 'center', justifyContent: 'center', width: '95%', height: 180, backgroundColor: 'rgba(248, 248, 248, 1)'  }}>
+        <TouchableOpacity onPress={pickImage} style={{position: 'absolute', top: 70, left: 90, zIndex: 1 }}>
+          <View style={styles.selectContainer}>
+              <Text style={styles.selectText}>Upload Photo</Text>
+          </View>
+        </TouchableOpacity>
+        {value == '' ? (null) 
+        : (value)  && 
+        <Image source={{ uri: value }} style={styles.image} />}
+      </View>)
+      }
+      {value !== '' && 
+
+        (<View style={{alignItems: 'center', justifyContent: 'center', width: '95%', height: 200,}}>
+          <TouchableOpacity onPress={deleteImage} style={{position: 'absolute', top: 5, left: 317, zIndex: 1 }}>
+              <View style={{height: 25, width: 25, backgroundColor: 'white', alignItems: 'center'}}>
+                  <Text style={{color:'black', fontSize: 20}}>X</Text>
+              </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={pickImage} style={{position: 'absolute', top: 90, left: 90, zIndex: 1 }}>
+            <View style={styles.selectContainer}>
+                <Text style={styles.selectText}>Upload Photo</Text>
+            </View>
+          </TouchableOpacity>
+          {value == '' ? (null) 
+          : (value)  && 
+          <Image source={{ uri: value }} style={styles.image} />}
+
+        </View>)
+        }
     </View>
+    
   );
 }
 
 const styles = StyleSheet.create({
   image: {
-    width: Globals.WR(200),
+    width: '95%',
     height: Globals.HR(200),
     overflow: 'hidden',
     marginTop: Globals.HR(20)
   },
   selectContainer: {
     backgroundColor: '#ffffff',
-    marginHorizontal: Globals.WR(15),
-    marginTop: Globals.HR(50),
-    width: '40%',
+    // marginHorizontal: Globals.WR(15),
+    // marginTop: Globals.HR(50),
+    width: 180,
     alignItems: 'center',
     top: 0,
     shadowOffset: {

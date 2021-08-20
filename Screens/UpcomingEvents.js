@@ -13,7 +13,7 @@ const windowWidth = Dimensions.get('window').width;
 const EventBox = ({navigation, myContext, item}) => {
     return (
         
-            <TouchableOpacity onPress={() => {navigation.navigate('EventDetailsScreen', {user: myContext.user, currentEvent: item} );}} style={styles.box}>
+            <TouchableOpacity onPress={() => {myContext.toggleShowNavBar(false); navigation.navigate('EventDetailsScreen', {user: myContext.user, currentEvent: item} );}} style={styles.box}>
             <View style={{ flex: 2 }}>
                 <Image style={styles.realImageStyle} source={require('../assets/user_icon.png')} />
             </View>

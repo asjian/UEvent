@@ -18,6 +18,10 @@ import SearchResult from '../objects/searchResult';
 import EventDetailsScreen from './EventDetailsScreen';
 import ManageEventStack from './ManageEvent';
 import InviteScreen from './InviteScreen';
+import InvitePeopleScreen from './InvitePeopleScreen';
+import AddMoreScreen from './AddMoreScreen';
+import InviteListView from './InviteListView';
+import CreateInviteList from './CreateInviteList';
 
 //custom bottom sheet
 function MainScreen({navigation, route}) {
@@ -392,29 +396,6 @@ function MainScreen({navigation, route}) {
                 }}>Manage</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={{backgroundColor: buttonColor2,
-              borderRadius: 8,
-              borderColor: borderColor(buttonColor2),
-              borderWidth: 1,
-              width: (Dimensions.get('window').width - 81.6) / 3,
-              height: 55,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginHorizontal: 15,
-              }}
-              onPress={toggle2}>
-              <View>
-                <Image
-                  source={require('../assets/edit.png')}
-                  style={{height:18, width: 14.4, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
-                ></Image>
-                <Text style={{
-                  fontSize: 17,
-                  fontWeight: 'bold',
-                  color: borderColor(buttonColor2),
-                }}>Edit</Text>
-              </View>   
-            </TouchableOpacity>
             <TouchableOpacity style={{backgroundColor: buttonColor3,
               borderRadius: 8,
               borderColor: borderColor(buttonColor3),
@@ -438,6 +419,30 @@ function MainScreen({navigation, route}) {
                 }}>Invite</Text>
               </View>
             </TouchableOpacity>
+            <TouchableOpacity style={{backgroundColor: buttonColor3,
+            borderRadius: 8,
+            borderColor: borderColor(buttonColor3),
+            borderWidth: 1,
+            width: (Dimensions.get('window').width - 81.6) / 3,
+            height: 55,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginHorizontal: 15,
+            }}
+            onPress={toggle3}>
+            <View>
+              <Image
+                source={require('../assets/share2.png')}
+                style={{height:21, width: 16, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
+              ></Image>
+              <Text style={{
+                fontSize: 17,
+                fontWeight: 'bold',
+                color: borderColor(buttonColor3),
+              }}>Share</Text>
+            </View>
+          </TouchableOpacity>
+            
             </View>
         }
           <View>
@@ -853,6 +858,10 @@ export default function FindScreen() {
             <FindNavigator.Screen name="EventDetailsScreen" component={EventDetailsScreen} options={{ headerShown: false }} />
             <FindNavigator.Screen name="Manage Event" component={ManageEventStack} options={{ headerShown: false }} />
             <FindNavigator.Screen name="InviteScreen" component={InviteScreen} options={{ headerShown: false }} />
+            <FindNavigator.Screen name='InvitePeopleScreen' component={InvitePeopleScreen} options={{ headerShown: false }}/>
+            <FindNavigator.Screen name='InviteListView' component={InviteListView} options={{ headerShown: false }}/>
+            <FindNavigator.Screen name='CreateInviteList' component={CreateInviteList} options={{ headerShown: false }}/>
+            <FindNavigator.Screen name='AddMoreScreen' component={AddMoreScreen} options={{ headerShown: false }}/>
         </FindNavigator.Navigator>
     );
         /*

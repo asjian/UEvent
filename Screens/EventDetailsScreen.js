@@ -1,13 +1,15 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image, SafeAreaView} from 'react-native';
+import {Dimensions, StyleSheet, Text, View, TouchableOpacity, Button, ScrollView, Image, SafeAreaView, Share} from 'react-native';
 import Animated from 'react-native-reanimated';
 import BackButton from '../objects/backButton';
 import Globals from '../../GlobalVariables';
+import AppContext from '../objects/AppContext';
 
 
 export default function EventDetailsScreen({navigation, route}) {
       // const user = navigation.getParam('user');
       // const currentEvent = navigation.getParam('event');
+      const myContext = useContext(AppContext);
       const { user } = route.params;
       const { currentEvent } = route.params;
       const renderCategories = () => {
@@ -89,23 +91,30 @@ export default function EventDetailsScreen({navigation, route}) {
             setButtonColor2('#FFF')
           }
         }
-        const share = async () => {
-          Share.share(
-            {
-              title: 'test title',
-              url: 'fakeurl',
-            },
-            {
-              excludedActivityTypes: [
-                // 'com.apple.UIKit.activity.PostToWeibo',
-              ],
+        const onShare = async () => {
+          try {
+            const result = await Share.share({
+             title: 'Event Link',
+              message: 'Check out this event!', 
+              url: 'https://www.espn.com/'
+            });
+            if (result.action === Share.sharedAction) {
+              if (result.activityType) {
+                // shared with activity type of result.activityType
+              } else {
+                // shared
+              }
+            } else if (result.action === Share.dismissedAction) {
+              // dismissed
             }
-          );
-        };
+          } catch (error) {
+            alert(error.message);
+        }
+      }
     
         const [buttonColor3, setButtonColor3] = useState('#FFF')
         const toggle3 = () => {
-          share();
+          onShare();
         }
       const borderColor = (buttonColor) => {
         if (buttonColor == '#FFF') {
@@ -141,14 +150,6 @@ export default function EventDetailsScreen({navigation, route}) {
       }
 
       const renderButtons = () => {
-        let yes = true;
-        /* CHECK IF USER IS ORGANIZER
-        for (let i = 0; i < user.EventsHosting.split(" ").length; i++) {
-          if (eventId == user.EventsHosting.split(" ")[i]) {
-            yes = true;
-          }
-        }
-        */
         console.log('current event: ')
         console.log(currentEvent);
         if (user.id == currentEvent.host.id) {
@@ -177,29 +178,6 @@ export default function EventDetailsScreen({navigation, route}) {
                 }}>Manage</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={{backgroundColor: buttonColor2,
-              borderRadius: 8,
-              borderColor: borderColor(buttonColor2),
-              borderWidth: 1,
-              width: (Dimensions.get('window').width - 81.6) / 3,
-              height: 55,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginHorizontal: 15,
-              }}
-              onPress={toggle2}>
-              <View>
-                <Image
-                  source={require('../assets/edit.png')}
-                  style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
-                ></Image>
-                <Text style={{
-                  fontSize: 17,
-                  fontWeight: 'bold',
-                  color: borderColor(buttonColor2),
-                }}>Edit</Text>
-              </View>   
-            </TouchableOpacity>
             <TouchableOpacity style={{backgroundColor: buttonColor3,
               borderRadius: 8,
               borderColor: borderColor(buttonColor3),
@@ -223,6 +201,31 @@ export default function EventDetailsScreen({navigation, route}) {
                 }}>Invite</Text>
               </View>
             </TouchableOpacity>
+            <TouchableOpacity style={{backgroundColor: buttonColor3,
+                borderRadius: 8,
+                borderColor: borderColor(buttonColor3),
+                borderWidth: 1,
+                width: (Dimensions.get('window').width - 81.6) / 3,
+                height: 55,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginHorizontal: 15,
+                }}
+                onPress={toggle3}
+                >
+                <View>
+                  <Image
+                    source={require('../assets/share2.png')}
+                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
+                  ></Image>
+                  <Text style={{
+                    fontSize: 17,
+                    fontWeight: 'bold',
+                    color: borderColor(buttonColor3),
+                  }}>Share</Text>
+                </View>
+              </TouchableOpacity>
+            
             </View>
           )
         }
@@ -311,7 +314,7 @@ export default function EventDetailsScreen({navigation, route}) {
       }}>
       <View style={{width: '90%',
       marginLeft: 20.4}}>
-        <BackButton onPress={() => navigation.goBack()} title = 'Event Details'/>
+        <BackButton onPress={() => {navigation.goBack();myContext.toggleShowNavBar(true)}} title = 'Event Details'/>
       </View> 
       <ScrollView style={styles.panel}>
         <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>

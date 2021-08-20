@@ -309,7 +309,7 @@ const EventInformation = (props) => {
                                     <FieldArray name="EventType" component={EventTypeSelector} />
                                 </View>
                                
-                                <Text style={styles.errorMessage}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -323,7 +323,7 @@ const EventInformation = (props) => {
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.ContentType}
                                 />*/}
-                                <Text style={styles.errorMessage}>{formikprops.touched.ContentType && formikprops.errors.ContentType}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.ContentType && formikprops.errors.ContentType}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -337,7 +337,7 @@ const EventInformation = (props) => {
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.Privacy}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
                             {/*<View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -426,7 +426,7 @@ const MoreInformation = (props) => {
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.InPerson}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.InPerson && formikprops.errors.InPerson}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.InPerson && formikprops.errors.InPerson}</Text>
                             </View>
                 
                             <View style={styles.containerStyle}>
@@ -478,7 +478,7 @@ const MoreInformation = (props) => {
                                 />)
                             }
                                 {formikprops.values.InPerson === 'Virtual' &&
-                                (<Text style={styles.errorMessage}>{formikprops.touched.EventLink && formikprops.errors.EventLink}</Text>)
+                                (<Text style={styles.errorMessagePickers}>{formikprops.touched.EventLink && formikprops.errors.EventLink}</Text>)
                                 }
                             </View>
                             <View style={styles.containerStyle}>
@@ -495,7 +495,7 @@ const MoreInformation = (props) => {
                                 (<LocationAutocomplete address = {formikprops.values.Address} setFormikValue = {formikprops.setFieldValue} />)
                             }
                             {formikprops.values.InPerson === 'In Person' &&
-                                <Text style={styles.errorMessage}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
                             }
                             </View>
 
@@ -639,7 +639,7 @@ const EventSchedule = (props) => {
                                     realStartDate={formikprops.values.RealStartDateTime}
                                     realEndDate={formikprops.values.RealEndDateTime}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.RealEndDateTime && formikprops.errors.RealEndDateTime}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.RealEndDateTime && formikprops.errors.RealEndDateTime}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -654,7 +654,7 @@ const EventSchedule = (props) => {
                                     onBlur={() => setFocus(false)}
                                     
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.Registration && formikprops.errors.Registration}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.Registration && formikprops.errors.Registration}</Text>
                             </View>
                         </KeyboardAwareScrollView>
 
@@ -692,7 +692,7 @@ const EventDetails = (props) => {
     const handleSubmit = (values) => {
         props.next(values, true);
         // navigate to preview screen
-        navigation.navigate('Preview', { values: values });
+        navigation.navigate('Preview', { values: values});
     };
 
     const [isFocused, setFocus] = useState(false);
@@ -754,7 +754,7 @@ const EventDetails = (props) => {
                                     onFocus={() => setFocus2(true)}
                                     onBlur={() => setFocus2(false)}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.OrganizerEmail && formikprops.errors.OrganizerEmail}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.OrganizerEmail && formikprops.errors.OrganizerEmail}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -768,7 +768,7 @@ const EventDetails = (props) => {
                                     onFocus={() => setFocus3(true)}
                                     onBlur={() => setFocus3(false)}
                                 />
-                                <Text style={styles.errorMessage}>{formikprops.touched.OrganizerWebsite && formikprops.errors.OrganizerWebsite}</Text>
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.OrganizerWebsite && formikprops.errors.OrganizerWebsite}</Text>
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -807,6 +807,7 @@ const EventDetails = (props) => {
 }
 const Preview = ({ route, navigation }) => {
     const { values } = route.params;
+    // const { user } = route.params;
     const myContext = useContext(AppContext);
     console.log(values);
     // Helper functions
@@ -1002,12 +1003,19 @@ const Preview = ({ route, navigation }) => {
                 }
                 )
         })
+        //.then(() => navigation.navigate('EventDetailsScreen'))
+        .then((response) => response.json())
+        .then((json) => { console.log(json); navigation.navigate({
+            name: 'EventDetailsScreen',
+            params: { currentEvent: json, user: myContext.user },
+            merge: true,
+          })})
         .catch((error) => console.error(error)); 
     }
     const postEventHandler = async () => {
         postToServer();
         // Navigate to map
-        navigation.dangerouslyGetParent().goBack();
+        
     }
 
     return (
@@ -1199,17 +1207,35 @@ const Stack = createStackNavigator()
 
 function UpdateEvent({ navigation, route }) {
     const { item } = route.params;
+    // const { user } = route.params;
     console.log(item);
     let locSelected = item.virtualEvent === 'In Person' ? true : false;
     //
-    
+    let otherCategories;
+    // console.log(otherCategories);
+    // console.log(item.otherCategoryIds);
+    // console.log(item.otherCategoryIds.split(',').slice(0).map(Number));
+    if (item.otherCategoryIds !== '') {
+        otherCategories = item.otherCategoryIds.split(',').slice(0).map(Number);
+    }
+    else {
+        otherCategories = [];
+    }
+    // otherCategories = item.otherCategoryIds.split(',').slice(0);
+    // console.log(initArray);
+    console.log(otherCategories);
+    // if (item.otherCategoryIds != '') {
+    //     otherCategories = item.otherCategoryIds.split(',');
+    // }
+
+
     let ApiStartDate = item.startTime.substr(0, 10) + 'T' + item.startTime.substr(11, 8);
     let formattedApiStartDate = new Date(ApiStartDate);
     let startDateobj = Globals.createDateAsUTC(item.startTime.substr(0,4), item.startTime.substr(5,2), item.startTime.substr(8,2),
                 item.startTime.substr(11,2), item.startTime.substr(14,2), item.startTime.substr(17,2));
     //formattedApiStartDate.setHours(formattedApiStartDate.getHours() - 4);
     let time = startDateobj.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-
+    
     //
     let ApiEndDate = item.endTime.substr(0, 10) + 'T' + item.endTime.substr(11, 8);
     let formattedApiEndDate = new Date(ApiEndDate);
@@ -1229,7 +1255,7 @@ function UpdateEvent({ navigation, route }) {
         EventTitle: item.name,
         OrganizerName: item.organizer,
         EventType: item.mainCategoryId,
-        ContentType: [],
+        ContentType: otherCategories,
         Tags: item.Tags,
         Privacy: item.privateEvent?"Private":"Public",
         // second slide
@@ -1251,7 +1277,7 @@ function UpdateEvent({ navigation, route }) {
         Registration: item.registrationLink,
         // fourth slide
         EventDescription: item.description,
-        OrganizerEmail: item.email,
+        OrganizerEmail: '',
         OrganizerWebsite: item.organizerWebsite,
         EventImage: ''
 
@@ -1277,7 +1303,7 @@ function UpdateEvent({ navigation, route }) {
         <EventInformation next={handleNextStep} data={data} />,
         <MoreInformation next={handleNextStep} prev={handlePrevStep} data={data} />,
         <EventSchedule next={handleNextStep} prev={handlePrevStep} data={data} />,
-        <EventDetails next={handleNextStep} prev={handlePrevStep} data={data} />
+        <EventDetails next={handleNextStep} prev={handlePrevStep} data={data}  />
     ];
 
 
@@ -1488,6 +1514,11 @@ const styles = StyleSheet.create({
         color: '#D8000C',
         flex: 5,
         fontSize: 14
+    },
+    errorMessagePickers: {
+        color: '#D8000C',
+        fontSize: 14,
+        marginLeft: 24
     },
     map: {
         width: Dimensions.get('window').width,

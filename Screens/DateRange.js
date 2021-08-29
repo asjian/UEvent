@@ -1,8 +1,11 @@
 import React, {useState} from 'react';
-import {StyleSheet, Text, View,TouchableOpacity,ScrollView,} from 'react-native';
+import {StyleSheet, Text, View,TouchableOpacity,ScrollView, SafeAreaView,} from 'react-native';
 import DateButton from '../objects/dateButton';
+import BackButton from '../objects/backButton';
 
-export default function DateRange({navigation}) {
+
+export default function DateRange({navigation,route}) {
+    /*
     const backParams = {
         SearchType: navigation.getParam('SearchType'),
         SearchText: navigation.getParam('SearchText'),
@@ -10,22 +13,26 @@ export default function DateRange({navigation}) {
         TimeRange: navigation.getParam('TimeRange'),
         OtherFilters: navigation.getParam('OtherFilters'),
         CloseBotSheet: navigation.getParam('CloseBotSheet'),
+        CloseBotSheet2: navigation.getParam('CloseBotSheet2'),
     }
+    */
+   const backParams = route.params;
     const [value, setValue] = useState(backParams.TimeRange.value);
 
     const setParams = (startString,endString) => {
-        backParams.TimeRange.startDate = startString.substring(0,15);
-        backParams.TimeRange.endDate = endString.substring(0,15);
-        backParams.TimeRange.startTime = startString.substring(16,24);
-        backParams.TimeRange.endTime = endString.substring(16,24);
+        backParams.TimeRange.startTime = startString.substr(0,10) + ' ' + startString.substr(11,8);
+        backParams.TimeRange.endTime = endString.substr(0,10) + ' ' + endString.substr(11,8);
     }
     const setBounds = (value) => {
         const today = new Date();
         if(value == 'Today') {
+            const startTime = new Date(today);
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate()+1);
+            //startTime.setHours(startTime.getHours() + 8); //offset by 8 due to server error
             tomorrow.setHours(3,0,0,0); //3 AM bc of late-night partying
-            setParams(today.toString(),tomorrow.toString());
+            //tomorrow.setHours(tomorrow.getHours() + 8);
+            setParams(startTime.toISOString(),tomorrow.toISOString());
         }
         else if(value == 'Tomorrow') {
             const tomorrow = new Date(today);
@@ -34,13 +41,18 @@ export default function DateRange({navigation}) {
             const dayAfter = new Date(tomorrow);
             dayAfter.setDate(dayAfter.getDate()+1);
             dayAfter.setHours(3,0,0,0);
-            setParams(tomorrow.toString(),dayAfter.toString());
+            //tomorrow.setHours(tomorrow.getHours() + 8);
+            //dayAfter.setHours(dayAfter.getHours() + 8);
+            setParams(tomorrow.toISOString(),dayAfter.toISOString());
         }
         else if(value == 'This Week') {
             const nextWeek = new Date(today);
             nextWeek.setDate(nextWeek.getDate()+8);
             nextWeek.setHours(3,0,0,0);
-            setParams(today.toString(),nextWeek.toString());
+            const startTime = new Date(today);
+            //startTime.setHours(startTime.getHours() + 8);
+            //nextWeek.setHours(nextWeek.getHours()+8)
+            setParams(startTime.toISOString(),nextWeek.toISOString());
         }
         else if(value == 'This Weekend') { //Friday 8:00PM through Sunday 11:59PM
             const dayOfWeek = today.getDay();
@@ -51,7 +63,9 @@ export default function DateRange({navigation}) {
                 const endOffset = (7-dayOfWeek)%7;
                 endOfWeekend.setDate(endOfWeekend.getDate()+endOffset);
                 endOfWeekend.setHours(23,59,0,0);
-                setParams(startOfWeekend.toString(),endOfWeekend.toString());
+                //startOfWeekend.setHours(startOfWeekend.getHours() + 8);
+                //endOfWeekend.setHours(endOfWeekend.getHours() + 8);
+                setParams(startOfWeekend.toISOString(),endOfWeekend.toISOString());
             }
             else if(dayOfWeek == 5) {//Friday 
                 if(today.getHours() < 20)
@@ -59,7 +73,9 @@ export default function DateRange({navigation}) {
 
                 endOfWeekend.setDate(endOfWeekend.getDate()+2);
                 endOfWeekend.setHours(23,59,0,0);
-                setParams(startOfWeekend.toString(),endOfWeekend.toString());
+                //startOfWeekend.setHours(startOfWeekend.getHours() + 8);
+                //endOfWeekend.setHours(endOfWeekend.getHours() + 8);
+                setParams(startOfWeekend.toISOString(),endOfWeekend.toISOString());
             }
             else { //Monday through Thursday
                 const startOffset = 5-dayOfWeek;
@@ -67,7 +83,9 @@ export default function DateRange({navigation}) {
                 startOfWeekend.setHours(20,0,0,0);
                 endOfWeekend.setDate(startOfWeekend.getDate()+2);
                 endOfWeekend.setHours(23,59,0,0);
-                setParams(startOfWeekend.toString(),endOfWeekend.toString());
+                //startOfWeekend.setHours(startOfWeekend.getHours() + 8);
+                //endOfWeekend.setHours(endOfWeekend.getHours() + 8);
+                setParams(startOfWeekend.toISOString(),endOfWeekend.toISOString());
             }
         }
         else if(value == 'Anytime') {
@@ -81,16 +99,22 @@ export default function DateRange({navigation}) {
         backParams.TimeRange.value = value;
         setBounds(value);
         backParams.SearchType = 'filter';
+        backParams.CloseBotSheet = true;
+        backParams.CloseBotSheet2 = false;
+
         if(value == 'Anytime') {
             if(backParams.Categories.length == 0) {
-                if(backParams.SearchText == '')
+                if(backParams.SearchText == '') {
                     backParams.SearchType = 'none';
+                    backParams.CloseBotSheet2 = true;
+                }
                 else
                     backParams.SearchType = 'text';
             }
             else    
                 backParams.SearchType = 'filter';
         }
+        console.log('finished everything in daterange');
         navigation.navigate('MainScreen',backParams);
     }
     const pressHandler = (name) => {
@@ -106,13 +130,18 @@ export default function DateRange({navigation}) {
     }
     return (
         <View style = {styles.container}>
-           <View style = {styles.headerContainer}>
-                <TouchableOpacity onPress = {backHandler}>
-                    <Text style = {styles.backText}>Back</Text>
-                </TouchableOpacity>
-                <Text style = {styles.headerText}>Date/Time</Text>
+            <View style={{backgroundColor: '#FFF', marginBottom: 30,}}>
+                <View style={{alignItems: 'center', marginLeft: 20, marginTop: 50, flexDirection: 'row'}}>
+                <BackButton onPress={backHandler} title = 'Date/Time'/>
+                </View>
+                <View style={{marginLeft: 35}}>
+                    <Text style={{fontSize: 22,
+                    color: '#434343',
+                    fontWeight: 'bold',
+                    marginTop: 28,
+                    marginBottom: 7,}}>Show Events Happening -</Text>
+                </View>
             </View>
-            <Text style = {styles.introText}>Show Events Happening:</Text>
             <View style = {styles.buttonContainer}>
 
             <DateButton name = 'Anytime' value = {value} pressHandler = {pressHandler}/>
@@ -120,22 +149,22 @@ export default function DateRange({navigation}) {
             <DateButton name = 'Tomorrow' value = {value} pressHandler = {pressHandler}/>
             <DateButton name = 'This Week' value = {value} pressHandler = {pressHandler}/>
             <DateButton name = 'This Weekend' value = {value} pressHandler = {pressHandler}/>
-            <DateButton name = 'Custom Date/Time Range' value = {value} pressHandler = {customPressHandler}/>
+            <DateButton name = 'Custom' value = {value} pressHandler = {customPressHandler}/>
 
             </View>
-
+            <View style = {[styles.selectContainer]}>
             <TouchableOpacity onPress = {selectHandler}>
-                <View style = {[styles.selectContainer]}>
                     <Text style = {styles.selectText}>Select</Text>
-                </View>
+                
             </TouchableOpacity>
+            </View>
         </View>
     );
 }
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fffbf2',
+        backgroundColor: '#fff',
     },
     headerContainer: {
         flexDirection:'row',
@@ -158,18 +187,20 @@ const styles = StyleSheet.create({
     introText: {
         fontSize: 20,
         fontWeight: '500',
-        marginLeft: 20.4,
+        marginLeft: 97,
         marginBottom: 60,
     },
     buttonContainer: {
-        marginLeft: 23,
+        alignItems: 'flex-start',
+        marginLeft: 20,
+        marginRight: 20
     },
     selectContainer: {
         backgroundColor: '#ffffff',
         position: 'absolute',
-        marginHorizontal: 58,
-        marginTop: 120,
+        alignSelf: 'center',
         width: '70%',
+        bottom: 100,
         alignItems: 'center',
         shadowOffset: {
             width: 0,

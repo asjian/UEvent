@@ -1,5 +1,5 @@
 import React, {useRef,useEffect} from 'react';
-import { SafeAreaView, View, Text, Button, StyleSheet, TextInput, Image, ScrollView, Dimensions, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TextInput, Image, ScrollView, Dimensions, KeyboardAvoidingView, Linking, Keyboard, Alert } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useState, useContext } from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
@@ -29,10 +29,11 @@ import { StartTimeSelector } from '../objects/FormObjects/StartTimeSelector';
 import { EndTimeSelector } from '../objects/FormObjects/EndTimeSelector';
 import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
 import { NavigationActions } from 'react-navigation';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as FileSystem from 'expo-file-system';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
-
 
 // Header
 function Header({ navigation }) {
@@ -137,13 +138,6 @@ const pageTwoValidSchema = yup.object({
         .required()
         .label('In Person or Virtual')
         .nullable(),
-    LocationName: yup.string()
-        .when('InPerson', {
-            is: (value) => value === 'In Person',
-            then: yup.string().required()
-        })
-        .label('Location Name')
-        .max(50, 'Location Name must be 50 characters or less'),
     EventLink: yup.string()
         .when('InPerson', {
             is: (value) => value === 'Virtual',
@@ -151,7 +145,6 @@ const pageTwoValidSchema = yup.object({
         })
         .label('Event Link')
     ,
-    
     Address: yup.string()
         .when('InPerson', {
             is: (value) => value === 'In Person',
@@ -182,8 +175,9 @@ const pageThreeValidSchema = yup.object({
     RealEndDateTime: yup.date()
         .min(yup.ref('RealStartDateTime'), 
         ({min}) => `End date and time needs to be after ${min.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} on ${min.toDateString()}` ),
+    
     Registration: yup.string()
-     .url('Must be a valid link'), 
+     .url('Invalid link. Make sure your url starts with https://'), 
 
 })
 
@@ -195,9 +189,9 @@ const pageFourValidSchema = yup.object({
         .max(500, 'Event Description must be 500 characters or less'),
     OrganizerEmail: yup.string()
     .email('Must be a valid email'),
+    
     OrganizerWebsite: yup.string()
-    .url('Must be a valid link'),
-
+    .url('Invalid link. Make sure your url starts with https://'),
 })
 // First slide
 const EventInformation = (props) => {
@@ -227,10 +221,10 @@ const EventInformation = (props) => {
                                 <Header navigation={navigation} />
                             </View>
                             <View>
-                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 23, marginTop: 30, fontWeight: '500'}}>Event Information</Text>
+                                <Text style={{color: '#09189F', fontSize: Globals.HR(22) , marginLeft: 23, marginTop: Globals.HR(30), fontWeight: '500'}}>Event Information</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ marginLeft:23, marginRight:20, marginVertical: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
+                                <Image style={{ marginLeft: 23, margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
@@ -283,35 +277,7 @@ const EventInformation = (props) => {
                                     <Text style={styles.counterStyle}>{formikprops.values.OrganizerName.length.toString()} / 50</Text>
                                 </View>
                             </View>
-                            <View style={[styles.containerStyle,{marginTop:2,}]}>
-                                <Text style={styles.TextStyle}>
-                                    Main Event Category: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
-                                    </Text>
-                                    
-                                </Text>
-                                <View style={{width: '88%', marginLeft: 23, marginTop: 10, }}>
-                                    <FieldArray name="EventType" component={EventTypeSelector} />
-                                </View>
-                               
-                                <Text style={styles.errorMessagePickers}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
-                            </View>
-                            <View style={[styles.containerStyle,{marginTop:8,}]}>
-                                <Text style={styles.TextStyle}>
-                                    Other Categories:
-                                </Text>
-                                <View style={{width: '88%', marginLeft: 23, marginTop: 10, }}>
-                                    <FieldArray name="ContentType" component={ContentTypeSelector} />
-                                </View>
-                                
-                                {/*<ContentTypeSelector3
-                                    onChange={formikprops.setFieldValue}
-                                    value={formikprops.values.ContentType}
-                                />*/}
-                                <Text style={styles.errorMessagePickers}>{formikprops.touched.ContentType && formikprops.errors.ContentType}</Text>
-                            </View>
-                            <View style={[styles.containerStyle,{marginTop:5,}]}>
+                            <View style={[styles.containerStyle,{marginTop:Globals.HR(5)}]}>
                                 <Text style={styles.TextStyle}>
                                     Privacy: 
                                     <Text style = {styles.requiredField}>
@@ -325,6 +291,35 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessagePickers}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
+                            <View style={[styles.containerStyle,{marginTop:Globals.HR(2),}]}>
+                                <Text style={styles.TextStyle}>
+                                    Main Event Category: 
+                                    <Text style = {styles.requiredField}>
+                                    {' '}* 
+                                    </Text>
+                                    
+                                </Text>
+                                <View style={{width: '88%', marginLeft: 23, marginTop: Globals.HR(10), }}>
+                                    <FieldArray name="EventType" component={EventTypeSelector} />
+                                </View>
+                               
+                                <Text style={[styles.errorMessagePickers, {marginTop: Globals.HR(8)}]}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
+                            </View>
+                            <View style={[styles.containerStyle,{marginTop:8,}]}>
+                                <Text style={styles.TextStyle}>
+                                    Other Categories:
+                                </Text>
+                                <View style={{width: '88%', marginLeft: 23, marginTop: Globals.HR(10), }}>
+                                    <FieldArray name="ContentType" component={ContentTypeSelector} />
+                                </View>
+                                
+                                {/*<ContentTypeSelector3
+                                    onChange={formikprops.setFieldValue}
+                                    value={formikprops.values.ContentType}
+                                />*/}
+                                <Text style={styles.errorMessagePickers}>{formikprops.touched.ContentType && formikprops.errors.ContentType}</Text>
+                            </View>
+                            
                             {/*
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -391,7 +386,7 @@ const MoreInformation = (props) => {
                         <KeyboardAwareScrollView style={styles.scrollContainer} keyboardShouldPersistTaps = "handled">
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 30, fontWeight: '500'}}>Location Information</Text>
+                                <Text style={{color: '#09189F', fontSize: Globals.HR(22) , marginLeft: 20, marginTop: Globals.HR(30), fontWeight: '500'}}>Location Information</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -413,38 +408,25 @@ const MoreInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessagePickers}>{formikprops.touched.InPerson && formikprops.errors.InPerson}</Text>
                             </View>
-                
-                            <View style={[styles.containerStyle,{marginTop:5,}]}>
+
+                            <View style={styles.containerStyle}>
                             {formikprops.values.InPerson === 'In Person' &&
                                 (<Text style={styles.TextStyle}>
-                                    Location Name: 
+                                    Location: 
                                     <Text style = {styles.requiredField}>
                                     {' '}* 
                                     </Text>
                                     
-                                </Text>
-                                )
+                                </Text>)
                             }
-                                {formikprops.values.InPerson === 'In Person' &&
-                                (<TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.LocationName !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
-                                    placeholder="Egs. Michigan Union, My House, etc. Can be TBA."
-                                    placeholderTextColor = '#a3a3a3'
-                                    onChangeText={formikprops.handleChange('LocationName')}
-                                    value={formikprops.values.LocationName}
-                                    onFocus={() => setFocus2(true)}
-                                    onBlur={() => setFocus2(false)}
-                                    maxLength={50}
-                                />)
+                            {formikprops.values.InPerson === 'In Person' &&
+                                (<LocationAutocomplete address = {formikprops.values.Address} setFormikValue = {formikprops.setFieldValue} />)
                             }
-                                {formikprops.values.InPerson === 'In Person' &&
-                                    <View style={styles.messageContainer}>
-                                        <Text style={styles.errorMessage}>{formikprops.touched.LocationName && formikprops.errors.LocationName}</Text>
-                                        <Text style={styles.counterStyle}>{formikprops.values.LocationName.length.toString()} / 50</Text>
-                                    </View>
-                                }
-                                
+                            {formikprops.values.InPerson === 'In Person' &&
+                                <Text style={[styles.errorMessagePickers, {marginTop: Globals.HR(8)}]}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
+                            }
                             </View>
+                
                             <View style={styles.containerStyle}>
                             {formikprops.values.InPerson === 'Virtual' &&
                                 (<Text style={styles.TextStyle}>
@@ -470,23 +452,7 @@ const MoreInformation = (props) => {
                                 (<Text style={styles.errorMessagePickers}>{formikprops.touched.EventLink && formikprops.errors.EventLink}</Text>)
                                 }
                             </View>
-                            <View style={styles.containerStyle}>
-                            {formikprops.values.InPerson === 'In Person' &&
-                                (<Text style={styles.TextStyle}>
-                                    Address: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
-                                    </Text>
-                                    
-                                </Text>)
-                            }
-                            {formikprops.values.InPerson === 'In Person' &&
-                                (<LocationAutocomplete address = {formikprops.values.Address} setFormikValue = {formikprops.setFieldValue} />)
-                            }
-                            {formikprops.values.InPerson === 'In Person' &&
-                                <Text style={styles.errorMessagePickers}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
-                            }
-                            </View>
+                            
 
                             <View style={styles.containerStyle}>
                             {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
@@ -563,7 +529,7 @@ const EventSchedule = (props) => {
                             
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Event Schedule</Text>
+                                <Text style={{color: '#09189F', fontSize: Globals.HR(22), marginLeft: 20, marginTop: Globals.HR(20), fontWeight: '500'}}>Event Schedule</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -670,8 +636,6 @@ const EventSchedule = (props) => {
                 )}
             </Formik>
         </SafeAreaView>
-
-
     );
 }
 
@@ -702,7 +666,7 @@ const EventDetails = (props) => {
                         <KeyboardAwareScrollView style={styles.scrollContainer}>
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: 22 , marginLeft: 20, marginTop: 20, fontWeight: '500'}}>Event Details</Text>
+                                <Text style={{color: '#09189F', fontSize: Globals.HR(22) , marginLeft: 20, marginTop: Globals.HR(20), fontWeight: '500'}}>Event Details</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -768,6 +732,7 @@ const EventDetails = (props) => {
                                 <ImagePickerExample 
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.EventImage}
+                                    editMode = {false}
                                 />
                             </View>
                         </KeyboardAwareScrollView>
@@ -799,12 +764,99 @@ const EventDetails = (props) => {
 const Preview = ({ route, navigation }) => {
     const { values } = route.params;
     const myContext = useContext(AppContext);
-    console.log(values);
+    //console.log(values);
+
+    const buildCoordinateList = () => {
+        const specials = [];
+        const offsets = [{lat:0.000150,lng:0.000150},{lat:0.000225,lng:0.000225},{lat:0.000075,lng:0.000075},{lat:0.000300,lng:0.000300}];
+        //if not in specials:
+        const initLng = values.Longitude;
+        const initLat = values.Latitude;
+        const coordList = [{longitude:initLng,latitude:initLat}];
+
+        for(let i=0; i<offsets.length;i++) {
+            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat + offsets[i].lat});
+            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat + offsets[i].lat});
+            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat - offsets[i].lat});
+            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat - offsets[i].lat});
+            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat + 0});
+            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat + 0});
+            coordList.push({longitude: initLng + 0, latitude: initLat + offsets[i].lat});
+            coordList.push({longitude: initLng + 0, latitude: initLat - offsets[i].lat});
+        }
+        return coordList;
+    }
+    const[convertedImage,setConvertedImage] = useState({base64:'',type:''});
+
+    const convertImage = async () => {
+        if(values.EventImage != '') {
+            
+            let filename = values.EventImage.split('/').pop();
+            let match = /\.(\w+)$/.exec(filename);
+            let type = match ? `${match[1]}` : `image`;
+            
+            let compressratio = 0.9;
+            let needsCompress = false
+            console.log(type);
+
+            if(type == 'png') {
+                console.log('ITS A PNG');
+                if(values.EventImageSize > 200000)
+                    needsCompress = true
+                
+                if(values.EventImageSize > 500000 && values.EventImageSize < 1000000)
+                    compressratio = Math.min(500000/values.EventImageSize,compressratio);
+                else if(values.EventImageSize > 1000000 && values.EventImageSize < 2000000)
+                    compressratio = Math.min(1000000/values.EventImageSize,compressratio);
+                else if(values.EventImageSize > 2000000)
+                    compressratio = Math.min(2000000/values.EventImageSize,compressratio);
+
+                const reducedImage = await ImageManipulator.manipulateAsync(
+                    values.EventImage,
+                    [],
+                    {compress:compressratio,base64:true}
+                )
+                setConvertedImage({base64:reducedImage.base64,type:'jpg'});
+                console.log(values.EventImageSize);
+                console.log(compressratio);
+                console.log(reducedImage.base64.length);
+            }
+            else if(type == 'jpg' || type == 'jpeg') {
+                if(values.EventImageSize > 200000)
+                    needsCompress = true;
+                
+                if(values.EventImageSize > 500000 && values.EventImageSize < 1000000)
+                    compressratio = Math.min(500000/values.EventImageSize,compressratio);
+                else if(values.EventImageSize > 1000000 && values.EventImageSize < 2000000)
+                    compressratio = Math.min(1000000/values.EventImageSize,compressratio);
+                else if(values.EventImageSize > 2000000 && values.EventImageSize < 4000000)
+                    compressratio = Math.min(2000000/values.EventImageSize,compressratio);
+                else if(values.EventImageSize > 4000000)
+                    compressratio = Math.min(0/values.EventImageSize,compressratio);
+
+                const reducedImage = await ImageManipulator.manipulateAsync(
+                    values.EventImage,
+                    [{resize:{width:300,height:300*values.EventImageDimensions.height*1.0/values.EventImageDimensions.width}}],
+                    {base64:true}
+                )
+                setConvertedImage({base64:reducedImage.base64,type:'jpg'});
+                console.log(values.EventImageSize);
+                console.log(compressratio);
+                console.log(reducedImage.base64.length);
+            }
+            else {
+                //type not supported???
+            }
+        }
+    }
+    const [latlngArray,setLatLngArray] = useState([]);
+    if(latlngArray.length == 0) {
+        setLatLngArray(buildCoordinateList());
+        convertImage();
+    }
     // Helper functions
     const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
     {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
-
-   
 
     const renderCategories = () => {
         let pic = ""
@@ -819,17 +871,19 @@ const Preview = ({ route, navigation }) => {
               source={pic}
               style={{width:18, height: 18, tintColor: 'orange'}}>
             </Image>
-            <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{values.InPerson}</Text>
+            <Text style={{marginLeft: 5, fontSize: Globals.HR(16), fontWeight: 'bold', color: 'orange'}}>{values.InPerson}</Text>
           </View>
         )
       }
-
       const registration = () => {
         if(values.Registration != '') {
           return (
             <View>
-              <Text style={{fontWeight: 'bold'}}>Registration</Text>
-              <Text>{values.Registration}</Text>
+              <Text style={{fontWeight: '600',fontSize: Globals.HR(18),marginBottom:10}}>Registration</Text>
+              <Text style = {{fontSize: Globals.HR(15), marginBottom: 15,color:'#0085ff',textDecorationLine:'underline'}}
+                    onPress = {() => Linking.openURL(values.Registration)}> 
+                {values.Registration}
+              </Text>
             </View>
           )
         }
@@ -838,40 +892,49 @@ const Preview = ({ route, navigation }) => {
         if(values.OrganizerEmail != '' && values.OrganizerWebsite != '') {
           return (
             <View>
-              <Text style={{fontWeight: 'bold'}}>More Details</Text>
+              <Text style={{fontWeight: '600',fontSize: Globals.HR(18),marginBottom:10,}}>fontSize:Details</Text>
               <View style={{flexDirection: 'row'}}>
-                <Text>Email: </Text>
-                <Text>{values.OrganizerEmail}</Text>
+                <Text style = {{fontSize:Globals.HR(15)}}>Email: </Text>
+                <Text style = {{fontSize:Globals.HR(15), marginBottom:8,}}>{values.OrganizerEmail}</Text>
               </View>
               <View style={{flexDirection: 'row'}}>
-                <Text>Website: </Text>
-                <Text>{values.OrganizerWebsite}</Text>
+                <Text style = {{fontSize:Globals.HR(15),marginBottom: 5,}}>Website: </Text>
+                <Text style = {{fontSize:Globals.HR(15), marginBottom: 10,color:'#0085ff',textDecorationLine:'underline'}}
+                    onPress = {() => Linking.openURL(values.OrganizerWebsite)}>
+                    {values.OrganizerWebsite.substr(0,35) + (values.OrganizerWebsite.length>35?'...':'')}
+                </Text>
               </View>
             </View>
           )
         } else if (values.OrganizerEmail != '') {
           return (
             <View>
-              <Text style={{fontWeight: 'bold'}}>More Details</Text>
+              <Text style={{fontWeight: '600', fontSize:Globals.HR(18),marginBottom:5,}}>More Details</Text>
               <View style={{flexDirection: 'row'}}>
-                <Text>Email: </Text>
-                <Text>{values.OrganizerEmail}</Text>
+                <Text style = {{fontSize: Globals.HR(15)}}>Email: </Text>
+                <Text style = {{fontSize: Globals.HR(15), marginBottom:5,}}>{values.OrganizerEmail}</Text>
               </View>
             </View>
           )
         } else if (values.OrganizerWebsite != '') {
           return (
             <View>
-              <Text style={{fontWeight: 'bold'}}>More Details</Text>
+              <Text style={{fontWeight: '600',marginBottom:5,}}>More Details</Text>
               <View style={{flexDirection: 'row'}}>
-                <Text>Website: </Text>
-                <Text>{values.OrganizerWebsite}</Text>
+                <Text style = {{fontSize: Globals.HR(15),marginBottom: 5,}}>Website: </Text>
+                <Text style = {{fontSize: Globals.HR(15), marginBottom: 10,color:'#0085ff',textDecorationLine:'underline'}}
+                    onPress = {() => Linking.openURL(values.OrganizerWebsite)}>
+                    {values.OrganizerWebsite.substr(0,35) + (values.OrganizerWebsite.length>35?'...':'')}
+                </Text>
               </View>
             </View>
           )
         }
+        else {
+          return null;
+        }
       }
-  
+
       const [buttonColor1, setButtonColor1] = useState('#FFF')
     
         const toggle1 = () => {
@@ -920,12 +983,14 @@ const Preview = ({ route, navigation }) => {
         }
       }
       const renderTime = () => {
-        if (values.StartDay == values.EndDay) {
-          return values.StartDay + ' - ' + values.EndTime
-        }
-        else {
-          return values.StartTime + ' - ' + values.EndTime
-        }
+        return Globals.extraFormat(values.StartDay + ' ' + values.StartTime, values.EndDay + ' ' + values.EndTime);
+      }
+      const openMap = () => {
+        const scheme = 'maps:0,0?q=';
+        const latLng = `${values.Latitude},${values.Longitude}`;
+        const label = Globals.getLocationName(values.Address);
+        const url =  `${scheme}${label}@${latLng}`
+        Linking.openURL(url);
       }
       const handleNavigation = (postedEvent) => {
           myContext.changePostedEvent({...postedEvent,...{inUse:true}});
@@ -941,17 +1006,18 @@ const Preview = ({ route, navigation }) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                name: values.EventTitle,
+                name: values.EventTitle.trim(),
                 location: values.Address,
-                locationName: values.LocationName,
-                locationDetails: values.LocationDetails,
-                description: values.EventDescription,
+                locationName: values.LocationName.trim(),
+                locationDetails: values.LocationDetails.trim(),
+                description: values.EventDescription.trim(),
                 privateEvent: values.Privacy!='Public',
                 virtualEvent: values.InPerson!='In Person',
-                coordinates: [{longitude:values.Longitude,latitude:values.Latitude}],
-                registrationLink: values.Registration,
-                organizer: values.OrganizerName,
-                organizerWebsite: values.OrganizerWebsite,
+                coordinates: latlngArray,
+                registrationLink: values.Registration.trim(),
+                organizer: values.OrganizerName.trim(),
+                organizerEmail: values.OrganizerEmail,
+                organizerWebsite: values.OrganizerWebsite.trim(),
                 //startTime: "2021-08-09 20:00:00",
                 startTime: values.RealStartDateTime.toISOString().substr(0,10) + ' ' + values.RealStartDateTime.toISOString().substr(11,8),
                 endTime: values.RealEndDateTime.toISOString().substr(0,10) + ' ' + values.RealEndDateTime.toISOString().substr(11,8),
@@ -959,16 +1025,18 @@ const Preview = ({ route, navigation }) => {
                 hostId: myContext.user.id,
                 mainCategoryId: values.EventType,
                 categoryIds: values.ContentType,
-                }
-                )
+                imageData: convertedImage.base64,
+                imageExt: convertedImage.type,
+            }
+            )
         })
         .then((response) => response.json())
         .then((json) => {
-            console.log('event posted: ')
+            console.log('event posted: ');
             console.log(json);
             handleNavigation(json);
         })
-        .catch((error) => Alert.alert('Failed to Post Event',"Sorry, we can't post your event right now. Please try again later.")); 
+        .catch((error) => {Alert.alert('Failed to Post Event',"Sorry, something went wrong. If it's not your connection, maybe try a smaller image? Sorry")}); 
     }
     const postEventHandler = () => {
         postToServer(); //handles all navigation stuff also
@@ -982,12 +1050,12 @@ const Preview = ({ route, navigation }) => {
             <View style={{flex: 1}}>
                 <PreviewHeader navigation={navigation} />
             </View>
-        <ScrollView contentContainerStyle={{height: '78%'}}>
+        <ScrollView /*contentContainerStyle={{height: '78%'}}*/ style = {{height: '78%'}}>
             <View style={styles.panel}>
             <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
               <View>
                 <Text style={{
-                  fontSize: 24,
+                  fontSize: Globals.HR(24),
                   width: Dimensions.get('window').width - 105,
                   marginRight: 10    
                   }} 
@@ -1003,9 +1071,9 @@ const Preview = ({ route, navigation }) => {
             <View style={styles.panelHost}>
               <Image
                 source={require('../assets/Vector.png')}
-                style={{width:18, height: 18}}>
+                style={{width:18, height: 18, tintColor: 'orange'}}>
               </Image>
-              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange'}}>{values.OrganizerName}</Text>
+              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: Globals.HR(16), fontWeight: 'bold', color: 'orange'}}>{values.OrganizerName}</Text>
               {renderCategories()}
             </View>
             <View style={styles.panelDate}>
@@ -1013,7 +1081,7 @@ const Preview = ({ route, navigation }) => {
                 source={require('../assets/CalendarIcon.png')}
                 style={{width:18, height:18}}
               ></Image>
-              <Text style={{marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4'}}>{renderTime()}</Text>
+              <Text style={{marginLeft: 5, fontSize: Globals.HR(16), fontWeight: 'bold', color: '#03a9f4'}}>{renderTime()}</Text>
             </View>
             <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
               <TouchableOpacity style={{backgroundColor: buttonColor1,
@@ -1033,7 +1101,7 @@ const Preview = ({ route, navigation }) => {
                     style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor1)}}
                   ></Image>
                   <Text style={{
-                    fontSize: 17,
+                    fontSize: Globals.HR(17),
                     fontWeight: 'bold',
                     color: borderColor(buttonColor1),
                   }}>Save</Text>
@@ -1056,7 +1124,7 @@ const Preview = ({ route, navigation }) => {
                     style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
                   ></Image>
                   <Text style={{
-                    fontSize: 17,
+                    fontSize: Globals.HR(17),
                     fontWeight: 'bold',
                     color: borderColor(buttonColor2),
                   }}>I'm Going</Text>
@@ -1079,7 +1147,7 @@ const Preview = ({ route, navigation }) => {
                     style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
                   ></Image>
                   <Text style={{
-                    fontSize: 17,
+                    fontSize: Globals.HR(17),
                     fontWeight: 'bold',
                     color: borderColor(buttonColor3),
                   }}>Share</Text>
@@ -1087,35 +1155,39 @@ const Preview = ({ route, navigation }) => {
               </TouchableOpacity>
             </View>
               <View>
-                <Image source={{uri: values.EventImage}}
+                <Image source={values.EventImage==''?require('../assets/avatar.png'):{uri: values.EventImage}}
                 resizeMode= 'cover'
-                style={{width: Dimensions.get('window').width - 40.8, height: 200, marginBottom: 20}}>
+                style={{width: Dimensions.get('window').width - 40.8, height: 225, marginBottom: 20}}>
                 </Image>
               </View>
-              <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Event Description</Text>
+              <Text style={{fontWeight: '600', fontSize: Globals.HR(18), marginBottom: 10}}>Event Description</Text>
               <View>
-                <Text style={{marginBottom: 5}}>{resultString.replace(/(\r\n|\n|\r)/gm, " ")}</Text>
+                <Text style={{fontSize: 15, marginBottom: 10, lineHeight: 20,}}>{resultString.replace(/(\r\n|\n|\r)/gm, " ")}</Text>
                 {renderButton()}
               </View>
-              <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 5}}>Location</Text>
-              <Text>{values.locationName}</Text>
-              <Text style={{marginBottom: 10}}>{values.Address}</Text>
+              <Text style={{fontWeight: '600', fontSize: Globals.HR(18), marginBottom: 10}}>Location</Text>
+              <Text style={{fontSize: Globals.HR(15), marginBottom:values.LocationDetails==''?15:5,color:'#0085ff',textDecorationLine:'underline'}}
+                onPress = {openMap}>
+                    {values.Address}
+              </Text>
+              {values.LocationDetails != ''?<Text style = {{fontSize: Globals.HR(15), marginBottom: Globals.HR(15),}}>({values.LocationDetails})</Text>:null}
               {registration()}
               {moreDetails()}
-              
+                {/*
                 <TouchableOpacity style={{flexDirection: 'row'}}>
                   <Image
                     source={require('../assets/CalendarIcon.png')}
                     style={{width:18, height: 18, marginBottom: 5}}>
                   </Image>
-                  <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: '#03a9f4'}}>Add Event to Calendar</Text>
+                  <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, Globals: 16, color: '#03a9f4'}}>Add Event to Calendar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{flexDirection: 'row'}}>
+                */}
+                <TouchableOpacity style={{flexDirection: 'row',marginBottom:20}}>
                   <Image
                     source={require('../assets/report.png')}
-                    style={{width:18, height: 18, tintColor: 'red', marginBottom: Dimensions.get('window').height}}>
+                    style={{width:18, height: 18, tintColor: 'red'}}>
                   </Image>
-                  <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: 16, color: 'red'}}>Report</Text>
+                  <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: Globals.HR(16), color: 'red'}}>Report</Text>
                 </TouchableOpacity>
           </View>
           </ScrollView>
@@ -1178,8 +1250,9 @@ function UpdateEvent({ navigation }) {
         EventDescription: '',
         OrganizerEmail: '',
         OrganizerWebsite: '',
-        EventImage: ''
-
+        EventImage: '',
+        EventImageSize:0,
+        EventImageDimensions: {width:0,height:0},
     });
 
     const [currentStep, setCurrentStep] = useState(0);
@@ -1227,16 +1300,16 @@ export default function CreateNewEventScreen({ navigation }) {
 
 const styles = StyleSheet.create({
     containerBack: {
-        backgroundColor: '#FFFBF3',
+        backgroundColor: '#fff9f3',
         height: '100%',
         
     },
     TextStyle: {
-        fontSize: 19,
+        fontSize: Globals.HR(19),
         fontWeight: '500',
         color: '#09189F',
         marginLeft: 23,
-        marginTop: 10,
+        marginTop: Globals.HR(10),
     },
     containerStyle: {
 
@@ -1256,9 +1329,9 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         width: '88%',
         marginLeft: 24,
-        marginTop: 5,
-        marginBottom: 12,
-        fontSize: 16,
+        marginTop: Globals.HR(5),
+        marginBottom: Globals.HR(12),
+        fontSize: Globals.HR(16),
     },
 
     imageStyle: {
@@ -1303,7 +1376,7 @@ const styles = StyleSheet.create({
  
     },
     scrollContainer: {
-        paddingBottom: 90,
+        paddingBottom: Globals.HR(90),
         zIndex: 0,
         height: '93%',
 
@@ -1315,7 +1388,7 @@ const styles = StyleSheet.create({
         marginTop: 0,
     },
     searchContainer: {
-        marginTop: 10,
+        marginTop: Globals.HR(10),
         marginLeft: 15,
         marginRight: 15,
         backgroundColor: '#fffbf2',
@@ -1324,26 +1397,25 @@ const styles = StyleSheet.create({
     },
     close: {
         position: 'absolute',
-        left: 365,
-        top: 10,
+        top: Globals.HR(10),
+        right: 20
     },
     headerText: {
-        fontSize: 24,
+        fontSize: Globals.HR(24),
         fontWeight: 'bold',
-        marginTop: 10,
+        marginTop: Globals.HR(10),
         textAlign: 'center',
     },
     headerText2: {
-        fontSize: 24,
+        fontSize: Globals.HR(24),
         fontWeight: 'bold',
-        marginTop: 10,
+        marginTop: Globals.HR(10),
         marginLeft: '38%',
     },
     nextContainer: {
         backgroundColor: '#ffffff',
 
         marginHorizontal: 50,
-        marginTop: 5,
         width: '90%',
         alignItems: 'center',
         top: 0,
@@ -1361,7 +1433,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
 
         marginHorizontal: 50,
-        marginTop: 5,
         width: '65%',
         alignItems: 'center',
         top: 0,
@@ -1379,7 +1450,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         opacity: 0.33,
         marginHorizontal: 50,
-        marginTop: 5,
         width: '65%',
         alignItems: 'center',
         top: 0,
@@ -1395,24 +1465,24 @@ const styles = StyleSheet.create({
     },
     nextText: {
         fontWeight: 'bold',
-        fontSize: 18,
+        fontSize: Globals.HR(18),
         paddingVertical: 10,
         color: '#fab400',
     },
     backText: {
         fontWeight: 'bold',
-        fontSize: 18,
+        fontSize: Globals.HR(18),
         paddingVertical: 10,
         color: '#09189F',
     },
     errorMessage: {
         color: '#D8000C',
-        flex: 5,
-        fontSize: 14
+        // flex: 5,
+        fontSize: Globals.HR(14)
     },
     errorMessagePickers: {
         color: '#D8000C',
-        fontSize: 14,
+        fontSize: Globals.HR(14),
         marginLeft: 24
     },
     map: {
@@ -1434,7 +1504,7 @@ const styles = StyleSheet.create({
         shadowOffset: {width: -1, height: -2},
         shadowRadius: 2,
         shadowOpacity: 0.4,
-        paddingTop: 20,
+        paddingTop: Globals.HR(20),
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
     },
@@ -1451,11 +1521,11 @@ const styles = StyleSheet.create({
     panel: {
         padding: 20,
         backgroundColor: '#fff',
-        paddingTop: 20,
+        paddingTop: Globals.HR(20),
         //paddingBottom: Dimensions.get('window').height,
     },
     panelTitle: {
-      fontSize: 27,
+      fontSize: Globals.HR(27),
       height: 35,
       marginRight: 10,
       width: Dimensions.get('window').width - 100    
@@ -1469,7 +1539,7 @@ const styles = StyleSheet.create({
       marginBottom: 20
     },
     panelButtonTitle: {
-      fontSize: 17,
+      fontSize: Globals.HR(17),
       fontWeight: 'bold',
       color: 'white',
     },
@@ -1478,8 +1548,10 @@ const styles = StyleSheet.create({
         fontSize: windowHeight / 46.3
     },
     counterStyle: {
-        flex: 1,
-        fontSize: 14
+        // flex: 1,
+        fontSize: Globals.HR(14),
+        position: 'absolute',
+        right: 0
     },
     messageContainer: {
         flexDirection: 'row', 

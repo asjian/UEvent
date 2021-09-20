@@ -1,24 +1,18 @@
-import React, {useRef,useEffect} from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TextInput, Image, ScrollView, Dimensions, KeyboardAvoidingView, Linking, Keyboard, Alert } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
+import React from 'react';
+import { SafeAreaView, View, Text, StyleSheet, TextInput, Image, ScrollView, Dimensions, Linking, Alert } from 'react-native';
 import { useState, useContext } from 'react';
-import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { useNavigation } from '@react-navigation/native'
-import { ErrorMessage, Field, Formik, yupToFormErrors, FieldArray } from 'formik';
-import CheckBox from '@react-native-community/checkbox';
+import { Formik, FieldArray } from 'formik';
 import { AntDesign } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AppContext from '../objects/AppContext';
-//import SearchableDropdown from 'react-native-searchable-dropdown';
-import {EventTypeSelector} from '../objects/FormObjects/EventTypeSelector';
+import { EventTypeSelector } from '../objects/FormObjects/EventTypeSelector';
 import PrivacySelector from '../objects/FormObjects/PrivacySelector';
-import {ContentTypeSelector} from '../objects/FormObjects/ContentTypeSelector';
+import { ContentTypeSelector } from '../objects/FormObjects/ContentTypeSelector';
 import InPersonSelector from '../objects/FormObjects/InPersonSelector';
 import ImagePickerExample from '../objects/FormObjects/ImagePicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import Geocoder from 'react-native-geocoding';
 import Globals from '../../GlobalVariables';
 import * as yup from 'yup';
 import { max } from 'react-native-reanimated';
@@ -28,9 +22,9 @@ import { EndDateSelector } from '../objects/FormObjects/EndDateSelector';
 import { StartTimeSelector } from '../objects/FormObjects/StartTimeSelector';
 import { EndTimeSelector } from '../objects/FormObjects/EndTimeSelector';
 import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
-import { NavigationActions } from 'react-navigation';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
+import CheckBox from '../objects/FormObjects/CheckBox';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -44,14 +38,14 @@ function Header({ navigation }) {
             "Confirmation",
             "Are you sure you want to exit the form? All form information will be lost",
             [
-              {
-                text: "Cancel",
-                style: "cancel"
-              },
-              { text: "OK", onPress: () => {navigation.goBack(); myContext.toggleShowNavBar(true);}}
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                { text: "OK", onPress: () => { navigation.goBack(); myContext.toggleShowNavBar(true); } }
             ]
-          );
-        
+        );
+
     }
     return (
         <View style={styles.outerContainer}>
@@ -74,13 +68,13 @@ function PreviewHeader({ navigation }) {
             "Confirmation",
             "Are you sure you want to exit the form? All form information will be lost",
             [
-              {
-                text: "Cancel",
-                style: "cancel"
-              },
-              { text: "OK", onPress: () => {navigation.dangerouslyGetParent().goBack(); myContext.toggleShowNavBar(true);}}
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                { text: "OK", onPress: () => { navigation.dangerouslyGetParent().goBack(); myContext.toggleShowNavBar(true); } }
             ]
-          );
+        );
     }
     return (
         <View style={styles.outerContainer}>
@@ -134,6 +128,7 @@ const pageOneValidSchema = yup.object({
 
 const pageTwoValidSchema = yup.object({
     // second slide
+    /*
     InPerson: yup.string()
         .required()
         .label('In Person or Virtual')
@@ -145,6 +140,7 @@ const pageTwoValidSchema = yup.object({
         })
         .label('Event Link')
     ,
+    */
     Address: yup.string()
         .when('InPerson', {
             is: (value) => value === 'In Person',
@@ -154,12 +150,11 @@ const pageTwoValidSchema = yup.object({
             is: (InPerson, locationSelected) => (InPerson === 'In Person') && (locationSelected === false),
             then: yup.string().test('scheme', 'Please choose an adress from the dropdown', (value, context) => value === '')
         }),
-        
+
     LocationDetails: yup.string()
         .max(100, 'Location Details must be 100 characters or less'),
-
 })
-
+const re = /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm
 const pageThreeValidSchema = yup.object({
     // third slide
     StartDay: yup.string()
@@ -171,14 +166,16 @@ const pageThreeValidSchema = yup.object({
     EndTime: yup.string()
         .required(),
     RealStartDateTime: yup.date()
-        ,
+    ,
     RealEndDateTime: yup.date()
-        .min(yup.ref('RealStartDateTime'), 
-        ({min}) => `End date and time needs to be after ${min.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} on ${min.toDateString()}` ),
-    
-    Registration: yup.string()
-     .url('Invalid link. Make sure your url starts with https://'), 
-
+        .min(yup.ref('RealStartDateTime'),
+            ({ min }) => `End date and time needs to be after ${min.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} on ${min.toDateString()}`),
+    /*Registration: yup.string()
+        .url('Invalid link. Make sure your url starts with https://'),*/
+    Registration: 
+    yup.string().matches(
+        re,'Invalid link. Make sure the link has all required components.'
+    )
 })
 
 const pageFourValidSchema = yup.object({
@@ -188,10 +185,12 @@ const pageFourValidSchema = yup.object({
         .label('Event Description')
         .max(500, 'Event Description must be 500 characters or less'),
     OrganizerEmail: yup.string()
-    .email('Must be a valid email'),
-    
-    OrganizerWebsite: yup.string()
-    .url('Invalid link. Make sure your url starts with https://'),
+        .email('Must be a valid email'),
+
+    OrganizerWebsite: 
+    yup.string().matches(
+        re,'Invalid link. Make sure the link has all required components.'
+    )
 })
 // First slide
 const EventInformation = (props) => {
@@ -199,7 +198,6 @@ const EventInformation = (props) => {
 
     const handleSubmit = (values) => {
         props.next(values);
-        console.log(values);
     };
 
     const [isFocused, setFocus] = useState(false);
@@ -208,11 +206,10 @@ const EventInformation = (props) => {
 
     return (
         <SafeAreaView style={styles.containerBack}>
-
             <Formik
                 initialValues={props.data}
                 onSubmit={handleSubmit}
-                validationSchema={pageOneValidSchema}              
+                validationSchema={pageOneValidSchema}
             >
                 {(formikprops) => (
                     <View>
@@ -221,7 +218,7 @@ const EventInformation = (props) => {
                                 <Header navigation={navigation} />
                             </View>
                             <View>
-                                <Text style={{color: '#09189F', fontSize: Globals.HR(22) , marginLeft: 23, marginTop: Globals.HR(30), fontWeight: '500'}}>Event Information</Text>
+                                <Text style={{ color: '#09189F', fontSize: Globals.formFontAdj(22), marginLeft: 23, marginTop: Globals.HR(30), fontWeight: '500' }}>Event Information</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ marginLeft: 23, margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -231,16 +228,16 @@ const EventInformation = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Event Title: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
+                                    Event Title:
+                                    <Text style={styles.requiredField}>
+                                        {' '}*
                                     </Text>
-                                    
+
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.EventTitle !== '' || isFocused ? '#7b7b7b' : '#c4c4c4'}]}
-                                    placeholder='Eg: MProduct Interest Meeting'
-                                    placeholderTextColor = '#a3a3a3'
+                                    style={[styles.InputBox, { borderColor: formikprops.values.EventTitle !== '' || isFocused ? '#7b7b7b' : '#c4c4c4' }]}
+                                    placeholder='Brief title for your event.'
+                                    placeholderTextColor='#a3a3a3'
                                     onChangeText={formikprops.handleChange('EventTitle')}
                                     value={formikprops.values.EventTitle}
                                     onFocus={() => setFocus(true)}
@@ -255,17 +252,17 @@ const EventInformation = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Organizer Name: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
+                                    Organizer Name:
+                                    <Text style={styles.requiredField}>
+                                        {' '}*
                                     </Text>
-                                    
+
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerName !== '' || isFocused2 ? '#7b7b7b' : '#c4c4c4'}]}
-                                    placeholder='Organization (eg. MProduct) or you (Eg. Alex Jian)'
-                                    placeholderTextColor = '#a3a3a3'
-                                    textAlign = 'left'
+                                    style={[styles.InputBox, { borderColor: formikprops.values.OrganizerName !== '' || isFocused2 ? '#7b7b7b' : '#c4c4c4' }]}
+                                    placeholder="Your name or your organization's name."
+                                    placeholderTextColor='#a3a3a3'
+                                    textAlign='left'
                                     onChangeText={formikprops.handleChange('OrganizerName')}
                                     value={formikprops.values.OrganizerName}
                                     onFocus={() => setFocus2(true)}
@@ -277,13 +274,13 @@ const EventInformation = (props) => {
                                     <Text style={styles.counterStyle}>{formikprops.values.OrganizerName.length.toString()} / 50</Text>
                                 </View>
                             </View>
-                            <View style={[styles.containerStyle,{marginTop:Globals.HR(5)}]}>
+                            <View style={[styles.containerStyle, { marginTop: Globals.HR(5) }]}>
                                 <Text style={styles.TextStyle}>
-                                    Privacy: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
+                                    Privacy:
+                                    <Text style={styles.requiredField}>
+                                        {' '}*
                                     </Text>
-                                    
+
                                 </Text>
                                 <PrivacySelector
                                     onChange={formikprops.setFieldValue}
@@ -291,35 +288,35 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessagePickers}>{formikprops.touched.Privacy && formikprops.errors.Privacy}</Text>
                             </View>
-                            <View style={[styles.containerStyle,{marginTop:Globals.HR(2),}]}>
+                            <View style={[styles.containerStyle, { marginTop: Globals.HR(2), }]}>
                                 <Text style={styles.TextStyle}>
-                                    Main Event Category: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
+                                    Main Event Category:
+                                    <Text style={styles.requiredField}>
+                                        {' '}*
                                     </Text>
-                                    
+
                                 </Text>
-                                <View style={{width: '88%', marginLeft: 23, marginTop: Globals.HR(10), }}>
+                                <View style={{ width: '88%', marginLeft: 23, marginTop: Globals.HR(10), }}>
                                     <FieldArray name="EventType" component={EventTypeSelector} />
                                 </View>
-                               
-                                <Text style={[styles.errorMessagePickers, {marginTop: Globals.HR(8)}]}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
+
+                                <Text style={[styles.errorMessagePickers, { marginTop: Globals.HR(8) }]}>{formikprops.touched.EventType && formikprops.errors.EventType}</Text>
                             </View>
-                            <View style={[styles.containerStyle,{marginTop:8,}]}>
+                            <View style={[styles.containerStyle, { marginTop: 8, }]}>
                                 <Text style={styles.TextStyle}>
                                     Other Categories:
                                 </Text>
-                                <View style={{width: '88%', marginLeft: 23, marginTop: Globals.HR(10), }}>
+                                <View style={{ width: '88%', marginLeft: 23, marginTop: Globals.HR(10), }}>
                                     <FieldArray name="ContentType" component={ContentTypeSelector} />
                                 </View>
-                                
+
                                 {/*<ContentTypeSelector3
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.ContentType}
                                 />*/}
                                 <Text style={styles.errorMessagePickers}>{formikprops.touched.ContentType && formikprops.errors.ContentType}</Text>
                             </View>
-                            
+
                             {/*
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
@@ -335,7 +332,7 @@ const EventInformation = (props) => {
                                 />
                                 <Text style={styles.errorMessage}>{formikprops.touched.Tags && formikprops.errors.Tags}</Text>
                             </View>
-                            */}             
+                            */}
                         </KeyboardAwareScrollView>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
@@ -380,13 +377,13 @@ const MoreInformation = (props) => {
                 initialValues={props.data}
                 onSubmit={handleSubmit}
                 validationSchema={pageTwoValidSchema}
-            >         
+            >
                 {(formikprops) => (
                     <View>
-                        <KeyboardAwareScrollView style={styles.scrollContainer} keyboardShouldPersistTaps = "handled">
+                        <KeyboardAwareScrollView style={styles.scrollContainer} keyboardShouldPersistTaps="handled">
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: Globals.HR(22) , marginLeft: 20, marginTop: Globals.HR(30), fontWeight: '500'}}>Location Information</Text>
+                                <Text style={{ color: '#09189F', fontSize: Globals.formFontAdj(22), marginLeft: 20, marginTop: Globals.HR(30), fontWeight: '500' }}>Location Information</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -394,6 +391,7 @@ const MoreInformation = (props) => {
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Gray-Progress-Bar.png')} />
                             </View>
+                            {/*
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
                                     In Person or Online? 
@@ -407,78 +405,76 @@ const MoreInformation = (props) => {
                                     value={formikprops.values.InPerson}
                                 />
                                 <Text style={styles.errorMessagePickers}>{formikprops.touched.InPerson && formikprops.errors.InPerson}</Text>
-                            </View>
+                            </View> */}
+                            <View style={styles.containerStyle}>
+                                {formikprops.values.InPerson === 'In Person' &&
+                                    (<Text style={styles.TextStyle}>
+                                        Location:
+                                        <Text style={styles.requiredField}>
+                                            {' '}*
+                                        </Text>
 
-                            <View style={styles.containerStyle}>
-                            {formikprops.values.InPerson === 'In Person' &&
-                                (<Text style={styles.TextStyle}>
-                                    Location: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
-                                    </Text>
-                                    
-                                </Text>)
-                            }
-                            {formikprops.values.InPerson === 'In Person' &&
-                                (<LocationAutocomplete address = {formikprops.values.Address} setFormikValue = {formikprops.setFieldValue} />)
-                            }
-                            {formikprops.values.InPerson === 'In Person' &&
-                                <Text style={[styles.errorMessagePickers, {marginTop: Globals.HR(8)}]}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
-                            }
-                            </View>
-                
-                            <View style={styles.containerStyle}>
-                            {formikprops.values.InPerson === 'Virtual' &&
-                                (<Text style={styles.TextStyle}>
-                                    Event Link: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
-                                    </Text>
-                                    
-                                </Text>)
-                            }
-                                {formikprops.values.InPerson === 'Virtual' &&
-                                (<TextInput
-                                    style={[styles.InputBox, {borderColor: isFocused2a ? '#7b7b7b' : '#C4C4C4'}]}
-                                    placeholder="Egs. Zoom link, Webex"
-                                    onChangeText={formikprops.handleChange('EventLink')}
-                                    value={formikprops.values.EventLink}
-                                    onFocus={() => setFocus2a(true)}
-                                    onBlur={() => setFocus2a(false)}
-                                />)
-                            }
-                                
-                                {formikprops.values.InPerson === 'Virtual' &&
-                                (<Text style={styles.errorMessagePickers}>{formikprops.touched.EventLink && formikprops.errors.EventLink}</Text>)
+                                    </Text>)
+                                }
+                                {formikprops.values.InPerson === 'In Person' &&
+                                    (<LocationAutocomplete address={formikprops.values.Address} setFormikValue={formikprops.setFieldValue} />)
+                                }
+                                {formikprops.values.InPerson === 'In Person' &&
+                                    <Text style={[styles.errorMessagePickers, { marginTop: Globals.HR(8) }]}>{formikprops.touched.Address && formikprops.errors.Address}</Text>
                                 }
                             </View>
-                            
 
                             <View style={styles.containerStyle}>
-                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
-                                (<Text style={styles.TextStyle}>
-                                    Location Details:
-                                </Text>)
-                            }
-                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
-                                (<TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.LocationDetails !== '' || isFocused4 ? '#7b7b7b' : '#C4C4C4'}]}
-                                    placeholder='Eg: 2nd floor meeting room'
-                                    placeholderTextColor = '#a3a3a3'
-                                    onChangeText={formikprops.handleChange('LocationDetails')}
-                                    value={formikprops.values.LocationDetails}
-                                    onFocus={() => setFocus4(true)}
-                                    onBlur={() => setFocus4(false)}
-                                    maxLength={100}
-                                    multiline={true}
-                                />)
-                            }
-                            {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
-                                (<View style={styles.messageContainer}>
-                                    <Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>
-                                    <Text style={styles.counterStyle}>{formikprops.values.LocationDetails.length.toString()} / 100</Text>
-                                </View>)
-                            }
+                                {formikprops.values.InPerson === 'Virtual' &&
+                                    (<Text style={styles.TextStyle}>
+                                        Event Link:
+                                        <Text style={styles.requiredField}>
+                                            {' '}*
+                                        </Text>
+                                    </Text>)
+                                }
+                                {formikprops.values.InPerson === 'Virtual' &&
+                                    (<TextInput
+                                        style={[styles.InputBox, { borderColor: isFocused2a ? '#7b7b7b' : '#C4C4C4' }]}
+                                        placeholder="Egs. Zoom link, Webex"
+                                        onChangeText={formikprops.handleChange('EventLink')}
+                                        value={formikprops.values.EventLink}
+                                        onFocus={() => setFocus2a(true)}
+                                        onBlur={() => setFocus2a(false)}
+                                    />)
+                                }
+
+                                {formikprops.values.InPerson === 'Virtual' &&
+                                    (<Text style={styles.errorMessagePickers}>{formikprops.touched.EventLink && formikprops.errors.EventLink}</Text>)
+                                }
+                            </View>
+
+
+                            <View style={styles.containerStyle}>
+                                {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
+                                    (<Text style={styles.TextStyle}>
+                                        Location Details:
+                                    </Text>)
+                                }
+                                {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
+                                    (<TextInput
+                                        style={[styles.InputBox, { borderColor: formikprops.values.LocationDetails !== '' || isFocused4 ? '#7b7b7b' : '#C4C4C4' }]}
+                                        placeholder='Eg: 2nd floor meeting room'
+                                        placeholderTextColor='#a3a3a3'
+                                        onChangeText={formikprops.handleChange('LocationDetails')}
+                                        value={formikprops.values.LocationDetails}
+                                        onFocus={() => setFocus4(true)}
+                                        onBlur={() => setFocus4(false)}
+                                        maxLength={100}
+                                        multiline={true}
+                                    />)
+                                }
+                                {((formikprops.values.InPerson === 'In Person') || (formikprops.values.InPerson === 'Virtual')) &&
+                                    (<View style={styles.messageContainer}>
+                                        <Text style={styles.errorMessage}>{formikprops.touched.LocationDetails && formikprops.errors.LocationDetails}</Text>
+                                        <Text style={styles.counterStyle}>{formikprops.values.LocationDetails.length.toString()} / 100</Text>
+                                    </View>)
+                                }
                             </View>
                         </KeyboardAwareScrollView>
 
@@ -526,10 +522,10 @@ const EventSchedule = (props) => {
                 {(formikprops) => (
                     <View>
                         <KeyboardAwareScrollView style={styles.scrollContainer}>
-                            
+
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: Globals.HR(22), marginLeft: 20, marginTop: Globals.HR(20), fontWeight: '500'}}>Event Schedule</Text>
+                                <Text style={{ color: '#09189F', fontSize: Globals.formFontAdj(22), marginLeft: 20, marginTop: Globals.HR(20), fontWeight: '500' }}>Event Schedule</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -539,11 +535,11 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Start Day: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
+                                    Start Day:
+                                    <Text style={styles.requiredField}>
+                                        {' '}*
                                     </Text>
-                                    
+
                                 </Text>
                                 <StartDateSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -554,11 +550,11 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Start Time: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
+                                    Start Time:
+                                    <Text style={styles.requiredField}>
+                                        {' '}*
                                     </Text>
-                                    
+
                                 </Text>
                                 <StartTimeSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -569,11 +565,11 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    End Day: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
+                                    End Day:
+                                    <Text style={styles.requiredField}>
+                                        {' '}*
                                     </Text>
-                                    
+
                                 </Text>
                                 <EndDateSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -584,11 +580,11 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    End Time: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
+                                    End Time:
+                                    <Text style={styles.requiredField}>
+                                        {' '}*
                                     </Text>
-                                    
+
                                 </Text>
                                 <EndTimeSelector
                                     onChangeFormik={formikprops.setFieldValue}
@@ -599,19 +595,24 @@ const EventSchedule = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Requires Registration
+                                    Registration Link:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.Registration !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
-                                    placeholder='Link to external registration tool'
+                                    style={[styles.InputBox, { borderColor: formikprops.values.Registration !== '' || isFocused ? '#7b7b7b' : '#C4C4C4', fontSize: Globals.HR(16) }]}
+                                    placeholder='Link to external registration site.'
                                     onChangeText={formikprops.handleChange('Registration')}
                                     value={formikprops.values.Registration}
                                     onFocus={() => setFocus(true)}
                                     onBlur={() => setFocus(false)}
-                                    
+                                    placeholderTextColor='#a3a3a3'
                                 />
                                 <Text style={styles.errorMessagePickers}>{formikprops.touched.Registration && formikprops.errors.Registration}</Text>
                             </View>
+                            {/*
+                            <View style = {[styles.containerStyle,{marginLeft:23,marginTop:15}]}>
+                                <CheckBox title = "Registration Required" value = {true}/>
+                            </View>
+                            */}
                         </KeyboardAwareScrollView>
 
                         <View style={{ flexDirection: 'row' }}>
@@ -647,7 +648,7 @@ const EventDetails = (props) => {
         props.next(values, true);
         // navigate to preview screen
         navigation.navigate('Preview', { values: values });
-        console.log(values);
+
     };
 
     const [isFocused, setFocus] = useState(false);
@@ -666,7 +667,7 @@ const EventDetails = (props) => {
                         <KeyboardAwareScrollView style={styles.scrollContainer}>
                             <Header navigation={navigation} />
                             <View>
-                                <Text style={{color: '#09189F', fontSize: Globals.HR(22) , marginLeft: 20, marginTop: Globals.HR(20), fontWeight: '500'}}>Event Details</Text>
+                                <Text style={{ color: '#09189F', fontSize: Globals.formFontAdj(22), marginLeft: 20, marginTop: Globals.HR(20), fontWeight: '500' }}>Event Details</Text>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
                                 <Image style={{ margin: 20, flex: 2 / 9 }} source={require('../assets/Progress-Bar.png')} />
@@ -676,14 +677,14 @@ const EventDetails = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Event Description: 
-                                    <Text style = {styles.requiredField}>
-                                    {' '}* 
+                                    Event Description:
+                                    <Text style={styles.requiredField}>
+                                        {' '}*
                                     </Text>
-                                    
+
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.EventDescription !== '' || isFocused ? '#7b7b7b' : '#C4C4C4'}]}
+                                    style={[styles.InputBox, { borderColor: formikprops.values.EventDescription !== '' || isFocused ? '#7b7b7b' : '#C4C4C4' }]}
                                     multiline={true}
                                     placeholder='Describe your event here'
                                     onChangeText={formikprops.handleChange('EventDescription')}
@@ -702,8 +703,8 @@ const EventDetails = (props) => {
                                     Organizer Email:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerEmail !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4'}]}
-                                    placeholder='Optional. eg: mproduct@umich.edu'
+                                    style={[styles.InputBox, { borderColor: formikprops.values.OrganizerEmail !== '' || isFocused2 ? '#7b7b7b' : '#C4C4C4' }]}
+                                    placeholder='Optional.'
                                     onChangeText={formikprops.handleChange('OrganizerEmail')}
                                     value={formikprops.values.OrganizerEmail}
                                     onFocus={() => setFocus2(true)}
@@ -716,8 +717,8 @@ const EventDetails = (props) => {
                                     Organizer Website:
                                 </Text>
                                 <TextInput
-                                    style={[styles.InputBox, {borderColor: formikprops.values.OrganizerWebsite !== '' || isFocused3 ? '#7b7b7b' : '#C4C4C4'}]}
-                                    placeholder='Optional. Eg: www.mproduct.com'
+                                    style={[styles.InputBox, { borderColor: formikprops.values.OrganizerWebsite !== '' || isFocused3 ? '#7b7b7b' : '#C4C4C4' }]}
+                                    placeholder='Optional.'
                                     onChangeText={formikprops.handleChange('OrganizerWebsite')}
                                     value={formikprops.values.OrganizerWebsite}
                                     onFocus={() => setFocus3(true)}
@@ -727,12 +728,12 @@ const EventDetails = (props) => {
                             </View>
                             <View style={styles.containerStyle}>
                                 <Text style={styles.TextStyle}>
-                                    Event Image (2:1 ratio, 10 MB limit):
+                                    Event Image (~3:2 ratio, 5 MB limit):
                                 </Text>
-                                <ImagePickerExample 
+                                <ImagePickerExample
                                     onChange={formikprops.setFieldValue}
                                     value={formikprops.values.EventImage}
-                                    editMode = {false}
+                                    editMode={false}
                                 />
                             </View>
                         </KeyboardAwareScrollView>
@@ -764,240 +765,247 @@ const EventDetails = (props) => {
 const Preview = ({ route, navigation }) => {
     const { values } = route.params;
     const myContext = useContext(AppContext);
-    //console.log(values);
 
     const buildCoordinateList = () => {
         const specials = [];
-        const offsets = [{lat:0.000150,lng:0.000150},{lat:0.000225,lng:0.000225},{lat:0.000075,lng:0.000075},{lat:0.000300,lng:0.000300}];
+        const offsets = [{ lat: 0.000150, lng: 0.000150 }, { lat: 0.000225, lng: 0.000225 }, { lat: 0.000075, lng: 0.000075 }, { lat: 0.000300, lng: 0.000300 }];
         //if not in specials:
         const initLng = values.Longitude;
         const initLat = values.Latitude;
-        const coordList = [{longitude:initLng,latitude:initLat}];
+        const coordList = [{ longitude: initLng, latitude: initLat }];
 
-        for(let i=0; i<offsets.length;i++) {
-            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat + offsets[i].lat});
-            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat + offsets[i].lat});
-            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat - offsets[i].lat});
-            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat - offsets[i].lat});
-            coordList.push({longitude: initLng + offsets[i].lng, latitude: initLat + 0});
-            coordList.push({longitude: initLng - offsets[i].lng, latitude: initLat + 0});
-            coordList.push({longitude: initLng + 0, latitude: initLat + offsets[i].lat});
-            coordList.push({longitude: initLng + 0, latitude: initLat - offsets[i].lat});
+        for (let i = 0; i < offsets.length; i++) {
+            coordList.push({ longitude: initLng + offsets[i].lng, latitude: initLat + offsets[i].lat });
+            coordList.push({ longitude: initLng - offsets[i].lng, latitude: initLat + offsets[i].lat });
+            coordList.push({ longitude: initLng + offsets[i].lng, latitude: initLat - offsets[i].lat });
+            coordList.push({ longitude: initLng - offsets[i].lng, latitude: initLat - offsets[i].lat });
+            coordList.push({ longitude: initLng + offsets[i].lng, latitude: initLat + 0 });
+            coordList.push({ longitude: initLng - offsets[i].lng, latitude: initLat + 0 });
+            coordList.push({ longitude: initLng + 0, latitude: initLat + offsets[i].lat });
+            coordList.push({ longitude: initLng + 0, latitude: initLat - offsets[i].lat });
         }
         return coordList;
     }
-    const[convertedImage,setConvertedImage] = useState({base64:'',type:''});
+    const [convertedImage, setConvertedImage] = useState({ base64: '', type: '' });
 
     const convertImage = async () => {
-        if(values.EventImage != '') {
-            
+        if (values.EventImage != '') {
+
             let filename = values.EventImage.split('/').pop();
             let match = /\.(\w+)$/.exec(filename);
             let type = match ? `${match[1]}` : `image`;
-            
+
             let compressratio = 0.9;
             let needsCompress = false
-            console.log(type);
 
-            if(type == 'png') {
-                console.log('ITS A PNG');
-                if(values.EventImageSize > 200000)
+            if (type == 'png') {
+                if (values.EventImageSize > 200000)
                     needsCompress = true
-                
-                if(values.EventImageSize > 500000 && values.EventImageSize < 1000000)
-                    compressratio = Math.min(500000/values.EventImageSize,compressratio);
-                else if(values.EventImageSize > 1000000 && values.EventImageSize < 2000000)
-                    compressratio = Math.min(1000000/values.EventImageSize,compressratio);
-                else if(values.EventImageSize > 2000000)
-                    compressratio = Math.min(2000000/values.EventImageSize,compressratio);
+
+                if (values.EventImageSize > 500000 && values.EventImageSize < 1000000)
+                    compressratio = Math.min(500000 / values.EventImageSize, compressratio);
+                else if (values.EventImageSize > 1000000 && values.EventImageSize < 2000000)
+                    compressratio = Math.min(1000000 / values.EventImageSize, compressratio);
+                else if (values.EventImageSize > 2000000)
+                    compressratio = Math.min(2000000 / values.EventImageSize, compressratio);
 
                 const reducedImage = await ImageManipulator.manipulateAsync(
                     values.EventImage,
                     [],
-                    {compress:compressratio,base64:true}
+                    { compress: compressratio, base64: true }
                 )
-                setConvertedImage({base64:reducedImage.base64,type:'jpg'});
-                console.log(values.EventImageSize);
-                console.log(compressratio);
-                console.log(reducedImage.base64.length);
+                setConvertedImage({ base64: reducedImage.base64, type: 'jpg' });
+
+
             }
-            else if(type == 'jpg' || type == 'jpeg') {
-                if(values.EventImageSize > 200000)
+            else if (type == 'jpg' || type == 'jpeg') {
+                if (values.EventImageSize > 200000)
                     needsCompress = true;
-                
-                if(values.EventImageSize > 500000 && values.EventImageSize < 1000000)
-                    compressratio = Math.min(500000/values.EventImageSize,compressratio);
-                else if(values.EventImageSize > 1000000 && values.EventImageSize < 2000000)
-                    compressratio = Math.min(1000000/values.EventImageSize,compressratio);
-                else if(values.EventImageSize > 2000000 && values.EventImageSize < 4000000)
-                    compressratio = Math.min(2000000/values.EventImageSize,compressratio);
-                else if(values.EventImageSize > 4000000)
-                    compressratio = Math.min(0/values.EventImageSize,compressratio);
+
+                if (values.EventImageSize > 500000 && values.EventImageSize < 1000000)
+                    compressratio = Math.min(500000 / values.EventImageSize, compressratio);
+                else if (values.EventImageSize > 1000000 && values.EventImageSize < 2000000)
+                    compressratio = Math.min(1000000 / values.EventImageSize, compressratio);
+                else if (values.EventImageSize > 2000000 && values.EventImageSize < 4000000)
+                    compressratio = Math.min(2000000 / values.EventImageSize, compressratio);
+                else if (values.EventImageSize > 4000000)
+                    compressratio = Math.min(0 / values.EventImageSize, compressratio);
 
                 const reducedImage = await ImageManipulator.manipulateAsync(
                     values.EventImage,
-                    [{resize:{width:300,height:300*values.EventImageDimensions.height*1.0/values.EventImageDimensions.width}}],
-                    {base64:true}
+                    [{ resize: { width: 300, height: 300 * values.EventImageDimensions.height * 1.0 / values.EventImageDimensions.width } }],
+                    { base64: true }
                 )
-                setConvertedImage({base64:reducedImage.base64,type:'jpg'});
-                console.log(values.EventImageSize);
-                console.log(compressratio);
-                console.log(reducedImage.base64.length);
+                setConvertedImage({ base64: reducedImage.base64, type: 'jpg' });
+
             }
             else {
                 //type not supported???
+                //SHOWERROR
             }
         }
     }
-    const [latlngArray,setLatLngArray] = useState([]);
-    if(latlngArray.length == 0) {
+    const fixLinks = () => {
+        if(values.Registration != '' && values.Registration.indexOf('http://') == -1 && values.Registration.indexOf('https://') == -1)
+            values.Registration = 'https://' + values.Registration;
+
+        if(values.OrganizerWebsite != '' && values.OrganizerWebsite.indexOf('http://') == -1 && values.OrganizerWebsite.indexOf('https://') == -1)
+            values.OrganizerWebsite = 'https://' + values.OrganizerWebsite;
+    }
+    const [latlngArray, setLatLngArray] = useState([]);
+    if (latlngArray.length == 0) {
+        fixLinks();
         setLatLngArray(buildCoordinateList());
         convertImage();
     }
     // Helper functions
-    const inPerson = [{name:'In Person', icon: require('../assets/person.png'), ket: 0,},
-    {name:'Virtual', icon: require('../assets/virtual.png'), key: 1}]
-
     const renderCategories = () => {
-        let pic = ""
-        for (let i = 0; i < inPerson.length; i++) {
-          if (inPerson[i].name == values.InPerson) {
-            pic = inPerson[i].icon
-          }
+        let mainCatName = '';
+        for (let i = 0; i < Globals.categories.length; i++) {
+            if (values.EventType == Globals.categories[i].id) {
+                mainCatName = Globals.categories[i].name;
+                break;
+            }
         }
         return (
-          <View style={{flexDirection: 'row'}}>
-            <Image
-              source={pic}
-              style={{width:18, height: 18, tintColor: 'orange'}}>
-            </Image>
-            <Text style={{marginLeft: 5, fontSize: Globals.HR(16), fontWeight: 'bold', color: 'orange'}}>{values.InPerson}</Text>
-          </View>
+            <View style={{ flexDirection: 'row' }}>
+                <Image
+                    source={require('../assets/categories.png')}
+                    style={{ width: 18, height: 18, tintColor: 'orange' }}>
+                </Image>
+                <Text numberOfLines={mainCatName.indexOf('/') == -1 ? 1 : 2}
+                    style={{ marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange', maxWidth: Globals.formFontAdj(150) }}>{mainCatName}</Text>
+            </View>
         )
-      }
-      const registration = () => {
-        if(values.Registration != '') {
-          return (
-            <View>
-              <Text style={{fontWeight: '600',fontSize: Globals.HR(18),marginBottom:10}}>Registration</Text>
-              <Text style = {{fontSize: Globals.HR(15), marginBottom: 15,color:'#0085ff',textDecorationLine:'underline'}}
-                    onPress = {() => Linking.openURL(values.Registration)}> 
-                {values.Registration}
-              </Text>
-            </View>
-          )
+    }
+    const registration = () => {
+        if (values.Registration != '') {
+            return (
+                <View>
+                    <Text style={{ fontWeight: '600', fontSize: Globals.formFontAdj(18), marginBottom: 10 }}>Registration</Text>
+                    <Text style={{ fontSize: Globals.formFontAdj(15), marginBottom: 15, color: '#0085ff', textDecorationLine: 'underline' }}
+                        onPress={() => Linking.openURL(values.Registration)}>
+                        {values.Registration}
+                    </Text>
+                </View>
+            )
         }
-      }
-      const moreDetails = () => {
-        if(values.OrganizerEmail != '' && values.OrganizerWebsite != '') {
-          return (
-            <View>
-              <Text style={{fontWeight: '600',fontSize: Globals.HR(18),marginBottom:10,}}>fontSize:Details</Text>
-              <View style={{flexDirection: 'row'}}>
-                <Text style = {{fontSize:Globals.HR(15)}}>Email: </Text>
-                <Text style = {{fontSize:Globals.HR(15), marginBottom:8,}}>{values.OrganizerEmail}</Text>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <Text style = {{fontSize:Globals.HR(15),marginBottom: 5,}}>Website: </Text>
-                <Text style = {{fontSize:Globals.HR(15), marginBottom: 10,color:'#0085ff',textDecorationLine:'underline'}}
-                    onPress = {() => Linking.openURL(values.OrganizerWebsite)}>
-                    {values.OrganizerWebsite.substr(0,35) + (values.OrganizerWebsite.length>35?'...':'')}
-                </Text>
-              </View>
-            </View>
-          )
+    }
+    const moreDetails = () => {
+        if (values.OrganizerEmail != '' && values.OrganizerWebsite != '') {
+            return (
+                <View>
+                    <Text style={{ fontWeight: '600', fontSize: Globals.formFontAdj(18), marginBottom: 10, }}>More Details</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={{ fontSize: Globals.HR(15) }}>Email: </Text>
+                        <Text style={{ fontSize: Globals.HR(15), marginBottom: 8, }}>{values.OrganizerEmail}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={{ fontSize: Globals.HR(15), marginBottom: 5, }}>Website: </Text>
+                        <Text style={{ fontSize: Globals.HR(15), marginBottom: 10, color: '#0085ff', textDecorationLine: 'underline' }}
+                            onPress={() => Linking.openURL(values.OrganizerWebsite)}>
+                            {values.OrganizerWebsite.substr(0, 35) + (values.OrganizerWebsite.length > 35 ? '...' : '')}
+                        </Text>
+                    </View>
+                </View>
+            )
         } else if (values.OrganizerEmail != '') {
-          return (
-            <View>
-              <Text style={{fontWeight: '600', fontSize:Globals.HR(18),marginBottom:5,}}>More Details</Text>
-              <View style={{flexDirection: 'row'}}>
-                <Text style = {{fontSize: Globals.HR(15)}}>Email: </Text>
-                <Text style = {{fontSize: Globals.HR(15), marginBottom:5,}}>{values.OrganizerEmail}</Text>
-              </View>
-            </View>
-          )
+            return (
+                <View>
+                    <Text style={{ fontWeight: '600', fontSize: Globals.HR(18), marginBottom: 10, }}>More Details</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={{ fontSize: Globals.formFontAdj(15) }}>Email: </Text>
+                        <Text style={{ fontSize: Globals.formFontAdj(15), marginBottom: 5, }}>{values.OrganizerEmail}</Text>
+                    </View>
+                </View>
+            )
         } else if (values.OrganizerWebsite != '') {
-          return (
-            <View>
-              <Text style={{fontWeight: '600',marginBottom:5,}}>More Details</Text>
-              <View style={{flexDirection: 'row'}}>
-                <Text style = {{fontSize: Globals.HR(15),marginBottom: 5,}}>Website: </Text>
-                <Text style = {{fontSize: Globals.HR(15), marginBottom: 10,color:'#0085ff',textDecorationLine:'underline'}}
-                    onPress = {() => Linking.openURL(values.OrganizerWebsite)}>
-                    {values.OrganizerWebsite.substr(0,35) + (values.OrganizerWebsite.length>35?'...':'')}
-                </Text>
-              </View>
-            </View>
-          )
+            return (
+                <View>
+                    <Text style={{ fontWeight: '600', marginBottom: 10, fontSize: Globals.formFontAdj(18)}}>More Details</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={{ fontSize: Globals.formFontAdj(15), marginBottom: 5, }}>Website: </Text>
+                        <Text style={{ fontSize: Globals.formFontAdj(15), marginBottom: 10, color: '#0085ff', textDecorationLine: 'underline' }}
+                            onPress={() => Linking.openURL(values.OrganizerWebsite)}>
+                            {values.OrganizerWebsite.substr(0, 35) + (values.OrganizerWebsite.length > 35 ? '...' : '')}
+                        </Text>
+                    </View>
+                </View>
+            )
         }
         else {
-          return null;
+            return null;
         }
-      }
+    }
 
-      const [buttonColor1, setButtonColor1] = useState('#FFF')
-    
-        const toggle1 = () => {
-          if (buttonColor1 == '#FFF') {
+    const [buttonColor1, setButtonColor1] = useState('#FFF')
+
+    const toggle1 = () => {
+        if (buttonColor1 == '#FFF') {
             setButtonColor1('#FFCB05')
-          } else {
-            setButtonColor1('#FFF')
-          }
-        }
-    
-        const [buttonColor2, setButtonColor2] = useState('#FFF')
-    
-        const toggle2 = () => {
-          if (buttonColor2 == '#FFF') {
-            setButtonColor2('#FFCB05')
-          } else {
-            setButtonColor2('#FFF')
-          }
-        }
-    
-        const [buttonColor3, setButtonColor3] = useState('#FFF')
-        const toggle3 = () => {
-          
-        }
-      const borderColor = (buttonColor) => {
-        if (buttonColor == '#FFF') {
-          return 'black'
         } else {
-          return 'white'
+            setButtonColor1('#FFF')
         }
-      }
-  
-      const [isTruncated, setIsTruncated] = useState(true);
-      const resultString = isTruncated ? values.EventDescription.slice(0, 133) : values.EventDescription;
-      const readMore = isTruncated ? 'Read More' : 'Read Less'
-      const toggle = () => {
+    }
+
+    const [buttonColor2, setButtonColor2] = useState('#FFF')
+
+    const toggle2 = () => {
+        if (buttonColor2 == '#FFF') {
+            setButtonColor2('#FFCB05')
+        } else {
+            setButtonColor2('#FFF')
+        }
+    }
+
+    const [buttonColor3, setButtonColor3] = useState('#FFF')
+    const toggle3 = () => {
+
+    }
+    const borderColor = (buttonColor) => {
+        if (buttonColor == '#FFF') {
+            return 'black'
+        } else {
+            return 'white'
+        }
+    }
+
+    const [isTruncated, setIsTruncated] = useState(true);
+    const resultString = isTruncated ? values.EventDescription.slice(0, 133) : values.EventDescription;
+    const readMore = isTruncated ? 'Read More' : 'Read Less'
+    const toggle = () => {
         setIsTruncated(!isTruncated);
-      }
-      const renderButton = () => {
+    }
+    const renderButton = () => {
         if (resultString.length > 130) {
-          return (
-            <TouchableOpacity onPress={toggle}>
-              <Text style={{color: '#FFCB05', marginBottom: 10}}>{readMore}</Text>
-            </TouchableOpacity>
-          );
+            return (
+                <TouchableOpacity onPress={toggle}>
+                    <Text style={{ color: '#FFCB05', marginBottom: 10 }}>{readMore}</Text>
+                </TouchableOpacity>
+            );
         }
-      }
-      const renderTime = () => {
+    }
+    const renderTime = () => {
         return Globals.extraFormat(values.StartDay + ' ' + values.StartTime, values.EndDay + ' ' + values.EndTime);
-      }
-      const openMap = () => {
+    }
+    const openMap = () => {
         const scheme = 'maps:0,0?q=';
         const latLng = `${values.Latitude},${values.Longitude}`;
         const label = Globals.getLocationName(values.Address);
-        const url =  `${scheme}${label}@${latLng}`
+        const url = `${scheme}${label}@${latLng}`
         Linking.openURL(url);
-      }
-      const handleNavigation = (postedEvent) => {
-          myContext.changePostedEvent({...postedEvent,...{inUse:true}});
-          navigation.popToTop();
-          navigation.dangerouslyGetParent().popToTop();                  
-          navigation.dangerouslyGetParent().dangerouslyGetParent().navigate('Find');
-      }
+    }
+    const handleNavigation = (postedEvent) => {
+        let mainCatName = '';
+        for(let i=0;i<Globals.categories.length;i++) {
+            if(Globals.categories[i].id == values.EventType)
+                mainCatName = Globals.categories[i].name;
+        }
+        myContext.changePostedEvent({ ...postedEvent, ...{ mainCategory: mainCatName, inUse: true } });
+        navigation.popToTop();
+        navigation.dangerouslyGetParent().popToTop();
+        navigation.dangerouslyGetParent().dangerouslyGetParent().navigate('Find');
+    }
     const postToServer = () => { //post the event to the server
         fetch(Globals.eventsURL + '/json/add', {
             method: 'post',
@@ -1011,16 +1019,16 @@ const Preview = ({ route, navigation }) => {
                 locationName: values.LocationName.trim(),
                 locationDetails: values.LocationDetails.trim(),
                 description: values.EventDescription.trim(),
-                privateEvent: values.Privacy!='Public',
-                virtualEvent: values.InPerson!='In Person',
+                privateEvent: values.Privacy != 'Public',
+                virtualEvent: values.InPerson != 'In Person',
                 coordinates: latlngArray,
                 registrationLink: values.Registration.trim(),
                 organizer: values.OrganizerName.trim(),
                 organizerEmail: values.OrganizerEmail,
                 organizerWebsite: values.OrganizerWebsite.trim(),
                 //startTime: "2021-08-09 20:00:00",
-                startTime: values.RealStartDateTime.toISOString().substr(0,10) + ' ' + values.RealStartDateTime.toISOString().substr(11,8),
-                endTime: values.RealEndDateTime.toISOString().substr(0,10) + ' ' + values.RealEndDateTime.toISOString().substr(11,8),
+                startTime: values.RealStartDateTime.toISOString().substr(0, 10) + ' ' + values.RealStartDateTime.toISOString().substr(11, 8),
+                endTime: values.RealEndDateTime.toISOString().substr(0, 10) + ' ' + values.RealEndDateTime.toISOString().substr(11, 8),
                 //endTime: "2021-08-09 22:00:00",
                 hostId: myContext.user.id,
                 mainCategoryId: values.EventType,
@@ -1030,13 +1038,11 @@ const Preview = ({ route, navigation }) => {
             }
             )
         })
-        .then((response) => response.json())
-        .then((json) => {
-            console.log('event posted: ');
-            console.log(json);
-            handleNavigation(json);
-        })
-        .catch((error) => {Alert.alert('Failed to Post Event',"Sorry, something went wrong. If it's not your connection, maybe try a smaller image? Sorry")}); 
+            .then((response) => response.json())
+            .then((json) => {
+                handleNavigation(json);
+            })
+            .catch((error) => { Alert.alert('Failed to Post Event', "Sorry, something went wrong. If it's not your connection, maybe try a smaller image? Sorry") });
     }
     const postEventHandler = () => {
         postToServer(); //handles all navigation stuff also
@@ -1046,134 +1052,137 @@ const Preview = ({ route, navigation }) => {
             flex: 1,
             height: '100%',
             backgroundColor: '#fff'
-            }} >
-            <View style={{flex: 1}}>
+        }} >
+            <View style={{ flex: 1 }}>
                 <PreviewHeader navigation={navigation} />
             </View>
-        <ScrollView /*contentContainerStyle={{height: '78%'}}*/ style = {{height: '78%'}}>
-            <View style={styles.panel}>
-            <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
-              <View>
-                <Text style={{
-                  fontSize: Globals.HR(24),
-                  width: Dimensions.get('window').width - 105,
-                  marginRight: 10    
-                  }} 
-                  numberOfLines={2}>
-                    {values.EventTitle}
-                  </Text>
-              </View>
-              <View style={{borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={{color: 'black'}}>{values.Privacy}</Text>
-              </View>
-              
-            </View>
-            <View style={styles.panelHost}>
-              <Image
-                source={require('../assets/Vector.png')}
-                style={{width:18, height: 18, tintColor: 'orange'}}>
-              </Image>
-              <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: Globals.HR(16), fontWeight: 'bold', color: 'orange'}}>{values.OrganizerName}</Text>
-              {renderCategories()}
-            </View>
-            <View style={styles.panelDate}>
-              <Image
-                source={require('../assets/CalendarIcon.png')}
-                style={{width:18, height:18}}
-              ></Image>
-              <Text style={{marginLeft: 5, fontSize: Globals.HR(16), fontWeight: 'bold', color: '#03a9f4'}}>{renderTime()}</Text>
-            </View>
-            <View style={{flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
-              <TouchableOpacity style={{backgroundColor: buttonColor1,
-                borderRadius: 8,
-                borderColor: borderColor(buttonColor1),
-                borderWidth: 1,
-                width: (Dimensions.get('window').width - 81.6) / 3,
-                height: 55,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginHorizontal: 15,
-                }}
-                onPress={toggle1}>
-                <View>
-                  <Image
-                    source={require('../assets/star.png')}
-                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor1)}}
-                  ></Image>
-                  <Text style={{
-                    fontSize: Globals.HR(17),
-                    fontWeight: 'bold',
-                    color: borderColor(buttonColor1),
-                  }}>Save</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={{backgroundColor: buttonColor2,
-                borderRadius: 8,
-                borderColor: borderColor(buttonColor2),
-                borderWidth: 1,
-                width: (Dimensions.get('window').width - 81.6) / 3,
-                height: 55,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginHorizontal: 15,
-                }}
-                onPress={toggle2}>
-                <View>
-                  <Image
-                    source={require('../assets/check2.png')}
-                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2)}}
-                  ></Image>
-                  <Text style={{
-                    fontSize: Globals.HR(17),
-                    fontWeight: 'bold',
-                    color: borderColor(buttonColor2),
-                  }}>I'm Going</Text>
-                </View>   
-              </TouchableOpacity>
-              <TouchableOpacity style={{backgroundColor: buttonColor3,
-                borderRadius: 8,
-                borderColor: borderColor(buttonColor3),
-                borderWidth: 1,
-                width: (Dimensions.get('window').width - 81.6) / 3,
-                height: 55,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginHorizontal: 15,
-                }}
-                onPress={toggle3}>
-                <View>
-                  <Image
-                    source={require('../assets/share2.png')}
-                    style={{height:18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3)}}
-                  ></Image>
-                  <Text style={{
-                    fontSize: Globals.HR(17),
-                    fontWeight: 'bold',
-                    color: borderColor(buttonColor3),
-                  }}>Share</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-              <View>
-                <Image source={values.EventImage==''?require('../assets/avatar.png'):{uri: values.EventImage}}
-                resizeMode= 'cover'
-                style={{width: Dimensions.get('window').width - 40.8, height: 225, marginBottom: 20}}>
-                </Image>
-              </View>
-              <Text style={{fontWeight: '600', fontSize: Globals.HR(18), marginBottom: 10}}>Event Description</Text>
-              <View>
-                <Text style={{fontSize: 15, marginBottom: 10, lineHeight: 20,}}>{resultString.replace(/(\r\n|\n|\r)/gm, " ")}</Text>
-                {renderButton()}
-              </View>
-              <Text style={{fontWeight: '600', fontSize: Globals.HR(18), marginBottom: 10}}>Location</Text>
-              <Text style={{fontSize: Globals.HR(15), marginBottom:values.LocationDetails==''?15:5,color:'#0085ff',textDecorationLine:'underline'}}
-                onPress = {openMap}>
-                    {values.Address}
-              </Text>
-              {values.LocationDetails != ''?<Text style = {{fontSize: Globals.HR(15), marginBottom: Globals.HR(15),}}>({values.LocationDetails})</Text>:null}
-              {registration()}
-              {moreDetails()}
-                {/*
+            <ScrollView /*contentContainerStyle={{height: '78%'}}*/ style={{ height: '78%' }}>
+                <View style={styles.panel}>
+                    <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10 }}>
+                        <View>
+                            <Text style={{
+                                fontSize: Globals.formFontAdj(24),
+                                width: Dimensions.get('window').width - 105,
+                                marginRight: 10
+                            }}
+                                numberOfLines={2}>
+                                {values.EventTitle}
+                            </Text>
+                        </View>
+                        <View style={{ borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center' }}>
+                            <Text style={{ color: 'black' }}>{values.Privacy}</Text>
+                        </View>
+
+                    </View>
+                    <View style={styles.panelHost}>
+                        <Image
+                            source={require('../assets/Vector.png')}
+                            style={{ width: 18, height: 18, tintColor: 'orange' }}>
+                        </Image>
+                        <Text style={{ marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: Globals.formFontAdj(16), fontWeight: 'bold', color: 'orange' }}>{values.OrganizerName}</Text>
+                        {renderCategories()}
+                    </View>
+                    <View style={styles.panelDate}>
+                        <Image
+                            source={require('../assets/CalendarIcon.png')}
+                            style={{ width: 18, height: 18 }}
+                        ></Image>
+                        <Text style={{ marginLeft: 5, fontSize: Globals.formFontAdj(16), fontWeight: 'bold', color: '#03a9f4' }}>{renderTime()}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 20 }}>
+                        <TouchableOpacity style={{
+                            backgroundColor: buttonColor1,
+                            borderRadius: 8,
+                            borderColor: borderColor(buttonColor1),
+                            borderWidth: 1,
+                            width: (Dimensions.get('window').width - 81.6) / 3,
+                            height: 55,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginHorizontal: 15,
+                        }}
+                            onPress={toggle1}>
+                            <View>
+                                <Image
+                                    source={require('../assets/star.png')}
+                                    style={{ height: 18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor1) }}
+                                ></Image>
+                                <Text style={{
+                                    fontSize: Globals.formFontAdj(17),
+                                    fontWeight: 'bold',
+                                    color: borderColor(buttonColor1),
+                                }}>Save</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{
+                            backgroundColor: buttonColor2,
+                            borderRadius: 8,
+                            borderColor: borderColor(buttonColor2),
+                            borderWidth: 1,
+                            width: (Dimensions.get('window').width - 81.6) / 3,
+                            height: 55,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginHorizontal: 15,
+                        }}
+                            onPress={toggle2}>
+                            <View>
+                                <Image
+                                    source={require('../assets/check2.png')}
+                                    style={{ height: 18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor2) }}
+                                ></Image>
+                                <Text style={{
+                                    fontSize: Globals.formFontAdj(17),
+                                    fontWeight: 'bold',
+                                    color: borderColor(buttonColor2),
+                                }}>I'm Going</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{
+                            backgroundColor: buttonColor3,
+                            borderRadius: 8,
+                            borderColor: borderColor(buttonColor3),
+                            borderWidth: 1,
+                            width: (Dimensions.get('window').width - 81.6) / 3,
+                            height: 55,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginHorizontal: 15,
+                        }}
+                            onPress={toggle3}>
+                            <View>
+                                <Image
+                                    source={require('../assets/share2.png')}
+                                    style={{ height: 18, width: 18, alignSelf: 'center', tintColor: borderColor(buttonColor3) }}
+                                ></Image>
+                                <Text style={{
+                                    fontSize: Globals.formFontAdj(17),
+                                    fontWeight: 'bold',
+                                    color: borderColor(buttonColor3),
+                                }}>Share</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                    <View>
+                        <Image source={values.EventImage == '' ? require('../assets/avatar.png') : { uri: values.EventImage }}
+                            resizeMode='cover'
+                            style={{ width: Dimensions.get('window').width - 40.8, height: Dimensions.get('window').height > 700 ? 225 : 200, marginBottom: 20 }}>
+                        </Image>
+                    </View>
+                    <Text style={{ fontWeight: '600', fontSize: Globals.formFontAdj(18), marginBottom: 10 }}>Event Description</Text>
+                    <View>
+                        <Text style={{ fontSize: 15, marginBottom: 10, lineHeight: 20, }}>{resultString.trim()}</Text>
+                        {renderButton()}
+                    </View>
+                    <Text style={{ fontWeight: '600', fontSize: Globals.formFontAdj(18), marginBottom: 10 }}>Location</Text>
+                    <Text style={{ fontSize: Globals.formFontAdj(15), marginBottom: values.LocationDetails == '' ? 15 : 5, color: '#0085ff', textDecorationLine: 'underline' }}
+                        onPress={openMap}>
+                        {values.Address}
+                    </Text>
+                    {values.LocationDetails != '' ? <Text style={{ fontSize: Globals.formFontAdj(15), marginBottom: Globals.HR(15), }}>({values.LocationDetails})</Text> : null}
+                    {registration()}
+                    {moreDetails()}
+                    {/*
                 <TouchableOpacity style={{flexDirection: 'row'}}>
                   <Image
                     source={require('../assets/CalendarIcon.png')}
@@ -1182,43 +1191,43 @@ const Preview = ({ route, navigation }) => {
                   <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, Globals: 16, color: '#03a9f4'}}>Add Event to Calendar</Text>
                 </TouchableOpacity>
                 */}
-                <TouchableOpacity style={{flexDirection: 'row',marginBottom:20}}>
-                  <Image
-                    source={require('../assets/report.png')}
-                    style={{width:18, height: 18, tintColor: 'red'}}>
-                  </Image>
-                  <Text style={{marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: Globals.HR(16), color: 'red'}}>Report</Text>
-                </TouchableOpacity>
-          </View>
-          </ScrollView>
-            
-                <View style={{ flexDirection: 'row', flex: 1}}>
-                    <View style={{ flex: 1 }}>
-                        <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => navigation.navigate("Form")}>
-                            <View style={styles.backContainer}>
-                                <Text style={styles.backText}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <TouchableOpacity style={{ alignItems: 'center' }} onPress={postEventHandler}>
-                            <View style={styles.nextContainer}>
-                                <Text style={styles.nextText}>Post Event!</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-    
+                    <TouchableOpacity style={{ flexDirection: 'row', marginBottom: 20 }}>
+                        <Image
+                            source={require('../assets/report.png')}
+                            style={{ width: 18, height: 18, tintColor: 'red' }}>
+                        </Image>
+                        <Text style={{ marginLeft: 5, maxWidth: 200, marginRight: 15, fontSize: Globals.formFontAdj(16), color: 'red' }}>Report</Text>
+                    </TouchableOpacity>
                 </View>
-    
-            </SafeAreaView>
-        );
-    }
+            </ScrollView>
+
+            <View style={{ flexDirection: 'row', flex: 1 }}>
+                <View style={{ flex: 1 }}>
+                    <TouchableOpacity style={{ alignItems: 'center', marginRight: '20%' }} onPress={() => navigation.navigate("Form")}>
+                        <View style={styles.backContainer}>
+                            <Text style={styles.backText}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ flex: 1 }}>
+                    <TouchableOpacity style={{ alignItems: 'center' }} onPress={postEventHandler}>
+                        <View style={styles.nextContainer}>
+                            <Text style={styles.nextText}>Post Event!</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
+            </View>
+
+        </SafeAreaView>
+    );
+}
 const Stack = createStackNavigator()
 
 function UpdateEvent({ navigation }) {
     // date formatting
     let dateString = new Date().toString();
-    let initialDateFormat = dateString.substring(0,3)+', '+dateString.substring(4,dateString.indexOf(':')-8);
+    let initialDateFormat = dateString.substring(0, 3) + ', ' + dateString.substring(4, dateString.indexOf(':') - 8);
     let time = new Date();
     let time1 = time.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     let endTime = new Date(new Date(time).setHours(time.getHours() + 1));
@@ -1228,11 +1237,12 @@ function UpdateEvent({ navigation }) {
         EventTitle: '',
         OrganizerName: '',
         EventType: null,
+        EventTypeName:'',
         ContentType: [],
         Tags: '',
         Privacy: null,
         // second slide
-        InPerson: null,
+        InPerson: "In Person",
         LocationName: '',
         EventLink: '',
         Address: '',
@@ -1251,8 +1261,8 @@ function UpdateEvent({ navigation }) {
         OrganizerEmail: '',
         OrganizerWebsite: '',
         EventImage: '',
-        EventImageSize:0,
-        EventImageDimensions: {width:0,height:0},
+        EventImageSize: 0,
+        EventImageDimensions: { width: 0, height: 0 },
     });
 
     const [currentStep, setCurrentStep] = useState(0);
@@ -1300,12 +1310,12 @@ export default function CreateNewEventScreen({ navigation }) {
 
 const styles = StyleSheet.create({
     containerBack: {
-        backgroundColor: '#fff9f3',
+        backgroundColor: '#fff',
         height: '100%',
-        
+
     },
     TextStyle: {
-        fontSize: Globals.HR(19),
+        fontSize: Globals.formFontAdj(19),
         fontWeight: '500',
         color: '#09189F',
         marginLeft: 23,
@@ -1331,7 +1341,7 @@ const styles = StyleSheet.create({
         marginLeft: 24,
         marginTop: Globals.HR(5),
         marginBottom: Globals.HR(12),
-        fontSize: Globals.HR(16),
+        fontSize: Globals.formFontAdj(16),
     },
 
     imageStyle: {
@@ -1340,10 +1350,10 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         height: '100%',
-        
+
         flexDirection: 'column',
         flexWrap: 'wrap',
-        backgroundColor: '#FFFBF2'
+        backgroundColor: '#FFF'
 
     },
     NewEventButton: {
@@ -1366,14 +1376,14 @@ const styles = StyleSheet.create({
     inner2: {
         flex: 4,
         justifyContent: 'center',
-        
+
     },
 
     realImageStyle: {
         height: '100%',
         width: '100%',
         borderRadius: 40
- 
+
     },
     scrollContainer: {
         paddingBottom: Globals.HR(90),
@@ -1385,13 +1395,13 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     innerContainer: {
-        marginTop: 0,
+        marginTop: Dimensions.get('window').height<700?10:0,
     },
     searchContainer: {
         marginTop: Globals.HR(10),
         marginLeft: 15,
         marginRight: 15,
-        backgroundColor: '#fffbf2',
+        backgroundColor: '#fff',
         borderBottomColor: 'transparent',
         borderTopColor: 'transparent',
     },
@@ -1401,13 +1411,13 @@ const styles = StyleSheet.create({
         right: 20
     },
     headerText: {
-        fontSize: Globals.HR(24),
+        fontSize: Globals.formFontAdj(24),
         fontWeight: 'bold',
         marginTop: Globals.HR(10),
         textAlign: 'center',
     },
     headerText2: {
-        fontSize: Globals.HR(24),
+        fontSize: Globals.formFontAdj(24),
         fontWeight: 'bold',
         marginTop: Globals.HR(10),
         marginLeft: '38%',
@@ -1465,30 +1475,30 @@ const styles = StyleSheet.create({
     },
     nextText: {
         fontWeight: 'bold',
-        fontSize: Globals.HR(18),
+        fontSize: Globals.formFontAdj(18),
         paddingVertical: 10,
         color: '#fab400',
     },
     backText: {
         fontWeight: 'bold',
-        fontSize: Globals.HR(18),
+        fontSize: Globals.formFontAdj(18),
         paddingVertical: 10,
         color: '#09189F',
     },
     errorMessage: {
         color: '#D8000C',
         // flex: 5,
-        fontSize: Globals.HR(14)
+        fontSize: Globals.formFontAdj(14)
     },
     errorMessagePickers: {
         color: '#D8000C',
-        fontSize: Globals.HR(14),
+        fontSize: Globals.formFontAdj(14),
         marginLeft: 24
     },
     map: {
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
-        flex:1,
+        flex: 1,
     },
     containerPreview: {
         flex: 1,
@@ -1501,7 +1511,7 @@ const styles = StyleSheet.create({
     header: {
         backgroundColor: '#fff',
         shadowColor: '#333333',
-        shadowOffset: {width: -1, height: -2},
+        shadowOffset: { width: -1, height: -2 },
         shadowRadius: 2,
         shadowOpacity: 0.4,
         paddingTop: Globals.HR(20),
@@ -1516,7 +1526,7 @@ const styles = StyleSheet.create({
         height: 8,
         borderRadius: 4,
         backgroundColor: '#00000040',
-        marginBottom:10,
+        marginBottom: 10,
     },
     panel: {
         padding: 20,
@@ -1525,37 +1535,37 @@ const styles = StyleSheet.create({
         //paddingBottom: Dimensions.get('window').height,
     },
     panelTitle: {
-      fontSize: Globals.HR(27),
-      height: 35,
-      marginRight: 10,
-      width: Dimensions.get('window').width - 100    
+        fontSize: Globals.formFontAdj(27),
+        height: 35,
+        marginRight: 10,
+        width: Dimensions.get('window').width - 100
     },
     panelHost: {
-      flexDirection: 'row',
-      marginBottom: 10
+        flexDirection: 'row',
+        marginBottom: 10
     },
     panelDate: {
-      flexDirection: 'row',
-      marginBottom: 20
+        flexDirection: 'row',
+        marginBottom: 20
     },
     panelButtonTitle: {
-      fontSize: Globals.HR(17),
-      fontWeight: 'bold',
-      color: 'white',
+        fontSize: Globals.formFontAdj(17),
+        fontWeight: 'bold',
+        color: 'white',
     },
-    requiredField : {
+    requiredField: {
         color: '#D8000C',
         fontSize: windowHeight / 46.3
     },
     counterStyle: {
         // flex: 1,
-        fontSize: Globals.HR(14),
+        fontSize: Globals.formFontAdj(14),
         position: 'absolute',
         right: 0
     },
     messageContainer: {
-        flexDirection: 'row', 
-        width: '88%', 
+        flexDirection: 'row',
+        width: '88%',
         marginLeft: 24
     }
 })

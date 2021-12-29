@@ -11,6 +11,7 @@ import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { validateYupSchema } from 'formik';
+import * as Device from 'expo-device';
 
 const SignInScreen = ({ navigation }) => {
     const myContext = useContext(AppContext);
@@ -30,6 +31,10 @@ const SignInScreen = ({ navigation }) => {
                   displayName: value.displayName,
                   email: value.email,
               })
+              if(!Device.isDevice) {
+                  handleLink(false);
+              }
+              else {
               const finalStatus = await checkPermissions();
               if (finalStatus == 'granted') {
                   const token = (await Notifications.getExpoPushTokenAsync()).data;
@@ -65,6 +70,7 @@ const SignInScreen = ({ navigation }) => {
               else {
                 //maybe edit the permission or delete the pushToken?
                 handleLink(false);
+              }
               }
             }
             else {
@@ -221,6 +227,10 @@ const SignInScreen = ({ navigation }) => {
           })
     }
     const getPushToken = async (user) => {
+          if(!Device.isDevice) {
+            handleUserDataBase(user,"N/A",false);
+            return;
+          }
           const finalStatus = await checkPermissions();
           setLoading(true);
           if (finalStatus !== 'granted') {

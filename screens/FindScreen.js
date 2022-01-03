@@ -262,6 +262,10 @@ function MainScreen({ navigation, route }) {
       } catch (error) {
         alert(error.message);
       }
+      fetch(Globals.eventsURL + '/' + currentEvent.id + '/' + myContext.user.id)
+      .then((response) => response.text())
+      .then((text) => console.log(text))
+      .catch((error) => console.error(error));
     }
     else {
       Alert.alert('Private Event', "Sorry, you can't share private events unless you're the host.");
@@ -619,6 +623,10 @@ function MainScreen({ navigation, route }) {
       setSnapPosition(1);
       setIsTruncated(true);
     }
+    fetch(Globals.eventsURL + '/' + currentEvent.id + '/' + myContext.user.id)
+    .then((response) => response.text())
+    .then((text) => console.log(text))
+    .catch((error) => console.error(error));
   }
 
   const [snapPosition2, setSnapPosition2] = useState(0);

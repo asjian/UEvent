@@ -17,9 +17,16 @@ export default function EventDetailsScreen({ navigation, route }) {
   const { from } = route.params;
   const [currentEvent, setCurrentEvent] = useState(route.params.currentEvent);
   const [deleteId, setDeleteId] = useState({ follow: -1, attend: -1 });
+  const [countedView, setCountedView] = useState(false);
 
   useEffect(() => {
     setCurrentEvent(route.params.currentEvent);
+    if(!countedView) {
+      fetch(Globals.eventsURL + '/' + currentEvent.id + '/' + myContext.user.id)
+      .then((response) => response.text())
+      .then((text) => {setCountedView(true); console.log(text)})
+      .catch((error) => console.error(error));
+    }
   }, [navigation, route])
 
   const renderCategories = () => {
@@ -236,7 +243,7 @@ export default function EventDetailsScreen({ navigation, route }) {
     }
   }
   const [isTruncated, setIsTruncated] = useState(true);
-  const resultString = (isTruncated && currentEvent.description.length > 200) ? currentEvent.description.slice(0, 150) : currentEvent.description;
+  const resultString = currentEvent.description;
   const readMore = isTruncated ? 'Read More' : 'Read Less'
   const toggle = () => {
     setIsTruncated(!isTruncated);
@@ -480,7 +487,7 @@ export default function EventDetailsScreen({ navigation, route }) {
         </View>
         <Text style={{ fontWeight: '600', fontSize: 18, marginBottom: 10 }}>Event Description</Text>
         <View>
-          <Text style={{ fontSize: 15, marginBottom: 10, lineHeight: 20, }}>{resultString}</Text>
+          <Text style={{ fontSize: 15, marginBottom: 10, lineHeight: 20, }} numberOfLines={isTruncated?4:40}>{resultString}</Text>
           {renderButton()}
         </View>
         <Text style={{ fontWeight: '600', fontSize: 18, marginBottom: 10 }}>Location</Text>

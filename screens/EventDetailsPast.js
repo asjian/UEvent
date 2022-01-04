@@ -29,7 +29,7 @@ export default function EventDetailsScreen({ navigation, route }) {
           style={{ width: 18, height: 18, tintColor: 'orange' }}>
         </Image>
         <Text numberOfLines={currentEvent.hasOwnProperty('mainCategory') && currentEvent.mainCategory.indexOf('/') == -1 ? 1 : 2}
-          style={{ marginLeft: 5, fontSize: 16, fontWeight: '600', color: 'orange', maxWidth: Globals.formFontAdj(160) }}>{currentEvent.mainCategory}</Text>
+          style={{ marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: 'orange', maxWidth: Globals.formFontAdj(160) }}>{currentEvent.mainCategory}</Text>
       </View>
     )
   }
@@ -225,7 +225,7 @@ export default function EventDetailsScreen({ navigation, route }) {
     }
   }
   const [isTruncated, setIsTruncated] = useState(true);
-  const resultString = currentEvent.description;
+  const resultString = (isTruncated && currentEvent.description.length > 200) ? currentEvent.description.slice(0, 150) : currentEvent.description;
   const readMore = isTruncated ? 'Read More' : 'Read Less'
   const toggle = () => {
     setIsTruncated(!isTruncated);
@@ -428,13 +428,12 @@ export default function EventDetailsScreen({ navigation, route }) {
       </View>
 
       <ScrollView style={styles.panel}>
-        <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 20 }}>
+        <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10 }}>
           <View>
             <Text style={{
               fontSize: 24,
               width: Dimensions.get('window').width - 105,
-              marginRight: 8,
-              fontWeight: '500',
+              marginRight: 8
             }}
               numberOfLines={2}>
               {currentEvent.name}
@@ -449,15 +448,15 @@ export default function EventDetailsScreen({ navigation, route }) {
             source={require('../assets/Vector.png')}
             style={{ width: 18, height: 18, tintColor: 'orange' }}>
           </Image>
-          <Text style={{ marginLeft: 5, maxWidth: Globals.formFontAdj(200), marginRight: 15, fontSize: 16, fontWeight: '600', color: 'orange' }}>{currentEvent.organizer}</Text>
+          <Text style={{ marginLeft: 5, maxWidth: Globals.formFontAdj(200), marginRight: 15, fontSize: 16, fontWeight: 'bold', color: 'orange' }}>{currentEvent.organizer}</Text>
           {renderCategories()}
         </View>
         <View style={styles.panelDate}>
           <Image
             source={require('../assets/CalendarIcon.png')}
-            style={{ width: 18, height: 18, tintColor: '#09189f', }}
+            style={{ width: 18, height: 18, tintColor: '#0085ff', }}
           ></Image>
-          <Text numberOfLines={2} style={{ marginLeft: 5, fontSize: 16, fontWeight: '600', color: '#09189f', maxWidth: Dimensions.get('window').width - 60 }}>{renderTime()}</Text>
+          <Text numberOfLines={2} style={{ marginLeft: 5, fontSize: 16, fontWeight: 'bold', color: '#03a9f4', maxWidth: Dimensions.get('window').width - 60 }}>{renderTime()}</Text>
         </View>
         {renderButtons()}
         <View>
@@ -468,7 +467,7 @@ export default function EventDetailsScreen({ navigation, route }) {
         </View>
         <Text style={{ fontWeight: '600', fontSize: 18, marginBottom: 10 }}>Event Description</Text>
         <View>
-          <Text style={{ fontSize: 15, marginBottom: 10, lineHeight: 20, }} numberOfLines={isTruncated?4:40}>{resultString}</Text>
+          <Text style={{ fontSize: 15, marginBottom: 10, lineHeight: 20, }}>{resultString}</Text>
           {renderButton()}
         </View>
         <Text style={{ fontWeight: '600', fontSize: 18, marginBottom: 10 }}>Location</Text>

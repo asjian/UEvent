@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef, useCallback } from 'react';
-import { Dimensions, StyleSheet, Text, View, TouchableOpacity, Image, Share, Alert } from 'react-native';
+import { Dimensions, StyleSheet, Text, View, useColorScheme, TouchableOpacity, Image, Share, Alert } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useFocusEffect } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
@@ -28,6 +28,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Linking from 'expo-linking';
 
 function MainScreen({ navigation, route }) {
+  const DarkTheme = useColorScheme();
   const myContext = useContext(AppContext);
   /*
   Geocoder.init('AIzaSyCwpmhlqGnuN1m-MdKp0FOpVZwFR1QFqug');
@@ -82,10 +83,10 @@ function MainScreen({ navigation, route }) {
       <View style={{ flexDirection: 'row' }}>
         <Image
           source={imgSource}
-          style={{ width: 18, height: 18, tintColor: 'orange' }}>
+          style={{ width: 18, height: 18, tintColor: '#fab400' }}>
         </Image>
         <Text numberOfLines={currentEvent.hasOwnProperty('mainCategory') && currentEvent.mainCategory.indexOf('/') == -1 ? 1 : 2}
-          style={{ marginLeft: 5, fontSize: 16, fontWeight: '600', color: 'orange', maxWidth: Globals.formFontAdj(160) }}>{currentEvent.mainCategory}</Text>
+          style={{ marginLeft: 5, fontSize: 16, fontWeight: '600', color: '#fab400', maxWidth: Globals.formFontAdj(160) }}>{currentEvent.mainCategory}</Text>
       </View>
     )
   }
@@ -262,10 +263,6 @@ function MainScreen({ navigation, route }) {
       } catch (error) {
         alert(error.message);
       }
-      fetch(Globals.eventsURL + '/' + currentEvent.id + '/' + myContext.user.id)
-      .then((response) => response.text())
-      .then((text) => console.log(text))
-      .catch((error) => console.error(error));
     }
     else {
       Alert.alert('Private Event', "Sorry, you can't share private events unless you're the host.");
@@ -314,7 +311,9 @@ function MainScreen({ navigation, route }) {
   const [reportVisible, setReportVisible] = useState(false);
 
   const renderInner = () => (
-    <View style={styles.panel}>
+    <View style={{padding: 20,
+      backgroundColor: DarkTheme === 'dark' ? '#414446' : 'white',
+      paddingTop: 20,}}>
       <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 20}}>
         <View>
           <Text style={{
@@ -322,30 +321,31 @@ function MainScreen({ navigation, route }) {
             width: Dimensions.get('window').width - 105,
             marginRight: 10,
             fontWeight: '500',
+            color: DarkTheme === 'dark' ? 'white' : '#2b2d2f'
           }}
             numberOfLines={2}>
             {currentEvent.name}
           </Text>
         </View>
-        <View style={{ borderRadius: 5, borderWidth: 1, borderColor: 'black', padding: 5, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: 'black' }}>{currentEvent.privateEvent ? "Private" : "Public"}</Text>
+        <View style={{ borderRadius: 5, borderWidth: 1, borderColor: DarkTheme === 'dark' ? 'white' : '#2b2d2f', padding: 5, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: DarkTheme === 'dark' ? 'white' : '#2b2d2f', }}>{currentEvent.privateEvent ? "Private" : "Public"}</Text>
         </View>
 
       </View>
       <View style={styles.panelHost}>
         <Image
           source={require('../assets/Vector.png')}
-          style={{ width: 19, height: 19, tintColor: 'orange' }}>
+          style={{ width: 19, height: 19, tintColor: '#fab400' }}>
         </Image>
-        <Text style={{ marginLeft: 5, maxWidth: Globals.formFontAdj(200), marginRight: 15, fontSize: 16, fontWeight: '600', color: 'orange', marginBottom: 3}}>{currentEvent.organizer}</Text>
+        <Text style={{ marginLeft: 5, maxWidth: Globals.formFontAdj(200), marginRight: 15, fontSize: 16, fontWeight: '600', color: '#fab400', marginBottom: 3}}>{currentEvent.organizer}</Text>
         {renderCategories()}
       </View>
       <View style={styles.panelDate}>
         <Image
           source={require('../assets/CalendarIcon.png')}
-          style={{ width: 18, height: 18, tintColor: '#09189f' }}
+          style={{ width: 18, height: 18, tintColor: '#f8546c' }}
         ></Image>
-        <Text numberOfLines={2} style={{ marginLeft: 5, fontSize: 16, fontWeight: '600', color: '#09189f', maxWidth: Dimensions.get('window').width - 60 }}>{renderTime()}</Text>
+        <Text numberOfLines={2} style={{ marginLeft: 5, fontSize: 16, fontWeight: '600', color: '#f8546c', maxWidth: Dimensions.get('window').width - 60 }}>{renderTime()}</Text>
       </View>
 
       {myContext.user.id != currentEvent.host.id ?
@@ -506,14 +506,14 @@ function MainScreen({ navigation, route }) {
           style={{ width: Dimensions.get('window').width - 40.8, height: Dimensions.get('window').height >700?230:200, marginBottom: 15 }}>
         </Image>
       </View>
-      <Text style={{ fontWeight: '600', fontSize: 18, marginBottom: 10 }}>Event Description</Text>
+      <Text style={{ color: DarkTheme === 'dark' ? 'white' : '#2b2d2f',fontWeight: '600', fontSize: 18, marginBottom: 10 }}>Event Description</Text>
       <View>
-        <Text onTextLayout = {onTextLayout} numberOfLines={isTruncated?4:40} style={{ fontSize: 15, marginBottom: 10, lineHeight: 20,}}>{resultString}</Text>
+        <Text onTextLayout = {onTextLayout} numberOfLines={isTruncated?4:40} style={{ color: DarkTheme === 'dark' ? 'white' : '#2b2d2f',fontSize: 15, marginBottom: 10, lineHeight: 20,}}>{resultString}</Text>
         {renderButton()}
       </View>
-      <Text style={{ fontWeight: '600', fontSize: 18, marginBottom: 10 }}>Location</Text>
+      <Text style={{ color: DarkTheme === 'dark' ? 'white' : '#2b2d2f',fontWeight: '600', fontSize: 18, marginBottom: 10 }}>Location</Text>
       {/*<Text style = {{fontSize: 15, marginBottom: 3}}>{currentEvent.locationName}</Text>*/}
-      <Text style={{ fontSize: 15, marginBottom: currentEvent.locationDetails == '' ? 15 : 5, color: '#0085ff', textDecorationLine: 'underline' }}
+      <Text style={{ color: DarkTheme === 'dark' ? 'white' : '#2b2d2f',fontSize: 15, marginBottom: currentEvent.locationDetails == '' ? 15 : 5, color: '#0085ff', textDecorationLine: 'underline' }}
         onPress={openMap}>
         {currentEvent.location}
       </Text>
@@ -534,15 +534,22 @@ function MainScreen({ navigation, route }) {
         onPress={() => setReportVisible(true)}>
         <Image
           source={require('../assets/report.png')}
-          style={{ width: 18, height: 18, tintColor: 'red', marginTop: 10, }}>
+          style={{ width: 18, height: 18, tintColor: '#f8546c', marginTop: 10, }}>
         </Image>
-        <Text style={{ marginLeft: 5, maxWidth: 200, marginRight: 15, marginTop: 9, fontSize: 16, color: 'red' }}>Report</Text>
+        <Text style={{ marginLeft: 5, maxWidth: 200, marginRight: 15, marginTop: 9, fontSize: 16, color: '#f8546c' }}>Report</Text>
       </TouchableOpacity>
     </View>
   );
 
   const renderHeader = () => (
-    <View style={[styles.header]}>
+    <View style={{backgroundColor: DarkTheme === 'dark' ? '#414446' : 'white',
+    shadowColor: '#333333',
+    shadowOffset: { width: -1, height: -2 },
+    shadowRadius: 2,
+    shadowOpacity: 0.4,
+    paddingTop: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,}}>
       <View style={styles.panelHeader}>
         <View style={styles.panelHandle}>
         </View>
@@ -567,10 +574,10 @@ function MainScreen({ navigation, route }) {
       })}
       {myContext.eventList.length == 0 ?
 
-        <Text style={{ alignSelf: 'center', fontWeight: '600', color: 'rgba(0, 0, 0, 0.5)', fontSize: 21, marginTop: Globals.HR(40) }}>No Results Found :(</Text> :
+        <Text style={{ color: DarkTheme === 'dark' ? 'white' : '#2b2d2f',alignSelf: 'center', fontWeight: '600', color: 'rgba(0, 0, 0, 0.5)', fontSize: 21, marginTop: Globals.HR(40) }}>No Results Found :(</Text> :
         null
       }
-      <Text style={{ marginBottom: Dimensions.get('window').height, }}></Text>
+      <Text style={{ color: DarkTheme === 'dark' ? 'white' : '#2b2d2f',marginBottom: Dimensions.get('window').height, }}></Text>
     </View>
   )
 
@@ -623,10 +630,6 @@ function MainScreen({ navigation, route }) {
       setSnapPosition(1);
       setIsTruncated(true);
     }
-    fetch(Globals.eventsURL + '/' + currentEvent.id + '/' + myContext.user.id)
-    .then((response) => response.text())
-    .then((text) => console.log(text))
-    .catch((error) => console.error(error));
   }
 
   const [snapPosition2, setSnapPosition2] = useState(0);
@@ -906,25 +909,15 @@ function MainScreen({ navigation, route }) {
         //customMapStyle = {mapStyle}
         ref={mapRef}
         initialRegion={{
-          latitude: 42.283,
-          longitude: -83.730,
-          latitudeDelta: 0.050,
-          longitudeDelta: 0.025,
+          latitude: 42.278,
+          longitude: -83.728,
+          latitudeDelta: 0.056,
+          longitudeDelta: 0.028,
         }}
         showCompass={false}
         showsPointsOfInterest={true}
         rotateEnabled={false}
-
-        clusterColor = 'red'
-        radius = {Dimensions.get('window').width * 0.03}
-        onClusterPress = {(cluster,markers) => {
-          if(cluster.properties.point_count == 2) {
-            let lngdiff = Math.abs(markers[1].geometry.coordinates[0] - markers[0].geometry.coordinates[0]);
-            let latdiff = Math.abs(markers[1].geometry.coordinates[1] - markers[0].geometry.coordinates[1]);
-            mapRef.current.animateToRegion({latitude: cluster.geometry.coordinates[1], longitude: cluster.geometry.coordinates[0], latitudeDelta: 3*Math.log(1+latdiff), longitudeDelta: 3*Math.log(1+lngdiff)})
-          }
-        }}
-        minPoints = {10}
+        clusterColor = '#f8546c'
         //userInterfaceStyle = 'dark'
       >
         {renderEvents()}

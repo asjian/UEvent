@@ -19,8 +19,7 @@ def getEvent(eventId):
 def getPushTokens():
     response = requests.get(usersURL + '/getPushToken/all')
     if response.status_code == 200:
-      print(len(response.json()))
-      print('Confirm send to all users? (Y/N)')
+      print('Confirm send to all users? (' + str(len(response.json())) + ' devices) (Y/N)')
       confirm = input()
       if confirm == 'Y' or confirm == 'y':
         return response.json()
@@ -54,6 +53,10 @@ def handleErrors(pushResponse, pushTokens, eventjson):
     record(eventjson)
     
 def sendNotis(pushTokens, eventjson, mode):
+    if(len(pushTokens) == 0):
+      print('Cancelled or no pushTokens to send to')
+      return
+    
     pushArr = []
     for tokendict in pushTokens:
         if not tokendict['pushToken'] == 'N/A' and tokendict['enabled']:
